@@ -15,11 +15,18 @@ class Token
 	end
 end
 
-def main
-
-	t = Token.new("hi")
-
-	puts t.type
+def main(input)
+	# Startin' with the input code in a mighty nice array
+	tokens = Array.new
+	
+	for line in input
+		if 
+		
+		
+	end
+	
+	
+	
 end
 
 main
