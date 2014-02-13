@@ -15,13 +15,23 @@ class Token
 	end
 end
 
-def main(input)
+def Lexer(input)
 	# Startin' with the input code in a mighty nice array
 	tokens = Array.new
 	
 	for line in input
-		if 
+		previous = null
+		current = null
 		
+		for i in 0...line.length
+			if /\$/.match(line[0])
+				puts "EOF reached, partner"
+				
+				break
+			
+			elsif /\s/.match(line[0])
+				
+			
 		
 	end
 	
@@ -29,4 +39,4 @@ def main(input)
 	
 end
 
-main
+Lexer
