@@ -18,34 +18,47 @@ end
 
 # Settin' up some basic regex searches now
 $integer = /[0-9]/
+$string = /[a-zA-z]/
+$space = /\$s/
+$eof = /\$/
 
 def Token_Check (token)
 
 end
 
 def Lexer(input)
+	# We're gonna run a nice Lexer now
+	# Get ourselves some tokens
+	
 	# Startin' with the input code in a mighty nice array
 	tokens = []
 	
 	for line in input
 		previous = nil
-		current = nil
+		current_string = nil
 		
 		for i in 0...line.length
-			if /\$/.match(line[0])
+			if $eof.match(line[0])
 				puts "EOF reached, partner"
 				
 				break
 			
-			elsif /\s/.match(line[0])
+			elsif $space.match(line[i])
+				if current_string != nil
+					tokens = tokenize(current_string)
+					current_string = nil
+				end
 			end
 		end
 	end
 end
 
 
-def test
-	puts "lexer accessed"
+def test(input)
+	for line in input
+		print line
+		puts "\n"
+	end
+	
 end
 
-test
