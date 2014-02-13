@@ -2,8 +2,7 @@
 
 # testing options
 
-if /\s/.match('hey you')
-	puts "!"
-else
-	puts " :( "
-end
+tokens = []
+tokens[0] = 1
+
+print tokens
