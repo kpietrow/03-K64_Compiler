@@ -16,9 +16,11 @@ class Token
 	end
 end
 
+# error for unknown symbols
+# exits program, prints line and line number
 class UnknownSymbol < RuntimeError
 	def initialize(lineno, pos)
-		puts "ERROR: This here character don't appear to be known to no-one around these parts."
+		puts "Line: #{lineno}, Position: #{pos}: ERROR: This here character don't appear to be known to no-one around these parts."
 		exit
 	end
 end
@@ -36,7 +38,7 @@ $eof = /\$/
 # note, this here includes whitespace, so be careful about where it's used
 $operator = /\W/
 
-def tokenizer (token)
+def tokenize (token)
 
 end
 
@@ -51,30 +53,29 @@ def Lexer(input)
 	c_line = 0
 	
 	for line in input
-		previous = nil
-		current_string = nil
+		current_string = ""
 		
 		for i in 0...line.length
 			# test here for EOF
 			if $eof.match(line[i])
 				puts "EOF reached, partner"
-				if current_string != nil
-					test, token = tokenize(current_string)
+				if current_string != ""
+					test, token = tokenize(current_string, c_line, pos)
 					if test
 						tokens.push(token)
 					end
-					current_string = nil
+					current_string = ""
 				end
 				break
 				
 			# Testin' for whitespace
 			elsif $space.match(line[i])
-				if current_string != nil
-					test, token = tokenize(current_string)
+				if current_string != ""
+					test, token = tokenize(current_string, c_line, pos)
 					if test
 						tokens.push(token)
 					end
-					current_string = nil
+					current_string = ""
 				end
 			
 			# Testin' for operators
@@ -82,9 +83,9 @@ def Lexer(input)
 			elsif $operator.match(line[i])
 				
 				# tokenize current_string if applicable
-				if current_string != nil
-					tokens.push(tokenize(current_string))
-					current_string = nil
+				if current_string != ""
+					tokens.push(tokenize(current_string, c_line, pos))
+					current_string = ""
 				end
 				
 				# either way, tokenize the operator
@@ -93,6 +94,11 @@ def Lexer(input)
 			# Testin' for alpha numeric characters
 			elsif $alpha_numeric.match(line[i])
 				current_string = current_string + String(line[i])
+			end
+			
+			# else raise that error
+			else
+				raise UnknownSymbol(c_line, i)
 			end
 		end
 		

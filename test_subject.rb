@@ -2,13 +2,5 @@
 
 # testing options
 
-def main
-	return true, 1
-end
-
-a, b = main
-if a
-	puts "yes!"
-else
-	puts "no!"
-end
+c = nil
+c = c + String(9)
