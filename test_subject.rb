@@ -2,7 +2,13 @@
 
 # testing options
 
-tokens = []
-tokens[0] = 1
+def main
+	return true, 1
+end
 
-print tokens
+a, b = main
+if a
+	puts "yes!"
+else
+	puts "no!"
+end

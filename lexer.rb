@@ -16,11 +16,23 @@ class Token
 	end
 end
 
+class UnknownSymbol < RuntimeError
+	def initialize(lineno, pos)
+		puts "ERROR: This here character don't appear to be known to no-one around these parts."
+		exit
+	end
+end
+
+
+
 # Settin' up some basic regex searches now
 $digit = /[0-9]/
-$character = /./
-$space = /\$s/
+$alpha_numeric = /[a-zA-Z0-9]/
+$character = /[a-zA-Z]/
+$space = /\s/
 $eof = /\$/
+# note, this here includes whitespace, so be careful where it's used
+$operator = /\W/
 
 def tokenizer (token)
 
@@ -33,27 +45,55 @@ def Lexer(input)
 	# Startin' with the input code in a mighty nice array
 	tokens = []
 	
+	# current line in program
+	c_line = 0
+	
 	for line in input
 		previous = nil
 		current_string = nil
 		
 		for i in 0...line.length
+			# test here for EOF
 			if $eof.match(line[i])
 				puts "EOF reached, partner"
 				if current_string != nil
-					tokens.push(tokenize(current_string))
+					test, token = tokenize(current_string)
+					if test
+						tokens.push(token)
+					end
+					current_string = nil
 				end
 				break
-			
+				
+			# Testin' for whitespace
 			elsif $space.match(line[i])
+				if current_string != nil
+					test, token = tokenize(current_string)
+					if test
+						tokens.push(token)
+					end
+					current_string = nil
+				end
+			
+			# Testin' for operators
+			# note: the whitespace issue was handled with the previous elsif
+			elsif $operator.match(line[i])
+				
+				# tokenize current_string if applicable
 				if current_string != nil
 					tokens.push(tokenize(current_string))
 					current_string = nil
 				end
-			else
+				
+				tokens.push(tokenize(line[i]))
+
+			elsif
 				current_string = current_string + String(line[i])
 			end
 		end
+		
+		# increment the line number
+		c_line = c_line + 1
 	end
 end
 
