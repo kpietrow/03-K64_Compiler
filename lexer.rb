@@ -28,10 +28,12 @@ end
 # Settin' up some basic regex searches now
 $digit = /[0-9]/
 $alpha_numeric = /[a-zA-Z0-9]/
+# $alpha_numeric = /\w/ 
+# an option in case underscores are valid in variable names
 $character = /[a-zA-Z]/
 $space = /\s/
 $eof = /\$/
-# note, this here includes whitespace, so be careful where it's used
+# note, this here includes whitespace, so be careful about where it's used
 $operator = /\W/
 
 def tokenizer (token)
@@ -85,9 +87,11 @@ def Lexer(input)
 					current_string = nil
 				end
 				
+				# either way, tokenize the operator
 				tokens.push(tokenize(line[i]))
 
-			elsif
+			# Testin' for alpha numeric characters
+			elsif $alpha_numeric.match(line[i])
 				current_string = current_string + String(line[i])
 			end
 		end
