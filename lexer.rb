@@ -17,12 +17,12 @@ class Token
 end
 
 # Settin' up some basic regex searches now
-$integer = /[0-9]/
-$string = /[a-zA-z]/
+$digit = /[0-9]/
+$character = /./
 $space = /\$s/
 $eof = /\$/
 
-def Token_Check (token)
+def tokenizer (token)
 
 end
 
@@ -38,16 +38,20 @@ def Lexer(input)
 		current_string = nil
 		
 		for i in 0...line.length
-			if $eof.match(line[0])
+			if $eof.match(line[i])
 				puts "EOF reached, partner"
-				
+				if current_string != nil
+					tokens.push(tokenize(current_string))
+				end
 				break
 			
 			elsif $space.match(line[i])
 				if current_string != nil
-					tokens = tokenize(current_string)
+					tokens.push(tokenize(current_string))
 					current_string = nil
 				end
+			else
+				current_string = current_string + String(line[i])
 			end
 		end
 	end
