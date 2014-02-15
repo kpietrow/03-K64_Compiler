@@ -38,7 +38,7 @@ $eof = /\$/
 # note, this here includes whitespace, so be careful about where it's used
 $operator = /\W/
 
-def tokenize (token)
+def tokenize (token, type, lineno, pos)
 
 end
 
@@ -60,7 +60,7 @@ def Lexer(input)
 			if $eof.match(line[i])
 				puts "EOF reached, partner"
 				if current_string != ""
-					test, token = tokenize(current_string, c_line, pos)
+					test, token = tokenize(current_string, "char", c_line, pos)
 					if test
 						tokens.push(token)
 					end
@@ -71,7 +71,7 @@ def Lexer(input)
 			# Testin' for whitespace
 			elsif $space.match(line[i])
 				if current_string != ""
-					test, token = tokenize(current_string, c_line, pos)
+					test, token = tokenize(current_string, "char", c_line, pos)
 					if test
 						tokens.push(token)
 					end
@@ -84,19 +84,19 @@ def Lexer(input)
 				
 				# tokenize current_string if applicable
 				if current_string != ""
-					tokens.push(tokenize(current_string, c_line, pos))
+					tokens.push(tokenize(current_string, "char", c_line, pos))
 					current_string = ""
 				end
 				
 				# either way, tokenize the operator
-				tokens.push(tokenize(line[i]))
+				tokens.push(tokenize(line[i], "op", c_line, pos))
 
 			# Testin' for alpha numeric characters
 			elsif $alpha_numeric.match(line[i])
 				current_string = current_string + String(line[i])
 			end
 			
-			# else raise that error
+			# else raise error for unknown symbol
 			else
 				raise UnknownSymbol(c_line, i)
 			end
