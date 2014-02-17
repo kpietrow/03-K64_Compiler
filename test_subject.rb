@@ -2,9 +2,9 @@
 
 # This file is purely for the purposes of testing different strategies
 
-d = "while a trout"
+d = "w"
 
-if d =~ /\b(while)\b/
+if d =~ /[a-z]+/
 	puts "yeah"
 end
 

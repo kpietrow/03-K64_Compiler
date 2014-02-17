@@ -3,7 +3,9 @@
 # It's my estimation that  we're gonna be examining incoming input
 # here, and translating it with our nice Lexer into some tokens
 
-# NOTE: need to add comment functionality
+# TODO: add comment functionality
+# TODO: check for EOF, and deal with it once reached
+# -------- This includes early $s, and lack of $
 
 class Token
 	# Establishin' a token class for easier categorization
@@ -19,6 +21,7 @@ class Token
 	end
 end
 
+##
 # error for unknown symbols
 # exits program, prints line and line number
 class UnknownSymbol < RuntimeError
@@ -94,14 +97,31 @@ def alphanum_tokenize(p_token, lineno, pos)
 		return Token.new("T_DIGIT", Integer(p_token), lineno, pos
 	
 	# could be a keyword, type, or id here
-	else
+	elsif p_token =~ /[a-z]+/
 		case p_token
 		when /\b(while)\b/
 			return Token.new("T_WHILE", p_token, lineno, pos)
 		when /\b(if)\b/
 			return Token.new("T_IF", p_token, lineno, pos)
 		when /\b(false)\b/
-			return Token.new("T_BOOLEAN", p_token,
+			return Token.new("T_BOOLEAN", p_token, lineno, pos)
+		when /\b(true)\b/
+			return Token.new("T_BOOLEAN", p_token, lineno, pos)
+		when /\b(print)\b/
+			return Token.new("T_PRINT", p_token, lineno, pos)
+		when /\b(int)\b/
+			return Token.new("T_TYPE", p_token, lineno, pos)
+		when /\b(string)\b/
+			return Token.new("T_TYPE", p_token, lineno, pos)
+		when /\b(boolean)\b/
+			return Token.new("T_TYPE", p_token, lineno, pos)
+		when /[a-z]+/
+			return Token.new("T_ID", p_token, lineno, pos)
+		else
+			raise UnknownSymbol(p_token, lineno, pos)
+		end
+	else
+		raise UnknownSymbol(p_token, lineno, pos)
 	end
 end
 
