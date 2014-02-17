@@ -14,7 +14,7 @@ class BlankFileException < RuntimeError
 end
 
 def main
-# He's going to be running this operation
+# He's going to be runnin' this here operation
 	
 	# Retrieving that shiny input file
 	input_file = File.new(ARGV[0])

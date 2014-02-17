@@ -7,9 +7,10 @@
 class Token
 	# Establishin' a token class for easier categorization
 	
-	attr_accessor :type, :line, :position, :total_tokens
+	attr_accessor :value, :type, :line, :position, :total_tokens
 	
-	def initialize(type, line, pos)
+	def initialize(value, type, line, pos)
+		@value = value
 		@type = type
 		@line = line
 		@position = pos
@@ -20,7 +21,7 @@ end
 # error for unknown symbols
 # exits program, prints line and line number
 class UnknownSymbol < RuntimeError
-	def initialize(lineno, pos, char)
+	def initialize(char, lineno, pos)
 		puts "Line: #{lineno}, Position: #{pos}, Character: #{char}: ERROR: This here character don't appear to be known to no-one around these parts."
 		exit
 	end
@@ -49,38 +50,41 @@ $operator = /\W/
 def op_tokenize (p_token, lineno, pos)
 	case p_token
 	when "="
-		return true, Token.new("T_ASSIGNMENT", lineno, pos)
+		return Token.new(p_token, "T_ASSIGNMENT", lineno, pos)
 	when "{"
-		return true, Token.new("T_LBRACE", lineno, pos)
+		return Token.new(p_token, "T_LBRACE", lineno, pos)
 	when "}"
-		return true, Token.new("T_RBRACE", lineno, pos)
+		return Token.new(p_token, "T_RBRACE", lineno, pos)
 	when "("
-		return true, Token.new("T_LPAREN", lineno, pos)
+		return Token.new(p_token, "T_LPAREN", lineno, pos)
 	when ")"
-		return true, Token.new("T_RPAREN", lineno, pos)
+		return Token.new(p_token, "T_RPAREN", lineno, pos)
 	when "\""
-		return true, Token.new("T_QUOTE", lineno, pos)
+		return Token.new(p_token, "T_QUOTE", lineno, pos)
 	when "=="
-		return true, Token.new("T_EQUALTO", lineno, pos)
+		return Token.new(p_token, "T_EQUALTO", lineno, pos)
 	when "!="
-		return true, Token.new("T_NOTEQUAL", lineno, pos)
+		return Token.new(p_token, "T_NOTEQUAL", lineno, pos)
 	when "+"
-		return true, Token.new("T_PLUS", lineno, pos)
+		return Token.new(p_token, "T_PLUS", lineno, pos)
 	when "$"
-		return true, Token.new("T_EOFSIGN", lineno, pos)
+		return Token.new(p_token, "T_EOFSIGN", lineno, pos)
 	else
-		raise UnknownSymbol(lineno, pos, p_token)
+		raise UnknownSymbol(p_token, lineno, pos)
 	end
+end
+
+def alphanum_tokenize(p_token, lineno, pos)
+	
 end
 
 # take in the potential token, type (char/op), lineno, and pos
 def tokenize (p_token, type, lineno, pos)
 	if type == "op"
-		test, token = op_tokenize(p_token, lineno, pos)
+		token = op_tokenize(p_token, lineno, pos)
 	
-	# will implement once op_tokenize is finalized
-	# elsif type == "char"
-		# test, token = char_tokenize
+	elsif type == "alphanum"
+		token = alphanum_tokenize(p_token, lineno, pos)
 	
 	end
 end
@@ -104,10 +108,8 @@ def Lexer(input)
 			if $eof.match(line[i])
 				puts "EOF reached, partner"
 				if c_string != ""
-					test, token = tokenize(c_string, "char", c_line, c_pos)
-					if test
-						tokens.push(token)
-					end
+					tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
+					
 					c_string = ""
 					c_pos = nil
 				end
@@ -116,10 +118,8 @@ def Lexer(input)
 			# Testin' for whitespace
 			elsif $space.match(line[i])
 				if c_string != ""
-					test, token = tokenize(c_string, "char", c_line, c_pos)
-					if test
-						tokens.push(token)
-					end
+					tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
+					
 					c_string = ""
 					c_pos = nil
 				end
@@ -130,30 +130,28 @@ def Lexer(input)
 				
 				# tokenize c_string if applicable
 				if c_string != ""
-					test, token = tokenize(c_string, "char", c_line, c_pos)
-					if test
-						tokens.push(token)
-					end	
+					tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
+					
 					c_string = ""
 					c_pos = nil
 				end
 				
 				# either way, attempt to tokenize the operator
-				test, token = tokenize(line[i], "op", c_line, c_pos)
-				if test
-					tokens.push(token)
-				end	
+				tokens.push(tokenize(line[i], "op", c_line, c_pos))
 
 			# Testin' for alpha numeric characters
 			elsif $alpha_numeric.match(line[i])
+				# set position of current string
 				if c_string == "" and c_pos == nil
 					c_pos = i
 				end
+				
+				# add new character to current string
 				c_string = c_string + String(line[i])
 			
 			# else raise error for unknown symbol
 			else
-				raise UnknownSymbol(c_line, i, line[i])
+				raise UnknownSymbol(line[i], c_line, i)
 			end
 		end
 		
