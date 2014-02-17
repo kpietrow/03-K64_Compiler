@@ -2,5 +2,6 @@
 
 # testing options
 
-c = nil
-c = c + String(9)
+c = [9, 8, 7,
+		6, 5, 4]
+puts c

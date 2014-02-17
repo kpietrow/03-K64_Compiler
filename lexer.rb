@@ -9,9 +9,10 @@ class Token
 	
 	attr_accessor :type, :line, :num_tokens
 	
-	def initialize(type, line)
+	def initialize(type, line, pos)
 		@type = type
 		@line = line
+		@position = pos
 		@@num_tokens = @@num_tokens + 1
 	end
 end
@@ -37,6 +38,9 @@ $alpha_numeric = /[a-zA-Z0-9]/
 $character = /[a-zA-Z]/
 $space = /\s/
 $eof = /\$/
+$token_list = ["T_ASSIGNMENT", "T_LBRACE", "T_RBRACE", "T_LPAREN", 
+				"T_RPAREN", "T_QUOTE", "T_EQUAL", "T_NOTEQUAL", "T_PLUS", 
+					"T_IF", "T_TRUE", "T_FALSE"]
 
 # note, this here includes whitespace, so be careful about where it's used
 $operator = /\W/
@@ -44,15 +48,23 @@ $operator = /\W/
 # examine for potential as an operator token
 def op_tokenize (p_token, lineno, pos)
 	case p_token
+	when "="
+		return true, Token.new("T_ASSIGNMENT", lineno, pos)
+	when "{"
+		return true, Token.new("T_LBRACE", lineno, pos)
+	when "}"
+		return true, Token.new("T_RBRACE", 
 end
 
 # take in the potential token, type (char/op), lineno, and pos
 def tokenize (p_token, type, lineno, pos)
 	if type == "op"
 		test, token = op_tokenize(p_token, lineno, pos)
+	
 	# will implement once op_tokenize is finalized
 	# elsif type == "char"
 		# test, token = char_tokenize
+	
 	end
 end
 
@@ -110,7 +122,7 @@ def Lexer(input)
 				end
 				
 				# either way, attempt to tokenize the operator
-				test, token = tokenize(line[i], "op", c_line, c_pos))
+				test, token = tokenize(line[i], "op", c_line, c_pos)
 				if test
 						tokens.push(token)
 				end	
@@ -121,7 +133,6 @@ def Lexer(input)
 					c_pos = i
 				end
 				c_string = c_string + String(line[i])
-			end
 			
 			# else raise error for unknown symbol
 			else
@@ -137,9 +148,9 @@ end
 
 def test(input)
 	for line in input
-		print line
+		print line[0].is_a? String
+		print line[0]
 		puts "\n"
 	end
-	
 end
 
