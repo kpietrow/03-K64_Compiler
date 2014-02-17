@@ -7,13 +7,13 @@
 class Token
 	# Establishin' a token class for easier categorization
 	
-	attr_accessor :type, :line, :num_tokens
+	attr_accessor :type, :line, :position, :total_tokens
 	
 	def initialize(type, line, pos)
 		@type = type
 		@line = line
 		@position = pos
-		@@num_tokens = @@num_tokens + 1
+		@@total_tokens = @@num_tokens + 1
 	end
 end
 
@@ -30,17 +30,17 @@ end
 
 # Settin' up some basic regex searches now
 $digit = /[0-9]/
-$alpha_numeric = /[a-zA-Z0-9]/
+$alpha_numeric = /[a-z0-9]/
 
 # $alpha_numeric = /\w/ 
 # an option in case underscores are valid in variable names
 
-$character = /[a-zA-Z]/
+$character = /[a-z]/
 $space = /\s/
 $eof = /\$/
 $token_list = ["T_ASSIGNMENT", "T_LBRACE", "T_RBRACE", "T_LPAREN", 
-				"T_RPAREN", "T_QUOTE", "T_EQUAL", "T_NOTEQUAL", "T_PLUS", 
-					"T_IF", "T_TRUE", "T_FALSE"]
+				"T_RPAREN", "T_QUOTE", "T_EQUALTO", "T_NOTEQUAL", "T_PLUS", 
+					"T_EOFSIGN", "T_IF", "T_WHILE", "T_TRUE", "T_FALSE"]
 
 # note, this here includes whitespace, so be careful about where it's used
 $operator = /\W/
@@ -53,7 +53,24 @@ def op_tokenize (p_token, lineno, pos)
 	when "{"
 		return true, Token.new("T_LBRACE", lineno, pos)
 	when "}"
-		return true, Token.new("T_RBRACE", 
+		return true, Token.new("T_RBRACE", lineno, pos)
+	when "("
+		return true, Token.new("T_LPAREN", lineno, pos)
+	when ")"
+		return true, Token.new("T_RPAREN", lineno, pos)
+	when "\""
+		return true, Token.new("T_QUOTE", lineno, pos)
+	when "=="
+		return true, Token.new("T_EQUALTO", lineno, pos)
+	when "!="
+		return true, Token.new("T_NOTEQUAL", lineno, pos)
+	when "+"
+		return true, Token.new("T_PLUS", lineno, pos)
+	when "$"
+		return true, Token.new("T_EOFSIGN", lineno, pos)
+	else
+		raise UnknownSymbol(lineno, pos, p_token)
+	end
 end
 
 # take in the potential token, type (char/op), lineno, and pos
@@ -124,7 +141,7 @@ def Lexer(input)
 				# either way, attempt to tokenize the operator
 				test, token = tokenize(line[i], "op", c_line, c_pos)
 				if test
-						tokens.push(token)
+					tokens.push(token)
 				end	
 
 			# Testin' for alpha numeric characters
@@ -148,9 +165,12 @@ end
 
 def test(input)
 	for line in input
-		print line[0].is_a? String
-		print line[0]
-		puts "\n"
+		case line[0]
+		when "T"
+			puts "it's a t!"
+		else 
+			puts "not a t"
+		end
 	end
 end
 
