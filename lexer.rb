@@ -30,16 +30,22 @@ end
 # Settin' up some basic regex searches now
 $digit = /[0-9]/
 $alpha_numeric = /[a-zA-Z0-9]/
+
 # $alpha_numeric = /\w/ 
 # an option in case underscores are valid in variable names
+
 $character = /[a-zA-Z]/
 $space = /\s/
 $eof = /\$/
+
 # note, this here includes whitespace, so be careful about where it's used
 $operator = /\W/
 
-def tokenize (token, type, lineno, pos)
-
+# take in the potential token, type (char/op), lineno, and pos
+def tokenize (p_token, type, lineno, pos)
+	if type == "op"
+		token = op_tokenize(
+		
 end
 
 def Lexer(input)
@@ -53,47 +59,60 @@ def Lexer(input)
 	c_line = 0
 	
 	for line in input
-		current_string = ""
+		c_string = ""
+		c_pos = nil
 		
 		for i in 0...line.length
 			# test here for EOF
 			if $eof.match(line[i])
 				puts "EOF reached, partner"
-				if current_string != ""
-					test, token = tokenize(current_string, "char", c_line, pos)
+				if c_string != ""
+					test, token = tokenize(c_string, "char", c_line, c_pos)
 					if test
 						tokens.push(token)
 					end
-					current_string = ""
+					c_string = ""
+					c_pos = nil
 				end
 				break
 				
 			# Testin' for whitespace
 			elsif $space.match(line[i])
-				if current_string != ""
-					test, token = tokenize(current_string, "char", c_line, pos)
+				if c_string != ""
+					test, token = tokenize(c_string, "char", c_line, c_pos)
 					if test
 						tokens.push(token)
 					end
-					current_string = ""
+					c_string = ""
+					c_pos = nil
 				end
 			
 			# Testin' for operators
 			# note: the whitespace issue was handled with the previous elsif
 			elsif $operator.match(line[i])
 				
-				# tokenize current_string if applicable
-				if current_string != ""
-					tokens.push(tokenize(current_string, "char", c_line, pos))
-					current_string = ""
+				# tokenize c_string if applicable
+				if c_string != ""
+					test, token = tokenize(c_string, "char", c_line, c_pos)
+					if test
+						tokens.push(token)
+					end	
+					c_string = ""
+					c_pos = nil
 				end
 				
-				# either way, tokenize the operator
-				tokens.push(tokenize(line[i], "op", c_line, pos))
+				# either way, attempt to tokenize the operator
+				test, token = tokenize(line[i], "op", c_line, c_pos))
+				if test
+						tokens.push(token)
+				end	
 
 			# Testin' for alpha numeric characters
 			elsif $alpha_numeric.match(line[i])
-				current_string = current_string + String(line[i])
+				if c_string == "" and c_pos == nil
+					c_pos = i
+				end
+				c_string = c_string + String(line[i])
 			end
 			
 			# else raise error for unknown symbol
