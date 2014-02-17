@@ -3,15 +3,16 @@
 # It's my estimation that  we're gonna be examining incoming input
 # here, and translating it with our nice Lexer into some tokens
 
+# NOTE: need to add comment functionality
 
 class Token
 	# Establishin' a token class for easier categorization
 	
 	attr_accessor :value, :type, :line, :position, :total_tokens
 	
-	def initialize(value, type, line, pos)
-		@value = value
+	def initialize(type, value, line, pos)
 		@type = type
+		@value = value
 		@line = line
 		@position = pos
 		@@total_tokens = @@num_tokens + 1
@@ -41,8 +42,8 @@ $space = /\s/
 $eof = /\$/
 $token_list = ["T_ASSIGNMENT", "T_LBRACE", "T_RBRACE", "T_LPAREN", 
 				"T_RPAREN", "T_QUOTE", "T_EQUALTO", "T_NOTEQUAL", "T_PLUS", 
-					"T_EOFSIGN", "T_IF", "T_WHILE", "T_TRUE", "T_FALSE", "T_ID", 
-						"T_PRINT", "T_TYPE"]
+					"T_EOFSIGN", "T_IF", "T_WHILE", "T_BOOLEAN", "T_TRUE", "T_FALSE", 
+						"T_ID", "T_PRINT", "T_TYPE"]
 
 # note, this here includes whitespace, so be careful about where it's used
 $operator = /\W/
@@ -51,25 +52,25 @@ $operator = /\W/
 def op_tokenize (p_token, lineno, pos)
 	case p_token
 	when "="
-		return Token.new(p_token, "T_ASSIGNMENT", lineno, pos)
+		return Token.new("T_ASSIGNMENT", p_token, lineno, pos)
 	when "{"
-		return Token.new(p_token, "T_LBRACE", lineno, pos)
+		return Token.new("T_LBRACE", p_token, lineno, pos)
 	when "}"
-		return Token.new(p_token, "T_RBRACE", lineno, pos)
+		return Token.new("T_RBRACE", p_token, lineno, pos)
 	when "("
-		return Token.new(p_token, "T_LPAREN", lineno, pos)
+		return Token.new("T_LPAREN", p_token, lineno, pos)
 	when ")"
-		return Token.new(p_token, "T_RPAREN", lineno, pos)
+		return Token.new("T_RPAREN", p_token, lineno, pos)
 	when "\""
-		return Token.new(p_token, "T_QUOTE", lineno, pos)
+		return Token.new("T_QUOTE", p_token, lineno, pos)
 	when "=="
-		return Token.new(p_token, "T_EQUALTO", lineno, pos)
+		return Token.new("T_EQUALTO", p_token, lineno, pos)
 	when "!="
-		return Token.new(p_token, "T_NOTEQUAL", lineno, pos)
+		return Token.new("T_NOTEQUAL", p_token, lineno, pos)
 	when "+"
-		return Token.new(p_token, "T_PLUS", lineno, pos)
+		return Token.new("T_PLUS", p_token, lineno, pos)
 	when "$"
-		return Token.new(p_token, "T_EOFSIGN", lineno, pos)
+		return Token.new("T_EOFSIGN", p_token, lineno, pos)
 	else
 		raise UnknownSymbol(p_token, lineno, pos)
 	end
@@ -77,7 +78,17 @@ end
 
 # dealing with alphanumeric character strings
 def alphanum_tokenize(p_token, lineno, pos)
+
+	# T_ID potential
 	if (p_token =~ $character) and (p_token =~ $digit)
+		# Can't start with a digit
+		if p_token[0] =~ $digit
+			raise UnknownSymbol(p_token, lineno, pos)
+		else
+			return Token.new("T_ID", p_token, lineno, pos)
+		end
+	elsif p_token =~ $digit
+		return Token.new("T_DIGIT", Integer(p_token), lineno, pos
 		
 		
 	end
