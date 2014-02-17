@@ -1,11 +1,17 @@
 #!/usr/bin/env ruby
 
-# testing options
+# This file is purely for the purposes of testing different strategies
 
-$c = "while"
+d = "while a trout"
 
-d = ["hiwhileyo", "while", "hiwhile", "whilego"]
+if d =~ /\b(while)\b/
+	puts "yeah"
+end
+
+
 =begin
+d = ["hiwhileyo", "while", "hiwhile", "whilego"]
+
 for i in d
 	case i
 	when /\b(while)\b/
