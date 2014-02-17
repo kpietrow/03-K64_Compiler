@@ -19,8 +19,8 @@ end
 # error for unknown symbols
 # exits program, prints line and line number
 class UnknownSymbol < RuntimeError
-	def initialize(lineno, pos)
-		puts "Line: #{lineno}, Position: #{pos}: ERROR: This here character don't appear to be known to no-one around these parts."
+	def initialize(lineno, pos, char)
+		puts "Line: #{lineno}, Position: #{pos}, Character: #{char}: ERROR: This here character don't appear to be known to no-one around these parts."
 		exit
 	end
 end
@@ -41,11 +41,19 @@ $eof = /\$/
 # note, this here includes whitespace, so be careful about where it's used
 $operator = /\W/
 
+# examine for potential as an operator token
+def op_tokenize (p_token, lineno, pos)
+	case p_token
+end
+
 # take in the potential token, type (char/op), lineno, and pos
 def tokenize (p_token, type, lineno, pos)
 	if type == "op"
-		token = op_tokenize(
-		
+		test, token = op_tokenize(p_token, lineno, pos)
+	# will implement once op_tokenize is finalized
+	# elsif type == "char"
+		# test, token = char_tokenize
+	end
 end
 
 def Lexer(input)
@@ -117,7 +125,7 @@ def Lexer(input)
 			
 			# else raise error for unknown symbol
 			else
-				raise UnknownSymbol(c_line, i)
+				raise UnknownSymbol(c_line, i, line[i])
 			end
 		end
 		
