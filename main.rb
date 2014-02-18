@@ -6,7 +6,7 @@ require 'io/console'
 
 require './lexer.rb'
 
-class BlankFileException < RuntimeError
+class BlankFileError < StandardError
 	def initialize()
 		puts "ERROR: There don't seem to be any information in that here file. We're just gonna exit the program for ye."
 		exit
@@ -23,11 +23,11 @@ def main
 	input_file = IO.readlines(input_file)
 	
 	if input_file.length == 0
-		raise BlankFileException
+		raise BlankFileError
 	end
 	
 	token_stream = test(input_file)
-	
+	print token_stream
 end
 
 main

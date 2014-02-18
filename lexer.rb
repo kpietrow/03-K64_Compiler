@@ -24,9 +24,10 @@ end
 ##
 # error for unknown symbols
 # exits program, prints line and line number
-class UnknownSymbol < RuntimeError
+class UnknownSymbolError < StandardError
 	def initialize(char, lineno, pos)
-		puts "Line: #{lineno}, Position: #{pos}, Character: #{char}: ERROR: This here character don't appear to be known to no-one around these parts."
+		@char, @lineno, @pos = char, lineno, pos
+		puts "ERROR: Line: #{lineno}, Position: #{pos}, Character: \'#{char}\' -> This here character don't appear to be known to no-one around these parts."
 		exit
 	end
 end
@@ -75,7 +76,7 @@ def op_tokenize (p_token, lineno, pos)
 	when "$"
 		return Token.new("T_EOFSIGN", p_token, lineno, pos)
 	else
-		raise UnknownSymbol(p_token, lineno, pos)
+		raise UnknownSymbolError.new(p_token, lineno, pos)
 	end
 end
 
@@ -87,14 +88,14 @@ def alphanum_tokenize(p_token, lineno, pos)
 		
 		# Can't start with a digit
 		if p_token[0] =~ $digit
-			raise UnknownSymbol(p_token, lineno, pos)
+			raise UnknownSymbolError.new(p_token, lineno, pos)
 		else
 			return Token.new("T_ID", p_token, lineno, pos)
 		end
 		
 	# T_DIGIT. Tokenize its value as an int and not a string
 	elsif p_token =~ $digit
-		return Token.new("T_DIGIT", Integer(p_token), lineno, pos
+		return Token.new("T_DIGIT", Integer(p_token), lineno, pos)
 	
 	# could be a keyword, type, or id here
 	elsif p_token =~ /[a-z]+/
@@ -118,20 +119,20 @@ def alphanum_tokenize(p_token, lineno, pos)
 		when /[a-z]+/
 			return Token.new("T_ID", p_token, lineno, pos)
 		else
-			raise UnknownSymbol(p_token, lineno, pos)
+			raise UnknownSymbolError.new(p_token, lineno, pos)
 		end
 	else
-		raise UnknownSymbol(p_token, lineno, pos)
+		raise UnknownSymbolError.new(p_token, lineno, pos)
 	end
 end
 
 # take in the potential token, type (char/op), lineno, and pos
 def tokenize (p_token, type, lineno, pos)
 	if type == "op"
-		token = op_tokenize(p_token, lineno, pos)
+		return op_tokenize(p_token, lineno, pos)
 	
 	elsif type == "alphanum"
-		token = alphanum_tokenize(p_token, lineno, pos)
+		return alphanum_tokenize(p_token, lineno, pos)
 	
 	end
 end
@@ -198,7 +199,7 @@ def Lexer(input)
 			
 			# else raise error for unknown symbol
 			else
-				raise UnknownSymbol(line[i], c_line, i)
+				raise UnknownSymbolError.new(line[i], c_line, i)
 			end
 		end
 		
@@ -212,7 +213,7 @@ def test(input)
 	for line in input
 		case line[0]
 		when "T"
-			puts "it's a t!"
+			raise UnknownSymbolError.new(3, 2, 1)
 		else 
 			puts "not a t"
 		end
