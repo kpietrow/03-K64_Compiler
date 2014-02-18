@@ -134,21 +134,22 @@ def Lexer(input)
 	# We're gonna run a nice Lexer now
 	# Get ourselves some tokens
 	
-	# Startin' with the input code in a mighty nice array
-	tokens = []
-	
-	# current line in program
-	c_line = 0
-	
-	# EOF status
-	eof = false
+	tokens = []   # Startin' with the input code in a mighty nice array
+	c_line = 0    # current line in program
+	eof_reached = false   # EOF status
 	
 	for line in input
 		c_string = ""
 		c_pos = nil
 		
 		for i in 0...line.length
-			# test here for EOF
+		
+			# preliminary test for anything after EOF
+			if eof_reached
+				raise EOFError.new("early", c_line, i)
+			end
+		
+			# test here for EOF symbol
 			if $eof.match(line[i])
 				puts "EOF reached, partner"
 				eof = true
@@ -204,6 +205,15 @@ def Lexer(input)
 		# increment the line number
 		c_line = c_line + 1
 	end
+	
+	# if no EOF symbol ($) detected
+	if !eof_reached
+		raise EOFError.new("dne", nil, nil)
+		tokens.push(tokenize("$", "op", c_line, 0))
+	end
+	
+	# return token list
+	return tokens
 end
 
 
