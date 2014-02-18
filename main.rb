@@ -48,8 +48,11 @@ def main
 		raise BlankFileError
 	end
 	
-	token_stream = test(input_file)
-	print token_stream
+	token_stream = lexer(input_file)
+	for i in token_stream
+		print i.type
+		print ", "
+	end
 end
 
 main

@@ -17,7 +17,6 @@ class Token
 		@value = value
 		@line = line
 		@position = pos
-		@@total_tokens = @@num_tokens + 1
 	end
 end
 
@@ -33,7 +32,7 @@ class UnknownSymbolError < StandardError
 end
 
 # Error for early and nonexistent EOF
-class EOFError < StandardError
+class EOFDetectionError < StandardError
 	def initialize(type, lineno, pos)
 		@type, @lineno, @pos = lineno, pos
 		if @type == "early"
@@ -130,7 +129,7 @@ def tokenize (p_token, type, lineno, pos)
 	end
 end
 
-def Lexer(input)
+def lexer(input)
 	# We're gonna run a nice Lexer now
 	# Get ourselves some tokens
 	
@@ -145,8 +144,8 @@ def Lexer(input)
 		for i in 0...line.length
 		
 			# preliminary test for anything after EOF
-			if eof_reached
-				raise EOFError.new("early", c_line, i)
+			if eof_reached and line =
+				raise EOFDetectionError.new("early", c_line, i)
 			end
 		
 			# test here for EOF symbol
@@ -154,12 +153,17 @@ def Lexer(input)
 				puts "EOF reached, partner"
 				eof = true
 				
+				# tokenize current string
 				if c_string != ""
 					tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
 					
 					c_string = ""
 					c_pos = nil
 				end
+				
+				# tokenize '$'
+				tokens.push(tokenize(line[i], "op", c_line, i))
+				
 				break
 				
 			# Testin' for whitespace
@@ -207,16 +211,16 @@ def Lexer(input)
 	end
 	
 	# if no EOF symbol ($) detected
-	if !eof_reached
-		raise EOFError.new("dne", nil, nil)
-		tokens.push(tokenize("$", "op", c_line, 0))
-	end
+	#if !eof_reached
+	#	raise EOFDetectionError.new("dne", nil, nil)
+	#	tokens.push(tokenize("$", "op", c_line, 0))
+	#end
 	
 	# return token list
 	return tokens
 end
 
-
+=begin
 def test(input)
 	for line in input
 		case line[0]
@@ -227,4 +231,4 @@ def test(input)
 		end
 	end
 end
-
+=end
