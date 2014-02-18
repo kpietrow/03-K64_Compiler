@@ -22,7 +22,7 @@ end
 # exits program, prints line and line number
 class UnknownSymbolError < StandardError
 	def initialize(char, lineno, pos)
-		@char, @lineno, @pos = char, lineno, pos
+		@char, @lineno, @pos = char, lineno, pos + 1
 		puts "ERROR: Line #{lineno}, Position #{pos}, Character \'#{char}\' -> This here character don't appear to be known to no-one around these parts."
 		exit
 	end
@@ -38,7 +38,6 @@ class EOFDetectionError < StandardError
 		elsif @type == "dne"
 			puts "WARNING: No EOF sign ($) reached. Will temporarily add one for this run-through, but the source code will not be altered."
 		end
-		puts "test"
 	end
 end
 
@@ -209,9 +208,12 @@ def lexer(input)
 	
 	# if no EOF symbol ($) detected
 	if !eof_reached
-		raise EOFDetectionError.new("dne", 0, 0)
-		puts "hm"
-		tokens.push(tokenize("$", "op", c_line, 0))
+		
+		begin
+			raise EOFDetectionError.new("dne", 0, 0)
+		rescue EOFDetectionError
+			tokens.push(tokenize("$", "op", c_line, 0))
+		end
 	end
 	
 	# return token list

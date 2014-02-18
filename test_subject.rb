@@ -2,5 +2,12 @@
 
 # This file is purely for the purposes of testing different strategies
 
-c = ("asssssss" =~ /(s)/)
-puts c
+class Temperror < StandardError
+	def initialize()
+		puts "test"
+	end
+end
+
+c = 8
+
+raise Temperror.new()
