@@ -27,30 +27,23 @@ end
 class UnknownSymbolError < StandardError
 	def initialize(char, lineno, pos)
 		@char, @lineno, @pos = char, lineno, pos
-		puts "ERROR: Line: #{lineno}, Position: #{pos}, Character: \'#{char}\' -> This here character don't appear to be known to no-one around these parts."
+		puts "ERROR: Line #{lineno}, Position #{pos}, Character \'#{char}\' -> This here character don't appear to be known to no-one around these parts."
 		exit
 	end
 end
 
-
-
-# Settin' up some basic regex searches now
-$digit = /[0-9]/
-$alpha_numeric = /[a-z0-9]/
-
-# $alpha_numeric = /\w/ 
-# an option in case underscores are valid in variable names
-
-$character = /[a-z]/
-$space = /\s/
-$eof = /\$/
-$token_list = ["T_ASSIGNMENT", "T_LBRACE", "T_RBRACE", "T_LPAREN", 
-				"T_RPAREN", "T_QUOTE", "T_EQUALTO", "T_NOTEQUAL", "T_PLUS", 
-					"T_EOFSIGN", "T_IF", "T_WHILE", "T_BOOLEAN", 
-						"T_ID", "T_DIGIT", "T_PRINT", "T_TYPE"]
-
-# note, this here includes whitespace, so be careful about where it's used
-$operator = /\W/
+# Error for early and nonexistent EOF
+class EOFError < StandardError
+	def initialize(type, lineno, pos)
+		@type, @lineno, @pos = lineno, pos
+		if @type == "early"
+			puts "ERROR: Line #{lineno}, Position #{pos} -> EOF reached early at this location. Will now terminate the program."
+			exit
+		elsif @type == "dne"
+			puts "WARNING: No EOF sign ($) reached. Will temporarily add one for this run-through, but the source code will not be altered."
+		end
+	end
+end
 
 # examine for potential as an operator token
 def op_tokenize (p_token, lineno, pos)
@@ -147,6 +140,9 @@ def Lexer(input)
 	# current line in program
 	c_line = 0
 	
+	# EOF status
+	eof = false
+	
 	for line in input
 		c_string = ""
 		c_pos = nil
@@ -155,6 +151,8 @@ def Lexer(input)
 			# test here for EOF
 			if $eof.match(line[i])
 				puts "EOF reached, partner"
+				eof = true
+				
 				if c_string != ""
 					tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
 					
