@@ -13,10 +13,7 @@ class Token
 	attr_accessor :value, :type, :line, :position, :total_tokens
 	
 	def initialize(type, value, line, pos)
-		@type = type
-		@value = value
-		@line = line
-		@position = pos
+		@type, @value, @line, @pos = type, value, line, pos
 	end
 end
 
@@ -31,16 +28,17 @@ class UnknownSymbolError < StandardError
 	end
 end
 
-# Error for early and nonexistent EOF
+# Error for early or nonexistent EOF
 class EOFDetectionError < StandardError
 	def initialize(type, lineno, pos)
-		@type, @lineno, @pos = lineno, pos
+		@type, @lineno, @pos = type, lineno, pos
 		if @type == "early"
 			puts "ERROR: Line #{lineno}, Position #{pos} -> EOF reached early at this location. Will now terminate the program."
 			exit
 		elsif @type == "dne"
 			puts "WARNING: No EOF sign ($) reached. Will temporarily add one for this run-through, but the source code will not be altered."
 		end
+		puts "test"
 	end
 end
 
@@ -144,14 +142,13 @@ def lexer(input)
 		for i in 0...line.length
 		
 			# preliminary test for anything after EOF
-			if eof_reached and line =
+			if eof_reached
 				raise EOFDetectionError.new("early", c_line, i)
 			end
 		
 			# test here for EOF symbol
 			if $eof.match(line[i])
-				puts "EOF reached, partner"
-				eof = true
+				eof_reached = true
 				
 				# tokenize current string
 				if c_string != ""
@@ -211,10 +208,11 @@ def lexer(input)
 	end
 	
 	# if no EOF symbol ($) detected
-	#if !eof_reached
-	#	raise EOFDetectionError.new("dne", nil, nil)
-	#	tokens.push(tokenize("$", "op", c_line, 0))
-	#end
+	if !eof_reached
+		raise EOFDetectionError.new("dne", 0, 0)
+		puts "hm"
+		tokens.push(tokenize("$", "op", c_line, 0))
+	end
 	
 	# return token list
 	return tokens

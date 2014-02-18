@@ -1,5 +1,5 @@
-This here is a test
+his here is a test
 file for the ruby
-{ agic that will soon
+{ agic that w-ill soon
 ensue
 $
