@@ -1,3 +1,3 @@
 ruby magic
-is  in the (air)
+is $ in the (air)
 can you print magic +

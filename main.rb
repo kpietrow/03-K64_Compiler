@@ -4,7 +4,7 @@
 
 require 'io/console'
 
-require './lexer.rb'
+require './Lexer/lexer.rb'
 
 class BlankFileError < StandardError
 	def initialize()
