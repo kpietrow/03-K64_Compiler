@@ -5,11 +5,13 @@
 
 # TODO: add comment functionality
 # TODO: check for EOF, and deal with it once reached
+# TODO: Robust terminal output
 # -------- This includes early $s, and lack of $
 
 
 # bring in tokenizing functions
-require './tokenizer.rb'
+require 'rubygems'
+require './Lexer/tokenizer.rb'
 
 
 
@@ -18,7 +20,7 @@ require './tokenizer.rb'
 # exits program, prints line and line number
 class UnknownSymbolError < StandardError
 	def initialize(char, lineno, pos)
-		@char, @lineno, @pos = char, lineno, pos + 1
+		@char, @lineno, @pos = char, lineno + 1, pos
 		puts "ERROR: Line #{lineno}, Position #{pos}, Character \'#{char}\' -> This here character don't appear to be known to no-one around these parts."
 		exit
 	end
@@ -27,9 +29,9 @@ end
 # Error for early or nonexistent EOF
 class EOFDetectionError < StandardError
 	def initialize(type, lineno, pos)
-		@type, @lineno, @pos = type, lineno, pos
+		@type, @lineno, @pos = type, lineno + 1, pos + 1
 		if @type == "early"
-			puts "ERROR: Line #{lineno}, Position #{pos} -> EOF reached early at this location. Will now terminate the program."
+			puts "ERROR: Line #{@lineno}, Position #{@pos} -> EOF reached early at this location. Will now terminate the program."
 			exit
 		elsif @type == "dne"
 			puts "WARNING: No EOF sign ($) reached. Will temporarily add one for this run-through, but the source code will not be altered."
@@ -55,8 +57,7 @@ def lexer(input)
 		for i in 0...line.length
 		
 			# preliminary test for anything after EOF
-			if eof_reached and i =~ /\S/
-				puts "AHHHHHHHHHHHHHHHHHH"
+			if eof_reached and line[i] =~ /\S/
 				raise EOFDetectionError.new("early", c_line, i)
 			end
 		
