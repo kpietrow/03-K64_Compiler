@@ -96,14 +96,8 @@ def lexer(input)
 					c_pos = nil
 				end
 				
-				# check for comment
-				if line[i] == "#"
-					# just break out of the current line
-					break 
-				else
-					# attempt to tokenize the operator
-					tokens.push(tokenize(line[i], "op", c_line, i))
-				end
+				# attempt to tokenize the operator
+				tokens.push(tokenize(line[i], "op", c_line, i))
 				
 			# Testin' for alpha numeric characters
 			elsif $alpha_numeric.match(line[i])
