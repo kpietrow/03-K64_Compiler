@@ -51,7 +51,7 @@ end
 
 # dealing with alphanumeric character strings
 def alphanum_tokenize(p_token, lineno, pos)
-
+	
 	# T_ID potential
 	if (p_token =~ $character) and (p_token =~ $digit)
 		
@@ -62,9 +62,11 @@ def alphanum_tokenize(p_token, lineno, pos)
 			return Token.new("T_ID", p_token, lineno, pos)
 		end
 		
+		
 	# T_DIGIT. Tokenize its value as an int and not a string
 	elsif p_token =~ $digit
 		return Token.new("T_DIGIT", Integer(p_token), lineno, pos)
+	
 	
 	# could be a keyword, type, or id here
 	elsif p_token =~ /[a-z]+/

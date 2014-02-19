@@ -3,10 +3,9 @@
 # It's my estimation that  we're gonna be examining incoming input
 # here, and translating it with our nice Lexer into some tokens
 
-# TODO: add comment functionality
-# TODO: check for EOF, and deal with it once reached
+
 # TODO: Robust terminal output
-# -------- This includes early $s, and lack of $
+
 
 
 # bring in tokenizing functions
@@ -20,8 +19,8 @@ require './Lexer/tokenizer.rb'
 # exits program, prints line and line number
 class UnknownSymbolError < StandardError
 	def initialize(char, lineno, pos)
-		@char, @lineno, @pos = char, lineno + 1, pos
-		puts "ERROR: Line #{lineno}, Position #{pos}, Character \'#{char}\' -> This here character don't appear to be known to no-one around these parts."
+		@char, @lineno, @pos = char, lineno + 1, pos + 1
+		puts "ERROR: Line #{@lineno}, Position #{@pos}, Character \'#{char}\' -> This here character don't appear to be known to no-one around these parts."
 		exit
 	end
 end
@@ -97,9 +96,15 @@ def lexer(input)
 					c_pos = nil
 				end
 				
-				# either way, attempt to tokenize the operator
-				tokens.push(tokenize(line[i], "op", c_line, c_pos))
-
+				# check for comment
+				if line[i] == "#"
+					# just break out of the current line
+					break 
+				else
+					# attempt to tokenize the operator
+					tokens.push(tokenize(line[i], "op", c_line, i))
+				end
+				
 			# Testin' for alpha numeric characters
 			elsif $alpha_numeric.match(line[i])
 				# set position of current string
@@ -112,7 +117,7 @@ def lexer(input)
 			
 			# else raise error for unknown symbol
 			else
-				raise UnknownSymbolError.new(line[i], c_line, i)
+				raise UnknownSymbolError.new(line[i], c_line, c_pos)
 			end
 		end
 		
