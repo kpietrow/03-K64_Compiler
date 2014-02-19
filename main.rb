@@ -32,6 +32,7 @@ $eof = /\$/
 #					"T_EOFSIGN", "T_IF", "T_WHILE", "T_BOOLEAN", 
 #						"T_ID", "T_DIGIT", "T_PRINT", "T_TYPE"]
 #new list = [T_OP, T_KEYWORD, T_DIGIT, T_ID, T_BOOLEAN, T_TYPE]
+
 # note, this here includes whitespace, so be careful about where it's used
 $operator = /\W/
 

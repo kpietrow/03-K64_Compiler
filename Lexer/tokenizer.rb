@@ -21,25 +21,25 @@ end
 def op_tokenize (p_token, lineno, pos)
 	case p_token
 	when "="
-		return Token.new("T_OP", p_token, lineno, pos)
+		return Token.new("T_ASSIGNMENT", p_token, lineno, pos)
 	when "{"
-		return Token.new("T_OP", p_token, lineno, pos)
+		return Token.new("T_LBRACE", p_token, lineno, pos)
 	when "}"
-		return Token.new("T_OP", p_token, lineno, pos)
+		return Token.new("T_RBRACE", p_token, lineno, pos)
 	when "("
-		return Token.new("T_OP", p_token, lineno, pos)
+		return Token.new("T_LPAREN", p_token, lineno, pos)
 	when ")"
-		return Token.new("T_OP", p_token, lineno, pos)
+		return Token.new("T_RPAREN", p_token, lineno, pos)
 	when "\""
-		return Token.new("T_OP", p_token, lineno, pos)
+		return Token.new("T_QUOTE", p_token, lineno, pos)
 	when "=="
-		return Token.new("T_OP", p_token, lineno, pos)
+		return Token.new("T_EQUALTO", p_token, lineno, pos)
 	when "!="
-		return Token.new("T_OP", p_token, lineno, pos)
+		return Token.new("T_NOTEQUAL", p_token, lineno, pos)
 	when "+"
-		return Token.new("T_OP", p_token, lineno, pos)
+		return Token.new("T_PLUS", p_token, lineno, pos)
 	when "$"
-		return Token.new("T_OP", p_token, lineno, pos)
+		return Token.new("T_EOFSIGN", p_token, lineno, pos)
 	else
 		raise UnknownSymbolError.new(p_token, lineno, pos)
 	end
@@ -72,15 +72,15 @@ def alphanum_tokenize(p_token, lineno, pos)
 	elsif p_token =~ /[a-z]+/
 		case p_token
 		when /\b(while)\b/
-			return Token.new("T_KEYWORD", p_token, lineno, pos)
+			return Token.new("T_WHILE", p_token, lineno, pos)
 		when /\b(if)\b/
-			return Token.new("T_KEYWORD", p_token, lineno, pos)
+			return Token.new("T_IF", p_token, lineno, pos)
 		when /\b(false)\b/
 			return Token.new("T_BOOLEAN", p_token, lineno, pos)
 		when /\b(true)\b/
 			return Token.new("T_BOOLEAN", p_token, lineno, pos)
 		when /\b(print)\b/
-			return Token.new("T_KEYWORD", p_token, lineno, pos)
+			return Token.new("T_PRINT", p_token, lineno, pos)
 		when /\b(int)\b/
 			return Token.new("T_TYPE", p_token, lineno, pos)
 		when /\b(string)\b/
