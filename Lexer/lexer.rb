@@ -48,6 +48,7 @@ def lexer(input)
 	tokens = []   # Startin' with the input code in a mighty nice array
 	c_line = 0    # current line in program
 	eof_reached = false   # EOF status
+	s_check = false		# for ensuring complete strings
 	
 	for line in input
 		c_string = ""
@@ -77,24 +78,40 @@ def lexer(input)
 				
 			# Testin' for whitespace
 			elsif $space.match(line[i])
-				if c_string != ""
+				if c_string != "" and !s_check
 					tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
 					
 					c_string = ""
 					c_pos = nil
+					
+				else
+					
+					
+					
 				end
 			
 			# Testin' for operators
 			# note: the whitespace issue was handled with the previous elsif
 			elsif $operator.match(line[i])
 				
-				# tokenize c_string if applicable
-				if c_string != ""
-					tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
+				# if op is ", start the string gathering process
+				if /"/.match(line[i]) and !s_check
+					s_check = true
+				
+				
+					# tokenize c_string if applicable
+					if c_string != ""
+						tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
 					
-					c_string = ""
-					c_pos = nil
+						c_string = ""
+						c_pos = nil
+					end
+				else
+					
+					
+					
 				end
+				
 				
 				# attempt to tokenize the operator
 				tokens.push(tokenize(line[i], "op", c_line, i))
