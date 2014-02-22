@@ -85,9 +85,8 @@ def lexer(input)
 					c_pos = nil
 					
 				else
-					
-					
-					
+					c_string = c_string + String(line[i])
+					c_pos = c_pos + 1
 				end
 			
 			# Testin' for operators
@@ -106,10 +105,21 @@ def lexer(input)
 						c_string = ""
 						c_pos = nil
 					end
+					
+				elsif /"/.match(line[i])
+					
+					
+					s_check = false
+					
 				else
+					# tokenize c_string if applicable
+					if c_string != ""
+						tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
 					
-					
-					
+						c_string = ""
+						c_pos = nil
+					end
+				
 				end
 				
 				
