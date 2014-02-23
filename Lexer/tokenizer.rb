@@ -41,7 +41,8 @@ def op_tokenize (p_token, lineno, pos)
 	when "$"
 		return Token.new("T_EOFSIGN", p_token, lineno, pos)
 	else
-		raise UnknownSymbolError.new(p_token, lineno, pos)
+		raise UnknownSymbolError.new(), "ERROR: Line Position #{pos}, Character(s) \'#{p_token}\' -> This here symbol don't appear to be known to no-one around these parts."
+		exit
 	end
 end
 
@@ -66,6 +67,7 @@ def alphanum_tokenize(p_token, lineno, pos)
 	if (p_token =~ $character) and (p_token =~ $digit)
 		
 		raise UnknownSymbolError.new(), "ERROR: Line Position #{pos}, Characters \'#{p_token}\' -> Char and Digit cannot be combined in this language."
+		exit
 		
 		
 	# T_DIGIT. Tokenize its value as an int and not a string
@@ -99,6 +101,7 @@ def alphanum_tokenize(p_token, lineno, pos)
 		end
 	else
 		raise UnknownSymbolError.new(), "ERROR: Line Position #{pos}, Character(s) \'#{p_token}\' -> This here input don't appear to be known to no-one around these parts."
+		exit
 	end
 end
 

@@ -56,12 +56,14 @@ def lexer(input)
 					c_string = c_string + line[i]
 				else
 					raise UnknownSymbolError, "ERROR: Position: #{i} -> This character here don't belong in no man's string"
+					exit
 				end
 			end	
 		
 			# test for anything after EOF
 			if eof_reached and line[i] =~ /\S/
 				raise EOFDetectionError.new(), "ERROR: Position #{i} -> EOF reached early at this location. Will now terminate the program."
+				exit
 			end
 		
 			# test here for EOF symbol
@@ -121,6 +123,7 @@ def lexer(input)
 			# else raise error for unknown symbol
 			else
 				raise UnknownSymbolError.new(), "ERROR: Line Position #{c_pos}, Character \'#{line[i]}\' -> This here character don't appear to be known to no-one around these parts."
+				exit
 			end
 		end
 		
@@ -140,6 +143,7 @@ def lexer(input)
 	# check to make sure that all strings are finished
 	if s_check
 		raise EOFDetectionError, "ERROR: An unfinished string is present in this here file"
+		exit
 	end
 	
 	# return token list
