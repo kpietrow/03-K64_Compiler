@@ -56,7 +56,12 @@ def lexer(input)
 		
 		for i in 0...line.length
 		
-			# preliminary test for anything after EOF
+			if s_check
+				
+				
+			end	
+		
+			# test for anything after EOF
 			if eof_reached and line[i] =~ /\S/
 				raise EOFDetectionError.new("early", c_line, i)
 			end
@@ -78,50 +83,29 @@ def lexer(input)
 				
 			# Testin' for whitespace
 			elsif $space.match(line[i])
-				if c_string != "" and !s_check
+				if c_string != ""
 					tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
 					
 					c_string = ""
 					c_pos = nil
-					
-				else
-					c_string = c_string + String(line[i])
-					c_pos = c_pos + 1
 				end
 			
 			# Testin' for operators
 			# note: the whitespace issue was handled with the previous elsif
 			elsif $operator.match(line[i])
 				
-				# if op is ", start the string gathering process
-				if /"/.match(line[i]) and !s_check
-					s_check = true
-				
-				
-					# tokenize c_string if applicable
-					if c_string != ""
-						tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
+				# tokenize c_string if applicable
+				if c_string != ""
+					tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
 					
-						c_string = ""
-						c_pos = nil
-					end
-					
-				elsif /"/.match(line[i])
-					
-					
-					s_check = false
-					
-				else
-					# tokenize c_string if applicable
-					if c_string != ""
-						tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
-					
-						c_string = ""
-						c_pos = nil
-					end
-				
+					c_string = ""
+					c_pos = nil
 				end
 				
+				# if op is ", start the string gathering process
+				if /"/.match(line[i])
+					s_check = true
+				end
 				
 				# attempt to tokenize the operator
 				tokens.push(tokenize(line[i], "op", c_line, i))
