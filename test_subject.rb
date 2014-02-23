@@ -4,10 +4,9 @@
 
 class Temperror < StandardError
 	def initialize()
-		puts "test"
 	end
 end
 
 c = 8
 
-raise Temperror.new()
+raise Temperror.new(), "shouldn't have done a string!"

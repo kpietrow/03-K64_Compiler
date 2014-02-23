@@ -18,23 +18,13 @@ require './Lexer/tokenizer.rb'
 # error for unknown symbols
 # exits program, prints line and line number
 class UnknownSymbolError < StandardError
-	def initialize(char, lineno, pos)
-		@char, @lineno, @pos = char, lineno + 1, pos + 1
-		puts "ERROR: Line #{@lineno}, Position #{@pos}, Character \'#{char}\' -> This here character don't appear to be known to no-one around these parts."
-		exit
+	def initialize()
 	end
 end
 
 # Error for early or nonexistent EOF
 class EOFDetectionError < StandardError
-	def initialize(type, lineno, pos)
-		@type, @lineno, @pos = type, lineno + 1, pos + 1
-		if @type == "early"
-			puts "ERROR: Line #{@lineno}, Position #{@pos} -> EOF reached early at this location. Will now terminate the program."
-			exit
-		elsif @type == "dne"
-			puts "WARNING: No EOF sign ($) reached. Will temporarily add one for this run-through, but the source code will not be altered."
-		end
+	def initialize()
 	end
 end
 
@@ -56,14 +46,31 @@ def lexer(input)
 		
 		for i in 0...line.length
 		
+			# checks for unfinished strings first
 			if s_check
-				
-				
+			
+				# make sure that we're not going to be using nil for tokenize()
+				if c_pos == nil
+						c_pos = i
+				end
+			
+				# check the different options
+				case line[i]
+				when /"/
+					tokens.push(c_string, "string", c_line, c_pos)
+					tokens.push(line[i], "op", c_line, i)
+					s_check = false
+					break
+				when /[ ]/, /[a-z]/
+					c_string = c_string + line[i]
+				else
+					raise UnknownSymbolError, "ERROR: Position: #{i} -> This character here don't belong in no man's string"
+				end
 			end	
 		
 			# test for anything after EOF
 			if eof_reached and line[i] =~ /\S/
-				raise EOFDetectionError.new("early", c_line, i)
+				raise EOFDetectionError.new(), "ERROR: Position #{i} -> EOF reached early at this location. Will now terminate the program."
 			end
 		
 			# test here for EOF symbol
@@ -102,13 +109,13 @@ def lexer(input)
 					c_pos = nil
 				end
 				
+				# attempt to tokenize the operator
+				tokens.push(tokenize(line[i], "op", c_line, i))
+				
 				# if op is ", start the string gathering process
 				if /"/.match(line[i])
 					s_check = true
 				end
-				
-				# attempt to tokenize the operator
-				tokens.push(tokenize(line[i], "op", c_line, i))
 				
 			# Testin' for alpha numeric characters
 			elsif $alpha_numeric.match(line[i])
@@ -122,7 +129,7 @@ def lexer(input)
 			
 			# else raise error for unknown symbol
 			else
-				raise UnknownSymbolError.new(line[i], c_line, c_pos)
+				raise UnknownSymbolError.new(), "ERROR: Line Position #{c_pos}, Character \'#{line[i]}\' -> This here character don't appear to be known to no-one around these parts."
 			end
 		end
 		
@@ -133,10 +140,15 @@ def lexer(input)
 	# if no EOF symbol ($) detected
 	if !eof_reached
 		begin
-			raise EOFDetectionError.new("dne", 0, 0)
+			raise EOFDetectionError.new(), "WARNING: No EOF sign ($) reached. Will temporarily add one for this run-through, but the source code will not be altered."
 		rescue EOFDetectionError
 			tokens.push(tokenize("$", "op", c_line, 0))
 		end
+	end
+	
+	# check to make sure that all strings are finished
+	if s_check
+		raise EOFDetectionError, "ERROR: An unfinished string is present in this here file"
 	end
 	
 	# return token list

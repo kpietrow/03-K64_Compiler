@@ -108,5 +108,7 @@ def tokenize (p_token, type, lineno, pos)
 	elsif type == "alphanum"
 		return alphanum_tokenize(p_token, lineno, pos)
 	
+	elsif type == "string"
+		return string_tokenize(p_token, lineno, pos)
 	end
 end
