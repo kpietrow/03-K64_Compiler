@@ -46,21 +46,26 @@ def op_tokenize (p_token, lineno, pos)
 end
 
 
+# dealing with strings
+def string_tokenize(p_token, lineno, pos)
 
+	# the thinking behind this is that the string has already been 
+	# checked for and validated in the Lexer. This method is to
+	# ensure consistency in the realm of token generation
+	#
+	# The validation process may move here in the future
+	return Token.new("T_STRING", p_token, lineno, pos)
+end
+	
 
 
 # dealing with alphanumeric character strings
 def alphanum_tokenize(p_token, lineno, pos)
 	
-	# T_ID potential
+	# Mixes of characters and digits are not allowed
 	if (p_token =~ $character) and (p_token =~ $digit)
 		
-		# Can't start with a digit
-		if p_token[0] =~ $digit
-			raise UnknownSymbolError.new(p_token, lineno, pos)
-		else
-			return Token.new("T_ID", p_token, lineno, pos)
-		end
+		raise UnknownSymbolError.new(), "ERROR: Line Position #{pos}, Characters \'#{p_token}\' -> Char and Digit cannot be combined in this language."
 		
 		
 	# T_DIGIT. Tokenize its value as an int and not a string
@@ -68,7 +73,7 @@ def alphanum_tokenize(p_token, lineno, pos)
 		return Token.new("T_DIGIT", Integer(p_token), lineno, pos)
 	
 	
-	# could be a keyword, type, or id here
+	# could be a KEYWORD, TYPE, or ID here
 	elsif p_token =~ /[a-z]+/
 		case p_token
 		when /\b(while)\b/
@@ -93,7 +98,7 @@ def alphanum_tokenize(p_token, lineno, pos)
 			raise UnknownSymbolError.new(p_token, lineno, pos)
 		end
 	else
-		raise UnknownSymbolError.new(p_token, lineno, pos)
+		raise UnknownSymbolError.new(), "ERROR: Line Position #{pos}, Character(s) \'#{p_token}\' -> This here input don't appear to be known to no-one around these parts."
 	end
 end
 

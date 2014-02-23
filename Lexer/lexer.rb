@@ -4,15 +4,6 @@
 # here, and translating it with our nice Lexer into some tokens
 
 
-# TODO: Robust terminal output
-
-
-
-# bring in tokenizing functions
-require 'rubygems'
-require './Lexer/tokenizer.rb'
-
-
 
 ##
 # error for unknown symbols
