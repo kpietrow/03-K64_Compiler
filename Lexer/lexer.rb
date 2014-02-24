@@ -25,11 +25,20 @@ class EOFDetectionError < StandardError
  			exit
  		elsif @type == "dne"
  			puts "WARNING: No EOF sign ($) reached. Will temporarily add one for this run-through, but the source code will not be altered."
- 		elsif @type == "string"
- 			puts "ERROR: Line #{@lineno} -> Looks there's an unterminated string on this line."	
- 			exit
  		end
  	end
+end
+
+class StringDetectionError < StandardError
+	def initialize(type, char, lineno, pos)
+		if type == "unclosed"
+			puts "ERROR: Line: #{lineno + 1} -> Unclosed string found on this line."
+		elsif type == "char"
+			puts "ERROR: Line: #{lineno}, Position: #{pos} -> Unknown character '#{char}' found in string."
+		end
+		
+		exit
+	end
 end
 
 
@@ -44,16 +53,17 @@ def lexer(input)
 	eof_reached = false   # EOF status
 	s_check = false		# for ensuring complete strings
 	
+	# get a line of input
 	for line in input
 		c_string = ""
 		c_pos = nil
 		
+		# check characters in line of input
 		for i in 0...line.length
 		
 			# checks for unfinished strings first
 			if s_check
-				puts "hehe"
-				
+			
 				# make sure that we're not going to be using nil for tokenize()
 				if c_pos == nil
 					c_pos = i
@@ -61,31 +71,38 @@ def lexer(input)
 			
 				# check the different options
 				case line[i]
+				
+				# found a closing quotation mark
 				when /"/
-					puts "uh"
-					tokens.push(c_string, "string", c_line, c_pos)
-					tokens.push(line[i], "op", c_line, i)
+					tokens.push(tokenize(c_string, "string", c_line, c_pos))
+					tokens.push(tokenize(line[i], "op", c_line, i))
 					c_string = ""
 					s_check = false
-					break
+					
+				# space or letter
 				when /( )/, /[a-z]/
-					puts "well this is ok"
 					c_string = c_string + line[i]
-					break
+					
+				# invalid options
 				else
-					puts "huh"
-					raise UnknownSymbolError.new(line[i], c_line, i)
+					
+					# checks for end of line, else it's a bad character
+					if i == line.length - 1
+						raise StringDetectionError.new("unclosed", line[i], c_line, i)
+					else
+						raise StringDetectionError.new("char", line[i], c_line, i)
+					end
 				end
-			end	
+				
 		
 			# test for anything after EOF
-			if eof_reached and line[i] =~ /\S/
+			elsif eof_reached and line[i] =~ /\S/
 				raise EOFDetectionError.new("early", c_line, i)
 				exit
-			end
+			
 		
 			# test here for EOF symbol
-			if $eof.match(line[i])
+			elsif $eof.match(line[i])
 				eof_reached = true
 				
 				# tokenize current string
@@ -146,7 +163,7 @@ def lexer(input)
 		
 		# check to make sure that all strings on this line are finished
 		if s_check
-			raise EOFDetectionError.new("string", c_line, 0)
+			raise StringDetectionError.new("unclosed", "", c_line, 0)
 		end
 		
 		# increment the line number

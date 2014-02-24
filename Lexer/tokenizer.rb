@@ -53,7 +53,7 @@ def string_tokenize(p_token, lineno, pos)
 	# checked for and validated in the Lexer. This method is to
 	# ensure consistency in the realm of token generation
 	#
-	# The validation process may move here in the future
+	# The validation process may move here in the future	
 	return Token.new("T_STRING", p_token, lineno, pos)
 end
 	
