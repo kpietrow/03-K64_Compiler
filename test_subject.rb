@@ -4,6 +4,8 @@
 
 class Temperror < StandardError
 	def initialize()
+		puts "yo"
+		exit
 	end
 end
 

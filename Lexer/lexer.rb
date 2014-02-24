@@ -9,14 +9,27 @@
 # error for unknown symbols
 # exits program, prints line and line number
 class UnknownSymbolError < StandardError
-	def initialize()
-	end
+	def initialize(char, lineno, pos)
+ 		@char, @lineno, @pos = char, lineno + 1, pos + 1
+ 		puts "ERROR: Line #{@lineno}, Position #{@pos}, Character(s) \'#{char}\' -> This here input don't appear to be known to no-one around these parts."
+ 		exit	
+ 	end
 end
 
 # Error for early or nonexistent EOF
 class EOFDetectionError < StandardError
-	def initialize()
-	end
+	def initialize(type, lineno, pos)
+ 		@type, @lineno, @pos = type, lineno + 1, pos + 1
+ 		if @type == "early"
+ 			puts "ERROR: Line #{@lineno}, Position #{@pos} -> EOF reached early at this location. Will now terminate the program."
+ 			exit
+ 		elsif @type == "dne"
+ 			puts "WARNING: No EOF sign ($) reached. Will temporarily add one for this run-through, but the source code will not be altered."
+ 		elsif @type == "string"
+ 			puts "ERROR: Looks there's an unterminated string in this here file."	
+ 		
+ 		end
+ 	end
 end
 
 
@@ -42,7 +55,7 @@ def lexer(input)
 			
 				# make sure that we're not going to be using nil for tokenize()
 				if c_pos == nil
-						c_pos = i
+					c_pos = i
 				end
 			
 				# check the different options
@@ -55,14 +68,13 @@ def lexer(input)
 				when /[ ]/, /[a-z]/
 					c_string = c_string + line[i]
 				else
-					raise UnknownSymbolError, "ERROR: Position: #{i} -> This character here don't belong in no man's string"
-					exit
+					raise UnknownSymbolError.new(line[i], c_line, i)
 				end
 			end	
 		
 			# test for anything after EOF
 			if eof_reached and line[i] =~ /\S/
-				raise EOFDetectionError.new(), "ERROR: Position #{i} -> EOF reached early at this location. Will now terminate the program."
+				raise EOFDetectionError.new("early", c_line, i)
 				exit
 			end
 		
@@ -122,8 +134,7 @@ def lexer(input)
 			
 			# else raise error for unknown symbol
 			else
-				raise UnknownSymbolError.new(), "ERROR: Line Position #{c_pos}, Character \'#{line[i]}\' -> This here character don't appear to be known to no-one around these parts."
-				exit
+				raise UnknownSymbolError.new(line[i], c_line, c_pos)
 			end
 		end
 		
@@ -134,7 +145,7 @@ def lexer(input)
 	# if no EOF symbol ($) detected
 	if !eof_reached
 		begin
-			raise EOFDetectionError.new(), "WARNING: No EOF sign ($) reached. Will temporarily add one for this run-through, but the source code will not be altered."
+			raise EOFDetectionError.new("dne", 0, 0)
 		rescue EOFDetectionError
 			tokens.push(tokenize("$", "op", c_line, 0))
 		end
@@ -142,8 +153,8 @@ def lexer(input)
 	
 	# check to make sure that all strings are finished
 	if s_check
-		raise EOFDetectionError, "ERROR: An unfinished string is present in this here file"
-		exit
+		raise EOFDetectionError.new("string", 0, 0)
+		
 	end
 	
 	# return token list
