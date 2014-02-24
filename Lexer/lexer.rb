@@ -29,6 +29,7 @@ class EOFDetectionError < StandardError
  	end
 end
 
+# Error class for strings
 class StringDetectionError < StandardError
 	def initialize(type, char, lineno, pos)
 		if type == "unclosed"
@@ -53,14 +54,17 @@ def lexer(input)
 	eof_reached = false   # EOF status
 	s_check = false		# for ensuring complete strings
 	
+	c_string = ""	# the current string of chars
+	c_pos = nil		# current position of string of chars
+	
 	# get a line of input
 	for line in input
-		c_string = ""
-		c_pos = nil
 		
 		# check characters in line of input
 		for i in 0...line.length
-		
+			
+			puts line[i]
+			
 			# checks for unfinished strings first
 			if s_check
 			
@@ -165,6 +169,15 @@ def lexer(input)
 		if s_check
 			raise StringDetectionError.new("unclosed", "", c_line, 0)
 		end
+		
+		# check to make sure no current strings are left
+		if c_string != ""
+			tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
+		end
+		
+		# reset for next line
+		c_string = ""
+		c_pos = nil
 		
 		# increment the line number
 		c_line = c_line + 1

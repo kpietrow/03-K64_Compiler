@@ -58,6 +58,13 @@ def main
 		print i.type
 		print ", "
 	end
+	
+	puts "\n\n"
+	
+	for i in token_stream
+		print i.value
+		print ", "
+	end
 end
 
 main
