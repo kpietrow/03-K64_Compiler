@@ -26,8 +26,8 @@ class EOFDetectionError < StandardError
  		elsif @type == "dne"
  			puts "WARNING: No EOF sign ($) reached. Will temporarily add one for this run-through, but the source code will not be altered."
  		elsif @type == "string"
- 			puts "ERROR: Looks there's an unterminated string in this here file."	
- 		
+ 			puts "ERROR: Line #{@lineno} -> Looks there's an unterminated string on this line."	
+ 			exit
  		end
  	end
 end
@@ -52,7 +52,8 @@ def lexer(input)
 		
 			# checks for unfinished strings first
 			if s_check
-			
+				puts "hehe"
+				
 				# make sure that we're not going to be using nil for tokenize()
 				if c_pos == nil
 					c_pos = i
@@ -61,13 +62,18 @@ def lexer(input)
 				# check the different options
 				case line[i]
 				when /"/
+					puts "uh"
 					tokens.push(c_string, "string", c_line, c_pos)
 					tokens.push(line[i], "op", c_line, i)
+					c_string = ""
 					s_check = false
 					break
-				when /[ ]/, /[a-z]/
+				when /( )/, /[a-z]/
+					puts "well this is ok"
 					c_string = c_string + line[i]
+					break
 				else
+					puts "huh"
 					raise UnknownSymbolError.new(line[i], c_line, i)
 				end
 			end	
@@ -138,6 +144,11 @@ def lexer(input)
 			end
 		end
 		
+		# check to make sure that all strings on this line are finished
+		if s_check
+			raise EOFDetectionError.new("string", c_line, 0)
+		end
+		
 		# increment the line number
 		c_line = c_line + 1
 	end
@@ -149,12 +160,6 @@ def lexer(input)
 		rescue EOFDetectionError
 			tokens.push(tokenize("$", "op", c_line, 0))
 		end
-	end
-	
-	# check to make sure that all strings are finished
-	if s_check
-		raise EOFDetectionError.new("string", 0, 0)
-		
 	end
 	
 	# return token list
