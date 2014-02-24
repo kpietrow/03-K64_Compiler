@@ -3,7 +3,7 @@
 # It's my estimation that  we're gonna be examining incoming input
 # here, and translating it with our nice Lexer into some tokens
 
-
+# TODO: Separate tokenize() calls for digits and characters
 
 ##
 # error for unknown symbols
