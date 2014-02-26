@@ -65,6 +65,8 @@ def main
 		print i.value
 		print ", "
 	end
+	
+	parsed_stream = parser(token_stream)
 end
 
 main

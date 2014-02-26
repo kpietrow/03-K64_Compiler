@@ -3,7 +3,7 @@
 
 
 
-def Parser (input)
+def parser (input)
 	
 	
 	
