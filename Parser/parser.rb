@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # Building the CST
-
+ 
 # retrieves the next token
 def t_next (index, tokens)
 	return tokens[index + 1]
