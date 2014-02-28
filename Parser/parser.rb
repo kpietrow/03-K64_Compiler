@@ -1,6 +1,15 @@
 #!/usr/bin/env ruby
 # Building the CST
  
+
+# Set up a class for unexpected tokens
+class FaultyTokenError < StandardError 
+	def initialize(e_token, r_token, lineno, pos)
+		puts "ERROR: Expected an #{e_token}, received an #{r_token} at Line #{lineno} Position #{pos}"
+		exit
+	end
+end
+	
 # retrieves the next token
 def t_next (index, tokens)
 	return tokens[index + 1]
@@ -10,11 +19,12 @@ end
 
 def parser (tokens)
 	
-	if tokens.length > 0
-		index = 0
-		p_block
-	
-	
+	index = 0
+	if tokens.length > 1
+		block(index, tokens)
+	#elsif
+		#raise error
+	end	
 	
 end
 
@@ -22,7 +32,12 @@ end
 # Block ::== { StatementList }
 #
 def block
-
+	puts "Token Found"
+	puts "\tExpectin' an T_LBRACE..."
+	
+	if tokens[0].type
+	
+	
 end
 
 ##
@@ -42,7 +57,7 @@ end
 #			::== If
 #			::== Block
 #
-def statement
+def statement (index, token, tokens)
 	
 	
 end

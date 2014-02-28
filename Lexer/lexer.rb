@@ -4,6 +4,7 @@
 # here, and translating it with our nice Lexer into some tokens
 
 # TODO: Separate tokenize() calls for digits and characters
+# TODO: Set up basic symbol table
 
 ##
 # error for unknown symbols
