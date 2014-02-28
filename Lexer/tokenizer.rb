@@ -9,7 +9,7 @@ class Token
 	attr_accessor :type, :value, :line, :position, :total_tokens
 	
 	def initialize(type, value, line, pos)
-		@type, @value, @line, @pos = type, value, line, pos
+		@type, @value, @lineno, @pos = type, value, line, pos
 	end
 end
 

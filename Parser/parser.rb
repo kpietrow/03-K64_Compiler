@@ -20,22 +20,38 @@ end
 def parser (tokens)
 	
 	index = 0
-	if tokens.length > 1
-		block(index, tokens)
-	#elsif
-		#raise error
+	if tokens.length == 1
+		raise FaultyTokenError("Non T_EOFSIGN", tokens[0].type, tokens[0].lineno, tokens[0].pos)
 	end	
+	
+	cst = block(index, tokens)
 	
 end
 
 ##
 # Block ::== { StatementList }
 #
-def block
+def block (index, tokens)
 	puts "Token Found"
 	puts "\tExpectin' an T_LBRACE..."
 	
-	if tokens[0].type
+	# Confirm '{' token
+	if tokens[index].type == "T_LBRACE"
+		puts "\t\tT_LBRACE found!"
+		
+	# Else yell at operator
+	else 
+		puts raise FaultyTokenError("T_LBRACE", tokens[index].type, tokens[index].lineno, tokens[index].pos)
+	end
+	
+	# Confirm that there is a statement list, then go
+	if t_next(index, tokens) =! "T_RBRACE"
+		index = index + 1
+		result = statement_list (index, tokens)
+	
+	# elsif return blank block
+	
+	end
 	
 	
 end
