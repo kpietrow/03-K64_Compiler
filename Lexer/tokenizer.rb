@@ -6,7 +6,7 @@
 class Token
 	# Establishin' a token class for easier categorization
 	
-	attr_accessor :type, :value, :line, :position, :total_tokens
+	attr_accessor :type, :value, :lineno, :pos
 	
 	def initialize(type, value, line, pos)
 		@type, @value, @lineno, @pos = type, value, line, pos

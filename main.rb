@@ -5,6 +5,7 @@
 require 'io/console'
 
 require './Lexer/lexer.rb'
+require './SymbolTable/symbol_table.rb'
 
 # bring in tokenizing functions
 require './Lexer/tokenizer.rb'
@@ -53,7 +54,7 @@ def main
 		raise BlankFileError
 	end
 	
-	token_stream = lexer(input_file)
+	token_stream, s_table = lexer(input_file)
 	for i in token_stream
 		print i.type
 		print ", "
@@ -61,9 +62,8 @@ def main
 	
 	puts "\n\n"
 	
-	for i in token_stream
-		print i.value
-		print ", "
+	for i in s_table
+		print i
 	end
 	
 	parsed_stream = parser(token_stream)
