@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 # Building the CST
+
+# TODO: Should probably set it so that there's a function 
+# which takes care of parsing output
  
 
 # Set up a class for unexpected tokens
