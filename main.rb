@@ -10,6 +10,8 @@ require './SymbolTable/symbol_table.rb'
 # bring in tokenizing functions
 require './Lexer/tokenizer.rb'
 
+require './Parser/parser.rb'
+
 class BlankFileError < StandardError
 	def initialize()
 		puts "ERROR: There don't seem to be any information in that here file. We're just gonna exit the program for ye."

@@ -7,17 +7,36 @@
 
 # Set up a class for unexpected tokens
 class FaultyTokenError < StandardError 
-	def initialize(e_token, r_token, lineno, pos)
-		puts "ERROR: Expected an #{e_token}, received an #{r_token} at Line #{lineno} Position #{pos}"
+	def initialize(e_token, token)
+		puts "ERROR: Expected an #{e_token}, received an #{token.type} at Line #{token.lineno} Position #{token.pos}"
 		exit
 	end
 end
 	
+
+	
+	
+	
+
 # retrieves the next token
 def t_next (index, tokens)
 	return tokens[index + 1]
 end
 
+
+# testing for a token match. value, expected, received
+def match_token (exp, token)
+	puts "Token received: #{token.value}"
+	puts "\nExpecting token of type: #{exp}"
+	
+	if exp == rec
+		puts "\n\nShiny! Got #{token.type}!"
+	else
+		raise FaultyTokenError.new(exp, token)
+	end
+	
+	
+end
 
 
 def parser (tokens)

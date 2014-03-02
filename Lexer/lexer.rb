@@ -103,7 +103,6 @@ def lexer(input)
 			# test for anything after EOF
 			elsif eof_reached and line[i] =~ /\S/
 				raise EOFDetectionError.new("early", c_line, i)
-				exit
 			
 		
 			# test here for EOF symbol
