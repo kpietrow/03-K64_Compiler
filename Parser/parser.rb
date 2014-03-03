@@ -8,11 +8,13 @@
 # Set up a class for unexpected tokens
 class FaultyTokenError < StandardError 
 	def initialize(e_token, token)
-		puts "ERROR: Expected an #{e_token}, received an #{token.type} at Line #{token.lineno} Position #{token.pos}"
+		puts "ERROR: Expected a(n) #{e_token} token, received a(n) #{token.type} at Line #{token.lineno} Position #{token.pos}"
 		exit
 	end
 end
 	
+
+
 
 	
 	
@@ -31,10 +33,10 @@ def match_token (exp, token)
 	
 	if exp == rec
 		puts "\n\nShiny! Got #{token.type}!"
+		return true
 	else
-		raise FaultyTokenError.new(exp, token)
+		return false
 	end
-	
 	
 end
 
@@ -42,8 +44,11 @@ end
 def parser (tokens)
 	
 	index = 0
-	if tokens.length == 1
-		raise FaultyTokenError("Non T_EOFSIGN", tokens[0].type, tokens[0].lineno, tokens[0].pos)
+	
+	# have to ask alan about this
+	if tokens.length <= 1
+		puts "Insufficient code present"
+		exit
 	end	
 	
 	cst = block(index, tokens)
@@ -54,22 +59,19 @@ end
 # Block ::== { StatementList }
 #
 def block (index, tokens)
-	puts "Token Found"
-	puts "\tExpectin' an T_LBRACE..."
-	
+
 	# Confirm '{' token
-	if tokens[index].type == "T_LBRACE"
-		puts "\t\tT_LBRACE found!"
-		
-	# Else yell at operator
-	else 
-		puts raise FaultyTokenError("T_LBRACE", tokens[index].type, tokens[index].lineno, tokens[index].pos)
-	end
+	if match_token("T_LBRACE", tokens[index])
+		index = index + 1
 	
-	# Confirm that there is a statement list, then go
-	if t_next(index, tokens) =! "T_RBRACE"
+		# Confirm that there is a statement list, then go
+		if t_next(index, tokens) =! "T_RBRACE"
 		index = index + 1
 		result = statement_list (index, tokens)
+	
+	elsif !match_token("T_LBRACE", tokens[index])
+		raise FaultyTokenError.new("T_LBRACE", tokens[index])
+	
 	
 	# elsif return blank block
 	

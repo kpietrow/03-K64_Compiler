@@ -2,11 +2,18 @@
 
 # This file is purely for the purposes of testing different strategies
 
-
-tokens = ["a", "b"]
-
-if token
-	puts "yo"
-elsif tokens
-	puts "hi"
+class Test1
+	attr_accessor :num
+	
+	@@num = 0
+	
+	def initialize()
+		@@num = @@num + 1
+	end
 end
+
+a = Test1.new()
+b = Test1.new()
+
+puts a.num
+puts b.num
