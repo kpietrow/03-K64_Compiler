@@ -25,26 +25,38 @@ class Tree
 	end
 	
 	# add a node
-	def add_node(token, parent = nil, children = nil)
+	def add_node(token, parent = nil)
 		
 		# if no parent, new branch!
 		if parent == nil
 			branches.push([token])
+			return
 			
 		else
-			found = false
-			
-			for branch in branches
-				if found
-					break
-				end
-				
-				for node in branch
-					if node.id == parent.id
-					
+			node_adder(@branches, parent.id, token)
+			return
 		end
-		
 	end
+	
+	# helper method to add node
+	def node_adder (nodes, parentid, token)
+	
+		# cycle through all the nodes
+		nodes.cycle(1) { |node| 
+			
+			# check for parent's id
+			if node[0] == parentid
+				node.push([token])
+				
+			# else continue along branch, unless current branch has no children
+			else
+				if !node.is_a? Integer
+					node_finder(node, parentid, token)
+				end
+			end 
+		}
+	end
+	
 end
 
 # tentative class for nodes on the tree
