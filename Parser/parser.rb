@@ -24,11 +24,26 @@ class Tree
 	def initialize
 	end
 	
+	# add a node
 	def add_node(token, parent = nil, children = nil)
+		
+		# if no parent, new branch!
 		if parent == nil
-			branches.push(token)
+			branches.push([token])
+			
 		else
-	
+			found = false
+			
+			for branch in branches
+				if found
+					break
+				end
+				
+				for node in branch
+					if node.id == parent.id
+					
+		end
+		
 	end
 end
 

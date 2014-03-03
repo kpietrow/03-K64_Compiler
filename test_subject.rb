@@ -18,4 +18,15 @@ end
 b = Test1.new
 c = []
 c.push([b])
-print c[0][0].num
+# print c[0][0].num
+
+for i in 1..5
+	for x in 1..6
+		if x == 3
+			puts "huh"
+			break
+			break
+		end
+	end
+	puts "yo"
+end
