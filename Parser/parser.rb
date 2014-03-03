@@ -14,8 +14,50 @@ class FaultyTokenError < StandardError
 end
 	
 
+# tentative class of a tree
+class Tree
+	
+	@@total_nodes = 0
+	@branches = []
+	
+	
+	def initialize
+	end
+	
+	def add_node(token, parent, children)
+	
+	
+	end
+end
 
-
+# tentative class for nodes on the tree
+class Node (token, parent, children = [])
+	@@total_id = 0
+	@id = 0
+	@token = null
+	@parent = null
+	@children = null
+	
+	def initialize (token, parent, children)
+		@@total_id += 1
+		@id = @@total_id
+		@token = token
+		@parent = parent
+		@children = children
+	end
+	
+	def get_child (id)
+		for child in @children
+			if child.id == id
+				return child
+			end
+		end
+	end
+	
+	def id
+		@id
+	end
+end
 	
 	
 	

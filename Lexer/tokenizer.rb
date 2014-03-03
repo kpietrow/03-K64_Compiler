@@ -8,8 +8,8 @@ class Token
 	
 	attr_accessor :type, :value, :lineno, :pos
 	
-	def initialize(type, value, line, pos)
-		@type, @value, @lineno, @pos = type, value, line, pos
+	def initialize(type, value, lineno, pos)
+		@type, @value, @lineno, @pos = type, value, lineno, pos
 	end
 end
 
