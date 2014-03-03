@@ -1,4 +1,0 @@
-This here is a test
-file for the ruby
-magic that will soon
-ensue

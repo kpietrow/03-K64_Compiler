@@ -24,19 +24,21 @@ class Tree
 	def initialize
 	end
 	
-	def add_node(token, parent, children)
-	
+	def add_node(token, parent = nil, children = nil)
+		if parent == nil
+			branches.push(token)
+		else
 	
 	end
 end
 
 # tentative class for nodes on the tree
-class Node (token, parent, children = [])
+class Node (token, parent = nil, children = [])
 	@@total_id = 0
 	@id = 0
-	@token = null
-	@parent = null
-	@children = null
+	@token = nil
+	@parent = nil
+	@children = nil
 	
 	def initialize (token, parent, children)
 		@@total_id += 1

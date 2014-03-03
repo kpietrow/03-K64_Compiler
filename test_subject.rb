@@ -7,17 +7,15 @@ class Test1
 	
 	@@num = 0
 	
-	def initialize()
-		@@num = @@num + 1
+	def initialize
 	end
 	
-	def post
-		puts @@num
+	def num
+		@@num
 	end
 end
 
-a = Test1.new()
-b = Test1.new()
-
-puts a.post()
-puts b.post()
+b = Test1.new
+c = []
+c.push([b])
+print c[0][0].num
