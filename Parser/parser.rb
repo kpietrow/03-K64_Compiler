@@ -4,6 +4,9 @@
 # TODO: Should probably set it so that there's a function 
 # which takes care of parsing output
  
+#################################################################
+# Helper functions, Error declarations, Class declarations,
+# and all of that shiny stuff
 
 # Set up a class for unexpected tokens
 class FaultyTokenError < StandardError 
@@ -22,6 +25,7 @@ class Tree
 	
 	
 	def initialize
+		@branches = []
 	end
 	
 	# add a node
@@ -46,12 +50,16 @@ class Tree
 		nodes.cycle(1) { |node| 
 			
 			# check for parent's id
+			# if successful...
 			if node[0].id == parentid
+				# add child's id to parents child list
 				node[0].children_ids.push(n_node.id)
+				
+				# push child node into tree
 				node.push([n_node])
 				return
 				
-			# else continue along branch, unless current branch has no children
+			# else continue along current branch if there are more children
 			else
 				if !node.is_a? Array
 					node_finder(node, parentid, n_node)
@@ -64,7 +72,8 @@ end
 
 # tentative class for nodes on the tree
 class Node
-	attr_reader :total_id, :id, :type, :parentid, :children, :terminal, :value
+	attr_reader :total_id, :id, :type, :parentid, :terminal, :value
+	attr_accessor :children
 	
 	@@total_id = 0
 	@id = nil
@@ -147,18 +156,26 @@ def scout_token (index, tokens)
 	return tokens[index + 1].type
 end
 
+#################################################################
+# Main functions in the best gorram' parse tree in the Verse
+
+
 # main function for this file
 def parser (tokens)
 	
 	index = 0
 	
+	# create the new, concrete syntax tree
+	# making it global to reduce headaches (hopefully XD )
+	$cst = Tree.new
+	
 	# have to ask alan about this
 	if tokens.length <= 1
-		puts "Insufficient code present"
+		puts "Insufficient code present! There is only #{tokens.length} token(s) here!"
 		exit
 	end	
 	
-	cst = block(index, tokens)
+	block(index, tokens)
 	
 end
 
@@ -166,7 +183,19 @@ end
 # Block ::== { StatementList }
 #
 def block (index, tokens)
+	
 
+
+
+
+
+
+end
+
+
+
+# old code for Block. saving it just in case
+=begin
 	if !match_token("T_LBRACE", tokens[index])
 		raise FaultyTokenError.new("T_LBRACE", tokens[index])
 	end
@@ -185,10 +214,9 @@ def block (index, tokens)
 	
 	# elsif return blank block
 	
-	end
-	
-	
+	end	
 end
+=end
 
 ##
 # StatementList ::== Statement StatementList

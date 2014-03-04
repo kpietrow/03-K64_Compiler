@@ -52,15 +52,24 @@ class Test2
 	attr_accessor :var
 	
 	@var = nil
+	@collection = []
 	
 	def initialize (var)
 		@var = var
+		@collection = []
 	end
+	
+	def add (y)
+		@collection.push(y)
+	end
+	
+	def collection
+		@collection
+	end
+		
 end
 
-a = [2, [3]]
-b = 5
 
-puts a.is_a? Array
-puts a[0].is_a? Array
-puts a[1].is_a? Array
+cat = Test2.new("hi")
+cat.add("hello")
+print cat.collection
