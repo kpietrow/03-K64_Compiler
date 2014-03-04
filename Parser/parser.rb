@@ -18,45 +18,62 @@ end
 	
 
 # tentative class of a tree
-class Tree
+class CST
 	
 	@@total_nodes = 0
 	@branches = []
+	@root = nil
+	@cur = nil
 	
 	
 	def initialize
 		@branches = []
+		@root = nil
+		@cur = nil
 	end
 	
 	# add a node
-	def add_node(node, parent = nil)
+	def add_node(type, terminal, node)
 		@@total_nodes += 1
 		
-		# if no parent, new branch!
-		if parent == nil
+		# if there are no nodes yet, start it off!
+		if @root == nil
 			branches.push([node])
+			@root = node
+			@cur = node
 			return
-			
+		
+		# otherwise, move about this intelligently
 		else
-			insert_node(@branches, parent.id, node)
+			insert_node(@branches, terminal, node)
 			return
 		end
 	end
 	
 	# helper method to add node
-	def insert_node (nodes, parentid, n_node)
+	def insert_node (nodes, terminal, n_node)
 	
 		# cycle through all the nodes
 		nodes.cycle(1) { |node| 
 			
 			# check for parent's id
 			# if successful...
-			if node[0].id == parentid
-				# add child's id to parents child list
-				node[0].children_ids.push(n_node.id)
+			if node[0] == @cur
+			
+				# add child to parent's list of children list
+				node[0].children.push(n_node.id)
+				
+				# add parent to child's list of parents list
+				n_node.parent = node[0]
 				
 				# push child node into tree
 				node.push([n_node])
+				
+				# if the new node is not terminal, update
+				if !terminal
+					@cur = node
+				end
+				
 				return
 				
 			# else continue along current branch if there are more children
@@ -72,34 +89,27 @@ end
 
 # tentative class for nodes on the tree
 class Node
-	attr_reader :total_id, :id, :type, :parentid, :terminal, :value
-	attr_accessor :children
+	attr_reader :total_id, :id, :token
+	attr_accessor :parent, :children
 	
 	@@total_id = 0
 	@id = nil
-	@type = nil
-	@parentid = nil
-	@children_ids = []
-	@terminal = nil
-	@value = nil
+	@name = nil
+	@token = token
+	@children = []
+	@parent = nil
 	
-	def initialize (node_type, token, parent = nil, children = nil)
+	def initialize (name, token, parent = nil, children = nil)
 		@@total_id += 1
 		@id = @@total_id
-		@type = token.type
-		@value = token.value
-		
-		#not sure if I want these listed as id's or the entire node
-		@parentid = parent.id
-		@children_ids = children_ids(children)
-		
-		# determine whether node is terminal or not
-		@terminal = determine_term(node_type)
+		@token = token
+		@parent = parent
+		@children = children_ids(children)
 	end
 	
 	# if children given, return children ids
 	def children_ids (children)
-		if children = nil
+		if children == nil
 			return []
 		else
 			ids = []
@@ -113,17 +123,6 @@ class Node
 			if child.id == id
 				return child
 			end
-		end
-	end
-	
-	# determines whether a node is terminal or not
-	# TODO: Add in an error statement for non-matches
-	def determine_term (node_type)
-		case node_type
-		when "Program", "Block", "StatementList", "Statement", "PrintStatement", "AssignmentStatement", "VarDecl", "WhileStatement", "IfStatement", "Expr", "IntExpr", "StringExpr", "BooleanExpr"
-			return false
-		else
-			return true
 		end
 	end
 end
@@ -167,7 +166,7 @@ def parser (tokens)
 	
 	# create the new, concrete syntax tree
 	# making it global to reduce headaches (hopefully XD )
-	$cst = Tree.new
+	$cst = CST.new
 	
 	# have to ask alan about this
 	if tokens.length <= 1
@@ -183,7 +182,7 @@ end
 # Block ::== { StatementList }
 #
 def block (index, tokens)
-	
+	$cst
 
 
 
