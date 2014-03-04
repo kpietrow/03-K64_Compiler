@@ -31,6 +31,36 @@ def test1 (a)
 	test2(a)
 end
 
-tester(test)
+#tester(test)
 
-print test
+#print test
+
+
+class Test1
+	@var = nil
+	
+	def initialize (var)
+		@var = var
+	end
+	
+	def var
+		@var
+	end
+end
+
+class Test2
+	attr_accessor :var
+	
+	@var = nil
+	
+	def initialize (var)
+		@var = var
+	end
+end
+
+a = [2, [3]]
+b = 5
+
+puts a.is_a? Array
+puts a[0].is_a? Array
+puts a[1].is_a? Array

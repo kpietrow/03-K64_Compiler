@@ -45,12 +45,12 @@ class Tree
 		nodes.cycle(1) { |node| 
 			
 			# check for parent's id
-			if node[0] == parentid
+			if node[0].id == parentid
 				node.push([token])
 				
 			# else continue along branch, unless current branch has no children
 			else
-				if !node.is_a? Integer
+				if !node.is_a? Array
 					node_finder(node, parentid, token)
 				end
 			end 
@@ -61,18 +61,28 @@ end
 
 # tentative class for nodes on the tree
 class Node (token, parentid = nil, children = [])
+	attr_reader :total_id, :id, :type, :parentid, :children, :terminal, :value
+	
 	@@total_id = 0
-	@id = 0
-	@token = nil
+	@id = nil
+	@type = nil
 	@parentid = nil
 	@children = nil
+	@terminal = nil
+	@value = nil
 	
-	def initialize (token, parent, children)
+	def initialize (node_type, token, parent, children)
 		@@total_id += 1
 		@id = @@total_id
-		@token = token
-		@parent = parent
+		@type = token.type
+		@value = token.value
+		
+		#not sure if I want these listed as id's or the entire node
+		@parentid = parent.id
 		@children = children
+		
+		# determine whether node is terminal or not
+		@terminal = determine_term(node_type)
 	end
 	
 	def get_child (id)
@@ -83,13 +93,15 @@ class Node (token, parentid = nil, children = [])
 		end
 	end
 	
-	def id
-		@id
-	end
-	
-	def parentid
-		@parentid
-	end
+	# determines whether a node is terminal or not
+	# TODO: Add in an error statement for non-matches
+	def determine_term (node_type)
+		case node_type
+		when "Program", "Block", "StatementList", "Statement", "PrintStatement", "AssignmentStatement", "VarDecl", "WhileStatement", "IfStatement", "Expr", "IntExpr", "StringExpr", "BooleanExpr"
+			return false
+		else
+			return true
+		end
 end
 	
 	
