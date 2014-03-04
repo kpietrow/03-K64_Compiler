@@ -25,33 +25,36 @@ class Tree
 	end
 	
 	# add a node
-	def add_node(token, parent = nil)
+	def add_node(node, parent = nil)
+		@@total_nodes += 1
 		
 		# if no parent, new branch!
 		if parent == nil
-			branches.push([token])
+			branches.push([node])
 			return
 			
 		else
-			node_adder(@branches, parent.id, token)
+			insert_node(@branches, parent.id, node)
 			return
 		end
 	end
 	
 	# helper method to add node
-	def node_adder (nodes, parentid, token)
+	def insert_node (nodes, parentid, n_node)
 	
 		# cycle through all the nodes
 		nodes.cycle(1) { |node| 
 			
 			# check for parent's id
 			if node[0].id == parentid
-				node.push([token])
+				node[0].children_ids.push(n_node.id)
+				node.push([n_node])
+				return
 				
 			# else continue along branch, unless current branch has no children
 			else
 				if !node.is_a? Array
-					node_finder(node, parentid, token)
+					node_finder(node, parentid, n_node)
 				end
 			end 
 		}
@@ -60,18 +63,18 @@ class Tree
 end
 
 # tentative class for nodes on the tree
-class Node (token, parentid = nil, children = [])
+class Node
 	attr_reader :total_id, :id, :type, :parentid, :children, :terminal, :value
 	
 	@@total_id = 0
 	@id = nil
 	@type = nil
 	@parentid = nil
-	@children = nil
+	@children_ids = []
 	@terminal = nil
 	@value = nil
 	
-	def initialize (node_type, token, parent, children)
+	def initialize (node_type, token, parent = nil, children = nil)
 		@@total_id += 1
 		@id = @@total_id
 		@type = token.type
@@ -79,10 +82,21 @@ class Node (token, parentid = nil, children = [])
 		
 		#not sure if I want these listed as id's or the entire node
 		@parentid = parent.id
-		@children = children
+		@children_ids = children_ids(children)
 		
 		# determine whether node is terminal or not
 		@terminal = determine_term(node_type)
+	end
+	
+	# if children given, return children ids
+	def children_ids (children)
+		if children = nil
+			return []
+		else
+			ids = []
+			children.cycle(1) {|child| id.push(child.id) }
+			return ids
+		end
 	end
 	
 	def get_child (id)
@@ -102,6 +116,7 @@ class Node (token, parentid = nil, children = [])
 		else
 			return true
 		end
+	end
 end
 	
 	
