@@ -94,7 +94,7 @@ class Node
 			return []
 		else
 			ids = []
-			children.cycle(1) {|child| id.push(child.id) }
+			children.cycle(1) {|child| ids.push(child.id) }
 			return ids
 		end
 	end
@@ -147,7 +147,7 @@ def scout_token (index, tokens)
 	return tokens[index + 1].type
 end
 
-
+# main function for this file
 def parser (tokens)
 	
 	index = 0
