@@ -60,11 +60,11 @@ class Tree
 end
 
 # tentative class for nodes on the tree
-class Node (token, parent = nil, children = [])
+class Node (token, parentid = nil, children = [])
 	@@total_id = 0
 	@id = 0
 	@token = nil
-	@parent = nil
+	@parentid = nil
 	@children = nil
 	
 	def initialize (token, parent, children)
@@ -85,6 +85,10 @@ class Node (token, parent = nil, children = [])
 	
 	def id
 		@id
+	end
+	
+	def parentid
+		@parentid
 	end
 end
 	
@@ -111,6 +115,11 @@ def match_token (exp, token)
 	
 end
 
+# watered down match_token. returns type of next token
+def scout_token (index, tokens)
+	return tokens[index + 1].type
+end
+
 
 def parser (tokens)
 	
@@ -131,6 +140,10 @@ end
 #
 def block (index, tokens)
 
+	if !match_token("T_LBRACE", tokens[index])
+		raise FaultyTokenError.new("T_LBRACE", tokens[index])
+	end
+	
 	# Confirm '{' token
 	if match_token("T_LBRACE", tokens[index])
 		index = index + 1
@@ -140,8 +153,7 @@ def block (index, tokens)
 		index = index + 1
 		result = statement_list (index, tokens)
 	
-	elsif !match_token("T_LBRACE", tokens[index])
-		raise FaultyTokenError.new("T_LBRACE", tokens[index])
+	
 	
 	
 	# elsif return blank block
