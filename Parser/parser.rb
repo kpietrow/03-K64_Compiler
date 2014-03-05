@@ -8,7 +8,7 @@
 # Helper functions, Error declarations, Class declarations,
 # and all of that shiny stuff
 
-# Set up a class for unexpected tokens
+# Set up a class for unexpected $tokens
 class FaultyTokenError < StandardError 
 	def initialize(e_token, token)
 		puts "ERROR: Expected a(n) #{e_token} token, received a(n) #{token.type} at Line #{token.lineno} Position #{token.pos}"
@@ -131,8 +131,8 @@ end
 	
 
 # retrieves the next token
-def t_next (index, tokens)
-	return tokens[index + 1]
+def t_next ()
+	return $tokens[$index + 1]
 end
 
 
@@ -156,46 +156,44 @@ end
 
 # main function for this file
 def parser (tokens)
-	
-	index = 0
-	
+
 	# create the new, concrete syntax tree
 	# making it global to reduce headaches (hopefully XD )
 	$cst = CST.new
 	
+	# define some other useful, global vars
+	$tokens = tokens
+	$index = 0
+	
 	# have to ask alan about this
-	if tokens.length <= 1
-		puts "Insufficient code present! There is only #{tokens.length} token(s) here!"
+	if $tokens.length <= 1
+		puts "Insufficient code present! There is only #{$tokens.length} token(s) here!"
 		exit
 	end	
 	
 	# $cst.addNode("Program")
-	block(index, tokens)
-	match_token("T_EOFSIGN", tokens[index])
+	block()
+	match_token("T_EOFSIGN", $tokens[$index])
 end
 
 ##
 # Block ::== { StatementList }
 #
-def block (index, tokens)
+def block ()
 	
 	# $cst.add_node("Block")
 	
-	if match_token("T_LBRACE", tokens[index])
+	if match_token("T_LBRACE", $tokens[$index])
 		# $cst.add_node("LBrace")
 	
-		# make sure there's not an early '{'
-		if tokens[index + 1].type != "T_RBRACE"
-			index = index + 1
-			statement_list(index, tokens)
-		else
-			# error
-		end
+		$index = $index + 1
+		statement_list()
+		
 	else
 		# error
 	end
 	
-	if match_token("T_RBRACE", tokens[index])
+	if match_token("T_RBRACE", $tokens[$index])
 		# cst.add_node("RBrace")
 	else
 		# error
@@ -206,18 +204,18 @@ end
 
 # old code for Block. saving it just in case
 =begin
-	if !match_token("T_LBRACE", tokens[index])
-		raise FaultyTokenError.new("T_LBRACE", tokens[index])
+	if !match_token("T_LBRACE", $tokens[$index])
+		raise FaultyTokenError.new("T_LBRACE", $tokens[$index])
 	end
 	
 	# Confirm '{' token
-	if match_token("T_LBRACE", tokens[index])
-		index = index + 1
+	if match_token("T_LBRACE", $tokens[$index])
+		$index = $index + 1
 	
 		# Confirm that there is a statement list, then go
-		if t_next(index, tokens) =! "T_RBRACE"
-		index = index + 1
-		result = statement_list (index, tokens)
+		if t_next() =! "T_RBRACE"
+		$index = $index + 1
+		result = statement_list ()
 	
 	
 	
@@ -232,12 +230,12 @@ end
 # StatementList ::== Statement StatementList
 #				::== Ɛ
 #
-def statement_list (index, tokens)
+def statement_list ()
 	# $cst.add_node("StatmentList")
 	
-	if tokens[index + 1].type != "T_RBRACE"
-		statement(index, tokens)
-		statement_list(index, tokens)
+	if $tokens[$index].type != "T_RBRACE"
+		statement()
+		statement_list()
 	else
 		return
 	end
@@ -252,25 +250,44 @@ end
 #			::== If
 #			::== Block
 #
-def statement (index, tokens)
+def statement ()
 	# $cst.add_node("Statement")
 	
-	case tokens[index].type
-	when 
-	
+	case $tokens[$index].type
+	when "T_PRINT"
+		print_stmt()
+	when "T_ID"
+		assignment_stmt()
+	when "T_TYPE"
+		vardecl()
+	when "T_WHILE"
+		while_stmt()
+	when "T_IF"
+		if_stmt()
+	when "T_LBRACE"
+		block()
+	else
+		#error
+	end
+		
 end
 
 ##
 # Print ::== print ( Expr )
 #
-def print (index, tokens)
+def print_stmt ()
+	# $cst.add_node("PrintStmt")
 	
+	if match_token("T_PRINT", $tokens[$index])
+		# $cst.add_node("Print") (terminal)
+		$index = 
+		
 end
 
 ##
 # Assignment ::== Id = Expr
 #
-def assignment (index, tokens)
+def assignment_stmt ()
 	
 	
 end
@@ -278,7 +295,7 @@ end
 ##
 # VarDec ::== type Id
 #
-def vardec (index, tokens)
+def vardecl ()
 	
 	
 end
@@ -286,7 +303,7 @@ end
 ##
 # While ::== while Boolean Block
 #
-def while (index, tokens)
+def while_stmt ()
 	
 	
 end
@@ -294,7 +311,7 @@ end
 ##
 # If ::== if Boolean Block
 #
-def if_statement
+def if_stmt ()
 
 end
 

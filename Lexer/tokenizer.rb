@@ -50,8 +50,8 @@ end
 def string_tokenize(p_token, lineno, pos)
 
 	# the thinking behind this is that the string has already been 
-	# checked for and validated in the Lexer. This method is to
-	# ensure consistency in the realm of token generation
+	# checked for and validated in the Lexer. This method being in 
+	# tokenizer.rb is to ensure consistency in the realm of token generation
 	#
 	# The validation process may move here in the future	
 	return Token.new("T_STRING", p_token, lineno, pos)
