@@ -150,11 +150,6 @@ def match_token (exp, token)
 	
 end
 
-# watered down match_token. returns type of next token
-def scout_token (index, tokens)
-	return tokens[index + 1].type
-end
-
 #################################################################
 # Main functions in the best gorram' parse tree in the Verse
 
@@ -189,7 +184,8 @@ def block (index, tokens)
 	if match_token("T_LBRACE", tokens[index])
 		# $cst.add_node("LBrace")
 	
-		if != match_token("T_RBRACE", tokens[index + 1])
+		# make sure there's not an early '{'
+		if tokens[index + 1].type != "T_RBRACE"
 			index = index + 1
 			statement_list(index, tokens)
 		else
@@ -201,6 +197,8 @@ def block (index, tokens)
 	
 	if match_token("T_RBRACE", tokens[index])
 		# cst.add_node("RBrace")
+	else
+		# error
 	end
 end
 
@@ -234,9 +232,15 @@ end
 # StatementList ::== Statement StatementList
 #				::== Ɛ
 #
-def statement_list
-	# $cst.add_node("T_STATEMENT
+def statement_list (index, tokens)
+	# $cst.add_node("StatmentList")
 	
+	if tokens[index + 1].type != "T_RBRACE"
+		statement(index, tokens)
+		statement_list(index, tokens)
+	else
+		return
+	end
 	
 end
 
@@ -248,22 +252,25 @@ end
 #			::== If
 #			::== Block
 #
-def statement (index, token, tokens)
+def statement (index, tokens)
+	# $cst.add_node("Statement")
 	
+	case tokens[index].type
+	when 
 	
 end
 
 ##
 # Print ::== print ( Expr )
 #
-def print
+def print (index, tokens)
 	
 end
 
 ##
 # Assignment ::== Id = Expr
 #
-def assignment
+def assignment (index, tokens)
 	
 	
 end
@@ -271,7 +278,7 @@ end
 ##
 # VarDec ::== type Id
 #
-def vardec
+def vardec (index, tokens)
 	
 	
 end
@@ -279,7 +286,7 @@ end
 ##
 # While ::== while Boolean Block
 #
-def while
+def while (index, tokens)
 	
 	
 end
