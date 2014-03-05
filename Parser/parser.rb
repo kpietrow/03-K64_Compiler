@@ -60,10 +60,10 @@ class CST
 			# if successful...
 			if node[0] == @cur
 			
-				# add child to parent's list of children list
-				node[0].children.push(n_node.id)
+				# add child to parent's list of children
+				node[0].children.push(n_node)
 				
-				# add parent to child's list of parents list
+				# add parent to child's list of parents
 				n_node.parent = node[0]
 				
 				# push child node into tree
@@ -174,21 +174,34 @@ def parser (tokens)
 		exit
 	end	
 	
+	# $cst.addNode("Program")
 	block(index, tokens)
-	
+	match_token("T_EOFSIGN", tokens[index])
 end
 
 ##
 # Block ::== { StatementList }
 #
 def block (index, tokens)
-	$cst
-
-
-
-
-
-
+	
+	# $cst.add_node("Block")
+	
+	if match_token("T_LBRACE", tokens[index])
+		# $cst.add_node("LBrace")
+	
+		if != match_token("T_RBRACE", tokens[index + 1])
+			index = index + 1
+			statement_list(index, tokens)
+		else
+			# error
+		end
+	else
+		# error
+	end
+	
+	if match_token("T_RBRACE", tokens[index])
+		# cst.add_node("RBrace")
+	end
 end
 
 
@@ -222,7 +235,8 @@ end
 #				::== Ɛ
 #
 def statement_list
-	puts "Expects Statement"
+	# $cst.add_node("T_STATEMENT
+	
 	
 end
 
