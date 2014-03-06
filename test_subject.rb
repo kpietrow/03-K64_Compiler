@@ -2,8 +2,6 @@
 
 # This file is purely for the purposes of testing different strategies
 
-# require './test_subject2.rb'
-
 def tester (t)
 	t.cycle(1) {
 	|x| 
@@ -48,7 +46,7 @@ class Test1
 end
 
 class Test2
-	attr_accessor :var, :collection
+	attr_accessor :var, :var2, :collection
 	
 	@var = nil
 	@collection = []
@@ -65,21 +63,24 @@ class Test2
 	def collection
 		@collection
 	end
+	
+	def change (test)
+		test.var = self.var
+	end
+	
+	def test
+		self
+	end
 		
 end
 
 def main1
 
-	c = 2
-	
-	def main2 (var)
-		puts var * 2
-	end
-	
-	main2(c)
-	
-	$cr = "I'm here!"
-	
-	puts $cr
+	a = Test2.new("hi")
+	b = Test2.new("hello")
+	puts a.test
+	puts b.var
 	
 end
+
+main1

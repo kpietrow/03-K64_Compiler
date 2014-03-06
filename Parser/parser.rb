@@ -42,8 +42,7 @@ class CST
 		
 		# otherwise, move about this intelligently
 		else
-			@cur.children.push(node)
-			node.parent = @cur
+			@cur.add_child(node)
 			@cur = node
 		end
 	end
@@ -70,22 +69,17 @@ class Node
 		@children = children
 	end
 	
-	# if children given, return children ids
+	# add child, set child's parent
 	def add_child (child)
 		@children.push(child)
+		child.add_parent(self)
 	end
 	
+	# add parent
 	def add_parent (parent)
 		@parent = parent
 	end
 	
-	def get_child (id)
-		for child in @children
-			if child.id == id
-				return child
-			end
-		end
-	end
 end
 	
 	
