@@ -40,7 +40,15 @@ class SymbolTable
 	
 end
 
+
+##
+# Creates Scope instances
+# Each Scope has a Hash table of symbols
+#
 class Scope
+
+	attr_accessor :children, :symbols
+	attr_reader :parent
 
 	@parent = nil
 	@children = []
