@@ -82,8 +82,24 @@ class CST
 		
 	end
 	
+	# Prints out the very basic details of the CST
 	def raw_print ()
+		
+		puts "The nodes in the constructed CST, going from lower left to upper right:\n"
+		
+		def child_loop (children)
+			children.cycle(1) { |child|
+				if child.children.length > 0
+					child_loop(child.children)
+				else
+					print " | " + child.name
+				end
+			}
+		end
+		
 		print @root.name
+		child_loop(@root.children)
+		
 	end
 	
 end

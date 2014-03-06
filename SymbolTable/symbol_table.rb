@@ -43,7 +43,21 @@ class SymbolTable
 	end
 	
 	def raw_print ()
-		print @root.children
+		
+		puts "The symbol tables of the various scopes: "
+		
+		def child_loop (children)
+			children.cycle(1) { |child|
+				if child.children.length > 0
+					child_loop(child.children)
+				else
+					print " | " + child.symbols
+				end
+			}
+		end
+		
+		print @root.symbols
+		child_loop(@root.children)
 		
 	end
 	
@@ -84,7 +98,7 @@ class Scope
 	
 	def enter (current)
 		new_scope = Scope.new(current)
-		self.children.push(new_scope)
+		@children.push(new_scope)
 		return new_scope
 	end
 	
