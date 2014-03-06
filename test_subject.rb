@@ -85,4 +85,15 @@ def main1
 	
 end
 
-main1
+
+
+def besttest
+	
+	besttest2()
+	
+	def besttest2
+		puts "hi"
+	end
+end
+
+besttest

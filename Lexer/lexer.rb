@@ -82,9 +82,7 @@ def lexer(input)
 		
 		# check characters in line of input
 		for i in 0...line.length
-			
-			puts line[i]
-			
+		
 			# checks for unfinished strings first
 			if s_check
 			

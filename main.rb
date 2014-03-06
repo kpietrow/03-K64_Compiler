@@ -75,17 +75,26 @@ def main
 	end
 	
 	# Lexer it!
+	puts "\nBeginnin' the Lexing process..."
 	token_stream = lexer(input_file)
+	
+	puts "Lexing completed successfully, all tokens have been smuggled in to the system\n\nToken Stream:\n"
 	
 	# print out the received tokens
 	for i in token_stream
 		print i.type
-		print ", "
+		if i.type != "T_EOFSIGN"
+			print ", "
+		else
+			puts "\n\n"
+		end
 	end
 	
 	# Parse it!
-	parsed_stream = parser(token_stream)
-
+	puts "Now we're gonna begin the parsin'..."
+	parsed_stream, symbol_table = parser(token_stream)
+	puts "Parsing successful. We've got ourselves a nice parse stream and symbol table now."
+	
 end
 
 main()
