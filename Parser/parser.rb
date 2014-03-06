@@ -129,256 +129,233 @@ def parser (tokens)
 	# $cst.addNode("Program")
 	block()
 	match_token("T_EOFSIGN", $tokens[$index])
-end
 
-##
-# Block ::== { StatementList }
-#
-def block ()
+
+	###############################
+	# Block ::== { StatementList }
+	#
+	def block ()
 	
-	# $cst.add_node("Block")
+		# $cst.add_node("Block")
 	
-	if match_token("T_LBRACE", $tokens[$index])
-		# $cst.add_node("LBrace")
+		if match_token("T_LBRACE", $tokens[$index])
+			# $cst.add_node("LBrace")
+	
+			$index = $index + 1
+			statement_list()
+		
+		else
+			# error
+		end
+	
+		if match_token("T_RBRACE", $tokens[$index])
+			# cst.add_node("RBrace")
+		else
+			# error
+		end
+	end
+
+
+
+	###############################
+	# StatementList ::== Statement StatementList
+	#				::== Ɛ
+	#
+	def statement_list ()
+		# $cst.add_node("StatmentList")
+	
+		if $tokens[$index].type != "T_RBRACE"
+			statement()
+			statement_list()
+		else
+			return
+		end
+	
+	end
+
+	###############################
+	# Statement ::== Print
+	#			::== Assignment
+	#			::== Var Declaration
+	#			::== While
+	#			::== If
+	#			::== Block
+	#
+	def statement ()
+		# $cst.add_node("Statement")
+	
+		case $tokens[$index].type
+		when "T_PRINT"
+			print_stmt()
+		when "T_ID"
+			assignment_stmt()
+		when "T_TYPE"
+			vardecl()
+		when "T_WHILE"
+			while_stmt()
+		when "T_IF"
+			if_stmt()
+		when "T_LBRACE"
+			block()
+		else
+			#error
+		end
+		
+	end
+
+	###############################
+	# Print ::== print ( Expr )
+	#
+	def print_stmt ()
+		# $cst.add_node("PrintStmt")
+	
+		match_token("T_PRINT", $tokens[$index])
+	
+		# $cst.add_node("Print") (terminal)
 	
 		$index = $index + 1
-		statement_list()
 		
-	else
-		# error
 	end
+
+	###############################
+	# Assignment ::== Id = Expr
+	#
+	def assignment_stmt ()
 	
-	if match_token("T_RBRACE", $tokens[$index])
-		# cst.add_node("RBrace")
-	else
-		# error
+	
 	end
-end
 
-
-
-# old code for Block. saving it just in case
-=begin
-	if !match_token("T_LBRACE", $tokens[$index])
-		raise FaultyTokenError.new("T_LBRACE", $tokens[$index])
+	###############################
+	# VarDec ::== type Id
+	#
+	def vardecl ()
+	
+	
 	end
-	
-	# Confirm '{' token
-	if match_token("T_LBRACE", $tokens[$index])
-		$index = $index + 1
-	
-		# Confirm that there is a statement list, then go
-		if t_next() =! "T_RBRACE"
-		$index = $index + 1
-		result = statement_list ()
-	
-	
-	
-	
-	# elsif return blank block
-	
-	end	
-end
-=end
 
-##
-# StatementList ::== Statement StatementList
-#				::== Ɛ
-#
-def statement_list ()
-	# $cst.add_node("StatmentList")
+	###############################
+	# While ::== while Boolean Block
+	#
+	def while_stmt ()
 	
-	if $tokens[$index].type != "T_RBRACE"
-		statement()
-		statement_list()
-	else
-		return
+	
 	end
-	
-end
 
-##
-# Statement ::== Print
-#			::== Assignment
-#			::== Var Declaration
-#			::== While
-#			::== If
-#			::== Block
-#
-def statement ()
-	# $cst.add_node("Statement")
-	
-	case $tokens[$index].type
-	when "T_PRINT"
-		print_stmt()
-	when "T_ID"
-		assignment_stmt()
-	when "T_TYPE"
-		vardecl()
-	when "T_WHILE"
-		while_stmt()
-	when "T_IF"
-		if_stmt()
-	when "T_LBRACE"
-		block()
-	else
-		#error
+	###############################
+	# If ::== if Boolean Block
+	#
+	def if_stmt ()
+
 	end
-		
-end
 
-##
-# Print ::== print ( Expr )
-#
-def print_stmt ()
-	# $cst.add_node("PrintStmt")
+	###############################
+	# Expr	::== IntExpr
+	# 		::== StringExpr
+	#		::== BooleanExpr
+	#		::== Id
+	#
+	def expr
 	
-	match_token("T_PRINT", $tokens[$index])
 	
-	# $cst.add_node("Print") (terminal)
-	
-	$index = $index + 1
-		
-end
+	end
 
-##
-# Assignment ::== Id = Expr
-#
-def assignment_stmt ()
+	###############################
+	# IntExpr 	::== digit intop Expr
+	#			::== digit
+	#
+	def intexpr
 	
 	
-end
+	end
 
-##
-# VarDec ::== type Id
-#
-def vardecl ()
+	###############################
+	# StringExpr ::== " CharList "
+	#
+	def stringexpr
 	
 	
-end
+	end
 
-##
-# While ::== while Boolean Block
-#
-def while_stmt ()
+	###############################
+	# BooleanExpr 	::== ( expr boolop Expr )
+	#				::== boolval
+	#
+	def boolexpr
 	
 	
-end
+	end
 
-##
-# If ::== if Boolean Block
-#
-def if_stmt ()
+	###############################
+	# Id ::== char
+	#
+	def id
+	
+	
+	end
 
-end
+	###############################
+	# CharList	::== char CharList
+	#			::== space CharList
+	#			::== Ɛ
+	#
+	def charList
+	
+	
+	end
 
-##
-# Expr	::== IntExpr
-# 		::== StringExpr
-#		::== BooleanExpr
-#		::== Id
-#
-def expr
+	###############################
+	# type	::== int | string | boolean
+	#
+	def type
 	
 	
-end
+	end
 
-##
-# IntExpr 	::== digit intop Expr
-#			::== digit
-#
-def intexpr
+	###############################
+	# char	::== [a-z]
+	#
+	def char
 	
 	
-end
+	end
 
-##
-# StringExpr ::== " CharList "
-#
-def stringexpr
+	###############################
+	# space	::== space
+	#
+	def space
 	
 	
-end
+	end
 
-##
-# BooleanExpr 	::== ( expr boolop Expr )
-#				::== boolval
-#
-def boolexpr
+	###############################
+	# digit	::== [0-9]
+	#
+	def digit
 	
 	
-end
+	end
 
-##
-# Id ::== char
-#
-def id
+	###############################
+	# boolop ::== == | !=
+	#
+	def boolop
 	
 	
-end
+	end
 
-##
-# CharList	::== char CharList
-#			::== space CharList
-#			::== Ɛ
-#
-def charList
+	###############################
+	# boolean ::== false | true
+	#
+	def boolean
 	
 	
-end
+	end
 
-##
-# type	::== int | string | boolean
-#
-def type
+	###############################
+	# intop ::== +
+	#
+	def intop
 	
 	
-end
-
-##
-# char	::== [a-z]
-#
-def char
-	
-	
-end
-
-##
-# space	::== space
-#
-def space
-	
-	
-end
-
-##
-# digit	::== [0-9]
-#
-def digit
-	
-	
-end
-
-##
-# boolop ::== == | !=
-#
-def boolop
-	
-	
-end
-
-##
-# boolean ::== false | true
-#
-def boolean
-	
-	
-end
-
-##
-# intop ::== +
-#
-def intop
-	
-	
+	end
 end

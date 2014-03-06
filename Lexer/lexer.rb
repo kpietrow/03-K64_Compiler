@@ -193,5 +193,5 @@ def lexer(input)
 	end
 	
 	# return token list
-	return tokens, f_pass(tokens)
+	return tokens
 end
