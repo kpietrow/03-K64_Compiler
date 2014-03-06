@@ -1,12 +1,23 @@
 #!/usr/bin/env ruby
 
-require './test_subject.rb'
+# require './test_subject.rb'
 
-def ultimate_test(index)
-	puts "here we go!"
-	puts $cr
-	puts index
-	index = index + 1
+class Tester
+	
+	@var = nil
+	@children = []
+	
+	def var
+		puts @var == nil
+	end
+	
+	def children
+		@children = []
+		puts @children.is_a? Array
+	end
+	
 end
-main1()
-ultimate_test(0)
+
+c = Tester.new
+c.var
+c.children

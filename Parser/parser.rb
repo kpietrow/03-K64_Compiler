@@ -98,10 +98,11 @@ def parser (tokens)
 	# define some other useful, global vars
 	$tokens = tokens
 	$index = 0
+	$symbol_tbl = SymbolTbl.new()
 	
 	# have to ask alan about this
 	if $tokens.length <= 1
-		puts "Insufficient code present! There is only #{$tokens.length} token(s) here!"
+		puts "Insufficient code present! There is only #{$tokens.length} token here!"
 		exit
 	end	
 	

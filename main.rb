@@ -5,12 +5,9 @@
 require 'io/console'
 
 require './Lexer/lexer.rb'
-require './SymbolTable/symbol_table.rb'
-
-# bring in tokenizing functions
 require './Lexer/tokenizer.rb'
-
 require './Parser/parser.rb'
+require './SymbolTable/symbol_table.rb'
 
 class BlankFileError < StandardError
 	def initialize()
