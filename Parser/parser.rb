@@ -278,9 +278,11 @@ end
 def print_stmt ()
 	# $cst.add_node("PrintStmt")
 	
-	if match_token("T_PRINT", $tokens[$index])
-		# $cst.add_node("Print") (terminal)
-		$index = 
+	match_token("T_PRINT", $tokens[$index])
+	
+	# $cst.add_node("Print") (terminal)
+	
+	$index = $index + 1
 		
 end
 
