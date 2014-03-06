@@ -81,29 +81,8 @@ class Node
 	end
 	
 end
-	
-	
-	
-
-# retrieves the next token
-def t_next ()
-	return $tokens[$index + 1]
-end
 
 
-# testing for a token match. value, expected, received
-def match_token (exp, token)
-	puts "Token received: #{token.value}"
-	puts "\nExpecting token of type: #{exp}"
-	
-	if exp == rec
-		puts "\n\nShiny! Got #{token.type}!"
-		return true
-	else
-		return false
-	end
-	
-end
 
 #################################################################
 # Main functions in the best gorram' parse tree in the Verse
@@ -357,5 +336,29 @@ def parser (tokens)
 	def intop
 	
 	
+	end
+	
+	
+	
+	##########################################
+	# Helper functions
+	
+	# retrieves the next token
+	def t_next ()
+		return $tokens[$index + 1]
+	end
+
+
+	# testing for a token match. value, expected, received
+	def match_token (exp, token)
+		puts "Token received: #{token.value}"
+		puts "\nExpecting token of type: #{exp}"
+	
+		if exp == rec
+			puts "\n\nShiny! Got #{token.type}!"
+			return true
+		else
+			return false
+		end
 	end
 end
