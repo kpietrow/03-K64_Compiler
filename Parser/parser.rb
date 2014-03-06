@@ -30,11 +30,15 @@
 # Set up a class for unexpected $tokens
 class FaultyTokenError < StandardError 
 	def initialize(known, e_token, token)
-		if known		
+		if known
+			puts "-------------------------------------------------------------------"		
 			puts "\nERROR: Expected a '#{e_token}' token, but received a '#{token.type}' at Line: #{token.lineno}  Position: #{token.pos}"
+			puts "-------------------------------------------------------------------"
 			exit
 		else
+			puts "-------------------------------------------------------------------"
 			puts "\nERROR: Incorrect token received, received a(n) #{token.type} at Line #{token.lineno} Position #{token.pos}"
+			puts "-------------------------------------------------------------------"
 			exit
 		end
 	end
@@ -102,7 +106,7 @@ class Node
 	
 	# add child, set child's parent
 	def add_child (child, token = nil)
-		new_node = Scope.new(child, token, self)
+		new_node = Node.new(child, token, self)
 		@children.push(new_node)
 		return new_node
 	end
@@ -193,11 +197,10 @@ end
 # nodes in the CST, and will help to structure the program
 #
 def parse (name_next_step, next_step)
+
 	$cst.add_node(name_next_step)
 	
-	puts "Found node '#{name_next_step}' in our travels, and have added it to the crew."
-	
-	parse(next_step)
+	next_step()
 	
 	$cst.ascend()
 	

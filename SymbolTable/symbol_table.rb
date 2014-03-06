@@ -26,7 +26,8 @@ class SymbolTable
 		
 		if @root == nil
 			new_scope = Scope.new()
-			@root = @new_scope
+			@root = new_scope
+			@current_scope = @root
 			
 		else
 			@current_scope = @current_scope.enter(@current_scope)
@@ -41,6 +42,11 @@ class SymbolTable
 		@current_scope.add_symbol(type, id)
 	end
 	
+	# temporary
+	def test ()
+		@root.test
+	end
+	
 end
 
 
@@ -51,16 +57,18 @@ end
 class Scope
 
 	attr_accessor :children, :symbols
-	attr_reader :parent
+	attr_reader :parent, :test
 
 	@parent = nil
 	@children = []
 	@symbols = nil
+	@test = nil
 	
 	def initialize (parent = nil)
 		@symbols = Hash.new
 		@parent = parent
 		@children = []
+		@test = "hi"
 	end
 	
 	# add symbol to symbols table

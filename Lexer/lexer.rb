@@ -26,7 +26,9 @@
 class UnknownSymbolError < StandardError
 	def initialize(char, lineno, pos)
  		@char, @lineno, @pos = char, lineno + 1, pos + 1
+ 		puts "-------------------------------------------------------------------"
  		puts "ERROR: Line #{@lineno}, Position #{@pos}, Character(s) \'#{char}\' -> This here input don't appear to be known to no-one around these parts."
+ 		puts "-------------------------------------------------------------------"
  		exit	
  	end
 end
@@ -36,10 +38,14 @@ class EOFDetectionError < StandardError
 	def initialize(type, lineno, pos)
  		@type, @lineno, @pos = type, lineno + 1, pos + 1
  		if @type == "early"
+ 			puts "-------------------------------------------------------------------"
  			puts "ERROR: Line #{@lineno}, Position #{@pos} -> EOF reached early at this location. Will now terminate the program."
+ 			puts "-------------------------------------------------------------------"
  			exit
  		elsif @type == "dne"
+ 			puts "-------------------------------------------------------------------"
  			puts "WARNING: No EOF sign ($) reached. Will temporarily add one for this run-through, but the source code will not be altered."
+ 			puts "-------------------------------------------------------------------"
  		end
  	end
 end
@@ -48,9 +54,13 @@ end
 class StringDetectionError < StandardError
 	def initialize(type, char, lineno, pos)
 		if type == "unclosed"
+			puts "-------------------------------------------------------------------"
 			puts "ERROR: Line: #{lineno + 1} -> Unclosed string found on this line."
+			puts "-------------------------------------------------------------------"
 		elsif type == "char"
+			puts "-------------------------------------------------------------------"
 			puts "ERROR: Line: #{lineno}, Position: #{pos} -> Unknown character '#{char}' found in string."
+			puts "-------------------------------------------------------------------"
 		end
 		
 		exit

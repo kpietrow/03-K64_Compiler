@@ -74,11 +74,13 @@ def main
 		raise BlankFileError
 	end
 	
+	puts "This is the captain speaking. Welcome to the 03-K64 Compiler, and now if you'll excuse me for a minute it's time to burn atmo and get this ship in the air."
+	
 	# Lexer it!
-	puts "\nBeginnin' the Lexing process..."
+	puts "\nBeginnin' the Lexing process now...\n"
 	token_stream = lexer(input_file)
 	
-	puts "Lexing completed successfully, all tokens have been smuggled in to the system\n\nToken Stream:\n"
+	puts "\nLexing completed successfully, all tokens have been smuggled in to the system\n\nToken Stream:\n"
 	
 	# print out the received tokens
 	for i in token_stream
