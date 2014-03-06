@@ -5,34 +5,16 @@
 
 # require './test_subject.rb'
 
-class Test1
-	
-	attr_accessor :var
-	
-	def initialize
-	end
-	
-	def plan ()
-		c = Test2.new()
-		c.change()
-		puts c.var
-	end 
+b = "!="
+c = "="
+
+def main (a)
+if /[!|=]/.match(a[0]) and /[=]/.match(a[1])
+	puts a[0] + a[1]
+else
+	puts "oh"
+end
 end
 
-class Test2
-	
-	attr_accessor :var
-	
-	@var = nil
-	
-	def initialize ()
-		@var = "hi"
-	end
-	
-	def change ()
-		@var = "hello"
-	end
-end
-
-a = Test1.new
-a.plan()
+main(b)
+main(c)

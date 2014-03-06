@@ -51,7 +51,7 @@ class SymbolTable
 				if child.children.length > 0
 					child_loop(child.children)
 				else
-					print " | " + child.symbols
+					print " | " + String(child.symbols)
 				end
 			}
 		end

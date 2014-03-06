@@ -83,6 +83,7 @@ def lexer(input)
 	c_line = 0    # current line in program
 	eof_reached = false   # EOF status
 	s_check = false		# for ensuring complete strings
+	boolop_check = false	# for ensuring boolop completeness
 	
 	c_string = ""	# the current string of chars
 	c_pos = nil		# current position of string of chars
@@ -125,7 +126,11 @@ def lexer(input)
 						raise StringDetectionError.new("char", line[i], c_line, i)
 					end
 				end
-				
+			
+			# if boolop is active, skip this iteration
+			elsif boolop_check
+				boolop_check = false
+				next
 		
 			# test for anything after EOF
 			elsif eof_reached and line[i] =~ /\S/
@@ -168,8 +173,14 @@ def lexer(input)
 					c_pos = nil
 				end
 				
-				# attempt to tokenize the operator
-				tokens.push(tokenize(line[i], "op", c_line, i))
+				# test for that elusive boolop...
+				if /[!|=]/.match(line[i]) and /=/.match(line[i + 1])
+					# attempt to tokenize the operator
+					tokens.push(tokenize(line[i] + line[i + 1], "op", c_line, i))
+					boolop_check = true
+				else
+					tokens.push(tokenize(line[i], "op", c_line, i))
+				end
 				
 				# if op is ", start the string gathering process
 				if /"/.match(line[i])

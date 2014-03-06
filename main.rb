@@ -81,7 +81,7 @@ def main
 	puts "\nBeginnin' the Lexing process now...\n"
 	token_stream = lexer(input_file)
 	
-	puts "\nLexing completed successfully, all tokens have been smuggled in to the system\n\nToken Stream:\n"
+	puts "\nLexing completed successfully, all tokens have been smuggled in to the system\n\nToken Stream (in order):\n"
 	
 	# print out the received tokens
 	for i in token_stream
@@ -101,7 +101,7 @@ def main
 	parsed_stream.raw_print()
 	puts "\n\n\n"
 	symbol_table.raw_print()
-	puts "\n"
+	puts "\n\n"
 	
 end
 

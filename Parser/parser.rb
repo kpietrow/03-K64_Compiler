@@ -18,9 +18,6 @@
 
 
 
-
-# TODO: Should probably set it so that there's a function 
-# which takes care of parsing output
  
 #################################################################
 # Helper functions, Error declarations, Class declarations,
@@ -32,12 +29,15 @@ class FaultyTokenError < StandardError
 	def initialize(known, e_token, token)
 		if known
 			puts "-------------------------------------------------------------------"		
-			puts "\nERROR: Expected a '#{e_token}' token, but received a '#{token.type}' at Line: #{token.lineno}  Position: #{token.pos}"
+			# the + 3 adjusts a bit for tab spacing
+			puts "\nERROR: Expected a '#{e_token}' token, but received a '#{token.type}' at Line: #{token.lineno} at about Position: #{token.pos + 3}"
+			puts $cst.current.name
 			puts "-------------------------------------------------------------------"
 			exit
 		else
 			puts "-------------------------------------------------------------------"
-			puts "\nERROR: Incorrect token received, received a(n) #{token.type} at Line #{token.lineno} Position #{token.pos}"
+			# the + 3 adjusts a bit for tab spacing
+			puts "\nERROR: Incorrect token received, received a '#{token.type}' at Line #{token.lineno} at about Position #{token.pos + 3} ---- #{token.value}"
 			puts "-------------------------------------------------------------------"
 			exit
 		end
@@ -47,6 +47,8 @@ end
 
 # tentative class of a tree
 class CST
+	
+	attr_reader :current
 	
 	@@total_nodes = 0
 	@root = nil
@@ -85,14 +87,14 @@ class CST
 	# Prints out the very basic details of the CST
 	def raw_print ()
 		
-		puts "The nodes in the constructed CST, going from lower left to upper right:\n"
+		puts "The nodes in the constructed CST, going from lower left to upper right\n(Note: terminal nodes will be operators, or pure uppercase chars):"
 		
 		def child_loop (children)
 			children.cycle(1) { |child|
 				if child.children.length > 0
 					child_loop(child.children)
 				else
-					print " | " + child.name
+					print "  ||  " + child.name
 				end
 			}
 		end
@@ -376,7 +378,7 @@ def expr ()
 	when "T_ID"
 		parse("Id", id())
 	else
-		raise FaultyTokenError.new(false, $tokens[$index])
+		raise FaultyTokenError.new(false, "T_DIGIT, T_QUOTE, T_LPAREN, or T_ID", $tokens[$index])
 	end
 	
 end
@@ -414,7 +416,7 @@ end
 #
 def boolexpr ()
 	
-	if token_scout() == "T_LPAREN"
+	if scout_token() == "T_LPAREN"
 		match_token("(", "T_LPAREN", $tokens[$index])
 		parse("Expr", expr())
 		parse("boolop", boolop())
