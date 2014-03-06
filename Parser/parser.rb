@@ -29,9 +29,14 @@
 
 # Set up a class for unexpected $tokens
 class FaultyTokenError < StandardError 
-	def initialize(e_token, token)
-		puts "ERROR: Expected a(n) #{e_token} token, received a(n) #{token.type} at Line #{token.lineno} Position #{token.pos}"
-		exit
+	def initialize(known, e_token, token)
+		if known		
+			puts "ERROR: Expected a(n) #{e_token} token, received a(n) #{token.type} at Line #{token.lineno} Position #{token.pos}"
+			exit
+		else
+			puts "ERROR: Incorrect token received, received a(n) #{token.type} at Line #{token.lineno} Position #{token.pos}"
+			exit
+		end
 	end
 end
 	
@@ -140,26 +145,30 @@ def parser (tokens)
 	
 	##########################################
 	# Helper functions
+	#
 	
-	# retrieves the next token
-	def t_next ()
-		return $tokens[$index + 1]
+	# retrieves the type of the current token
+	def scout_token ()
+		return $tokens[$index].type
 	end
 
 
-	# testing for a token match. value, expected, received
+	# testing for a token match. name, expected, received
 	def match_token (name, exp, token)
-		puts "Token received: #{token.value}"
+		puts "Leaf token received: #{token.value}"
 		puts "\nExpecting token of type: #{exp}"
 	
 		if exp == rec
-			puts "\n\nShiny! Got #{token.type}!"
+			puts "\n\nShiny. Got #{token.type}!"
 			$cst.add_node(name, token)
 			
-			# Because a match_token only occurs for a leaf token
+			# To try to make this auto-managed
+			$index = $index + 1
+			
+			# Because a match_token only occurs for a leaf/terminal token
 			$cst.ascend()
 		else
-			raise FaultyTokenError.new(exp, token)
+			raise FaultyTokenError.new(true, exp, token)
 		end
 	end
 	
@@ -171,8 +180,10 @@ def parser (tokens)
 	# This will control the ascent and descent of the 
 	# nodes in the CST, and will help to structure the program
 	#
-	def parse (current_step, next_step)
-		$cst.add_node(current_step)
+	def parse (name_next_step, next_step)
+		$cst.add_node(name_next_step)
+		
+		puts "Found node '#{name_next_step}' in our travels, and have added it to the crew."
 		
 		parse(next_step)
 		
@@ -186,7 +197,8 @@ def parser (tokens)
 	#
 	def program ()
 		
-		parse(
+		parse("Block", block())
+		match_token("$", "T_EOFSIGN", $tokens[$index])
 	
 
 	###############################
@@ -194,7 +206,9 @@ def parser (tokens)
 	#
 	def block ()
 		
-		
+		match_token("{", "T_LBRACE", $tokens[$index])
+		parse("StatementList", statement_list())
+		match_token("}", "T_RBRACE", $tokens[$index])
 		
 	end
 
@@ -205,13 +219,16 @@ def parser (tokens)
 	#				::== Ɛ
 	#
 	def statement_list ()
-		# $cst.add_node("StatmentList")
 	
-		if $tokens[$index].type != "T_RBRACE"
-			statement()
-			statement_list()
+		# } indicates that the StatementList is finished
+		if scout_token() != "T_RBRACE"
+			parse("Statement", statement())
+			parse("StatementList", statement_list())
+		
+		# handle an epsilon
 		else
-			return
+			$cst.add_node("Epsilon")
+			$cst.ascend()
 		end
 	
 	end
@@ -225,23 +242,22 @@ def parser (tokens)
 	#			::== Block
 	#
 	def statement ()
-		# $cst.add_node("Statement")
 	
-		case $tokens[$index].type
+		case scout_token()
 		when "T_PRINT"
-			print_stmt()
+			parse("PrintStatement", print_stmt())
 		when "T_ID"
-			assignment_stmt()
+			parse("AssignmentStatement", assignment_stmt())
 		when "T_TYPE"
-			vardecl()
+			parse("VarDecl", vardecl())
 		when "T_WHILE"
-			while_stmt()
+			parse("WhileStatement", while_stmt())
 		when "T_IF"
-			if_stmt()
+			parse("IfStatement", if_stmt())
 		when "T_LBRACE"
-			block()
+			parse("Block", block())
 		else
-			#error
+			raise FaultyTokenError.new(false, token)
 		end
 		
 	end
@@ -250,13 +266,11 @@ def parser (tokens)
 	# Print ::== print ( Expr )
 	#
 	def print_stmt ()
-		# $cst.add_node("PrintStmt")
 	
-		match_token("T_PRINT", $tokens[$index])
-	
-		# $cst.add_node("Print") (terminal)
-	
-		$index = $index + 1
+		match_token("print", "T_PRINT", $tokens[$index])
+		match_token("(", "T_LPAREN", $tokens[$index])
+		parse("Expr", expr())
+		match_token(")", "T_RPAREN", $tokens[$index])
 		
 	end
 
