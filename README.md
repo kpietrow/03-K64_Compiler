@@ -10,5 +10,5 @@ To run the compiler, run this command in the terminal:
 
 $ ruby main.rb name_of_test_file
 
-ex: $ ruby main.rb test1.txt 
+ex: $ ruby main.rb Test/test1.txt 
 
