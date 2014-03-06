@@ -13,6 +13,8 @@
 # Note: Instructions for running the best compiler
 # 		in the Verse can be found in the README
 #
+#
+
 
 
 
@@ -134,7 +136,33 @@ def parser (tokens)
 	
 	
 	# Engine to full burn!!!
-	parse(program)
+	parse("Program", program())
+	
+	##########################################
+	# Helper functions
+	
+	# retrieves the next token
+	def t_next ()
+		return $tokens[$index + 1]
+	end
+
+
+	# testing for a token match. value, expected, received
+	def match_token (name, exp, token)
+		puts "Token received: #{token.value}"
+		puts "\nExpecting token of type: #{exp}"
+	
+		if exp == rec
+			puts "\n\nShiny! Got #{token.type}!"
+			$cst.add_node(name, token)
+			
+			# Because a match_token only occurs for a leaf token
+			$cst.ascend()
+		else
+			raise FaultyTokenError.new(exp, token)
+		end
+	end
+	
 	
 	
 	
@@ -143,36 +171,31 @@ def parser (tokens)
 	# This will control the ascent and descent of the 
 	# nodes in the CST, and will help to structure the program
 	#
-	def parse (next_step)
-		$cst.add_node("Program"
+	def parse (current_step, next_step)
+		$cst.add_node(current_step)
+		
+		parse(next_step)
+		
+		$cst.ascend()
 		
 	end
 	
 	
+	###############################
+	# Program ::== Block $
+	#
+	def program ()
+		
+		parse(
 	
 
 	###############################
 	# Block ::== { StatementList }
 	#
 	def block ()
-	
-		# $cst.add_node("Block")
-	
-		if match_token("T_LBRACE", $tokens[$index])
-			# $cst.add_node("LBrace")
-	
-			$index = $index + 1
-			statement_list()
 		
-		else
-			# error
-		end
-	
-		if match_token("T_RBRACE", $tokens[$index])
-			# cst.add_node("RBrace")
-		else
-			# error
-		end
+		
+		
 	end
 
 
@@ -379,27 +402,4 @@ def parser (tokens)
 	
 	end
 	
-	
-	
-	##########################################
-	# Helper functions
-	
-	# retrieves the next token
-	def t_next ()
-		return $tokens[$index + 1]
-	end
-
-
-	# testing for a token match. value, expected, received
-	def match_token (exp, token)
-		puts "Token received: #{token.value}"
-		puts "\nExpecting token of type: #{exp}"
-	
-		if exp == rec
-			puts "\n\nShiny! Got #{token.type}!"
-			return true
-		else
-			return false
-		end
-	end
 end
