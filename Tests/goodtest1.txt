@@ -3,4 +3,9 @@
 	a = 9 + 6
 	
 	print ( a )
+	
+	int c
+	c = "hello there "
+	print ( c )
 }
+$

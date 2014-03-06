@@ -73,7 +73,8 @@ def main
 	if input_file.length == 0
 		raise BlankFileError
 	end
-	
+
+	puts "==================================================================="
 	puts "This is the captain speaking. Welcome to the 03-K64 Compiler, and now if you'll excuse me for a minute it's time to burn atmo and get this ship in the air."
 	
 	# Lexer it!
@@ -95,7 +96,12 @@ def main
 	# Parse it!
 	puts "Now we're gonna begin the parsin'..."
 	parsed_stream, symbol_table = parser(token_stream)
-	puts "Parsing successful. We've got ourselves a nice parse stream and symbol table now."
+	puts "\n\nParsing successful. We've got ourselves a nice parse stream and symbol table now.\n\n"
+	
+	parsed_stream.raw_print()
+	puts "\n\n\n"
+	symbol_table.raw_print()
+	puts "\n"
 	
 end
 

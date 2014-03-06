@@ -81,11 +81,16 @@ class CST
 		end
 		
 	end
+	
+	def raw_print ()
+		print @root.name
+	end
+	
 end
 
 # tentative class for nodes on the tree
 class Node
-	attr_reader :total_id, :id, :token
+	attr_reader :total_id, :id, :token, :name
 	attr_accessor :parent, :children
 	
 	@@total_id = 0
@@ -117,6 +122,7 @@ class Node
 	end
 	
 end
+
 
 
 
@@ -200,7 +206,7 @@ def parse (name_next_step, next_step)
 
 	$cst.add_node(name_next_step)
 	
-	next_step()
+	next_step
 	
 	$cst.ascend()
 	
@@ -381,7 +387,7 @@ end
 def stringexpr ()
 	
 	match_token('"', "T_QUOTE", $tokens[$index])
-	parse("CharList", charlist())
+	parse("CharList", charList())
 	match_token('"', "T_QUOTE", $tokens[$index])
 
 end

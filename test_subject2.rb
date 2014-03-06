@@ -5,22 +5,34 @@
 
 # require './test_subject.rb'
 
-class Tester
+class Test1
 	
-	@var = nil
-	@children = []
+	attr_accessor :var
 	
-	def var
-		puts @var == nil
+	def initialize
 	end
 	
-	def children
-		@children = []
-		puts @children.is_a? Array
-	end
-	
+	def plan ()
+		c = Test2.new()
+		c.change()
+		puts c.var
+	end 
 end
 
-c = Tester.new
-c.var
-c.children
+class Test2
+	
+	attr_accessor :var
+	
+	@var = nil
+	
+	def initialize ()
+		@var = "hi"
+	end
+	
+	def change ()
+		@var = "hello"
+	end
+end
+
+a = Test1.new
+a.plan()

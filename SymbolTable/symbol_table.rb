@@ -42,9 +42,9 @@ class SymbolTable
 		@current_scope.add_symbol(type, id)
 	end
 	
-	# temporary
-	def test ()
-		@root.test
+	def raw_print ()
+		print @root.children
+		
 	end
 	
 end
@@ -62,13 +62,11 @@ class Scope
 	@parent = nil
 	@children = []
 	@symbols = nil
-	@test = nil
 	
 	def initialize (parent = nil)
 		@symbols = Hash.new
 		@parent = parent
 		@children = []
-		@test = "hi"
 	end
 	
 	# add symbol to symbols table
@@ -86,7 +84,7 @@ class Scope
 	
 	def enter (current)
 		new_scope = Scope.new(current)
-		current.children.push(new_scope)
+		self.children.push(new_scope)
 		return new_scope
 	end
 	
