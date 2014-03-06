@@ -73,9 +73,9 @@ def tokenize (p_token, type, lineno, pos)
 		when "\""
 			return Token.new("T_QUOTE", p_token, lineno, pos)
 		when "=="
-			return Token.new("T_EQUALTO", p_token, lineno, pos)
+			return Token.new("T_BOOLOP", p_token, lineno, pos)
 		when "!="
-			return Token.new("T_NOTEQUAL", p_token, lineno, pos)
+			return Token.new("T_BOOLOP", p_token, lineno, pos)
 		when "+"
 			return Token.new("T_PLUS", p_token, lineno, pos)
 		when "$"

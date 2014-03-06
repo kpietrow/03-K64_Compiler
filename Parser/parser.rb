@@ -154,13 +154,22 @@ def parser (tokens)
 
 
 	# testing for a token match. name, expected, received
+	# match is also going to help us with our symbol table scope
 	def match_token (name, exp, token)
 		puts "Leaf token received: #{token.value}"
 		puts "\nExpecting token of type: #{exp}"
 	
-		if exp == rec
+		if exp == token.type
 			puts "\n\nShiny. Got #{token.type}!"
 			$cst.add_node(name, token)
+			
+			# manage the symbol table here
+			if token.type == "T_LBRACE"
+				$symbol_tbl.enter()
+			elsif token.type == "T_RBRACE"
+				$symbol_tbl.exit()
+			end
+			
 			
 			# To try to make this auto-managed
 			$index = $index + 1
@@ -286,7 +295,7 @@ def parser (tokens)
 	end
 
 	###############################
-	# VarDec ::== type Id
+	# VarDecl ::== type Id
 	#
 	def vardecl ()
 		
@@ -359,14 +368,11 @@ def parser (tokens)
 	###############################
 	# StringExpr ::== " CharList "
 	#
-	def stringexpr
+	def stringexpr ()
 		
 		match_token('"', "T_QUOTE", $tokens[$index])
-		
-		# because we've already taken care of string formation
-		# in the lexer
-		match_token("STRING", "T_STRING", $tokens[$index])
-		match_token('"'
+		parse("CharList", charlist())
+		match_token('"', "T_QUOTE", $tokens[$index])
 	
 	end
 
@@ -374,16 +380,26 @@ def parser (tokens)
 	# BooleanExpr 	::== ( Expr boolop Expr )
 	#				::== boolval
 	#
-	def boolexpr
-	
+	def boolexpr ()
+		
+		if token_scout() == "T_LPAREN"
+			match_token("(", "T_LPAREN", $tokens[$index])
+			parse("Expr", expr())
+			parse("boolop", boolop())
+			parse("Expr", expr())
+			match_token(")", "T_RPAREN", $tokens[$index])
+		else
+			parse("boolval", boolval())
+		end
 	
 	end
 
 	###############################
 	# Id ::== char
 	#
-	def id
-	
+	def id ()
+		
+		parse("char", char())
 	
 	end
 
@@ -392,64 +408,76 @@ def parser (tokens)
 	#			::== space CharList
 	#			::== Ɛ
 	#
-	def charList
-	
+	def charList ()
+		
+		# because we've already taken care of string formation
+		# in the lexer
+		match_token("STRING", "T_STRING", $tokens[$index])
 	
 	end
 
 	###############################
 	# type	::== int | string | boolean
 	#
-	def type
-	
-	
+	def type ()
+		
+		match_token("TYPE", "T_TYPE", $tokens[$index])
+		
 	end
 
 	###############################
 	# char	::== [a-z]
 	#
-	def char
-	
+	def char ()
+		
+		# We know that strings have already been taken care of,
+		# so these can only be id's
+		match_token("ID", "T_ID", $tokens[$index])
 	
 	end
 
 	###############################
 	# space	::== space
 	#
-	def space
-	
-	
-	end
+	# Only necessary in strings, which have already
+	# been taken care of
+	#
+	# def space ()
+	# end
 
 	###############################
 	# digit	::== [0-9]
 	#
-	def digit
-	
-	
+	def digit ()
+		
+		match_token("DIGIT", "T_DIGIT", $tokens[$index])
+		
 	end
 
 	###############################
 	# boolop ::== == | !=
 	#
-	def boolop
-	
+	def boolop ()
+		
+		match_token("BOOLOP", "T_BOOLOP", $tokens[$index])
 	
 	end
 
 	###############################
 	# boolean ::== false | true
 	#
-	def boolean
+	def boolean ()
 	
+		match_token("BOOLEAN", "T_BOOLEAN", $tokens[$index])
 	
 	end
 
 	###############################
 	# intop ::== +
 	#
-	def intop
+	def intop ()
 	
+		match_token("PLUS", "T_PLUS", $tokens[$index])
 	
 	end
 	
