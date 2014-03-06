@@ -1,14 +1,28 @@
 #!/usr/bin/env ruby
 
-# It's my estimation that  we're gonna be examining incoming input
-# here, and translating it with our nice Lexer into some tokens
+###################################################
+# This is the Lexer of the 03-K64 Compiler.
+# Crafted for Alan's 'Design Compilers' class,
+# lovingly coded in Ruby magic, and narrated by
+# her captain.
+#
+#
+# Author: Kevin Pietrow
+# Version: The shiny one
+# 
+# Note: Instructions for running the best compiler
+# 		in the Verse can be found in the README
+#
 
-# TODO: Separate tokenize() calls for digits and characters
-# TODO: Set up basic symbol table
 
-##
+
+
+
+###################################################
+# Declaring all relevant errors here
+#
+
 # error for unknown symbols
-# exits program, prints line and line number
 class UnknownSymbolError < StandardError
 	def initialize(char, lineno, pos)
  		@char, @lineno, @pos = char, lineno + 1, pos + 1
@@ -44,6 +58,11 @@ class StringDetectionError < StandardError
 end
 
 
+
+###################################################
+# This here is the main body of the Lexing operations
+#
+#
 
 
 def lexer(input)

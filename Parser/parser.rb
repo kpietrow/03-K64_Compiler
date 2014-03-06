@@ -1,5 +1,21 @@
 #!/usr/bin/env ruby
-# Building the CST
+
+###################################################
+# This is the Parser of the 03-K64 Compiler.
+# Crafted for Alan's 'Design Compilers' class,
+# lovingly coded in Ruby magic, and narrated by
+# her captain.
+#
+#
+# Author: Kevin Pietrow
+# Version: The shiny one
+# 
+# Note: Instructions for running the best compiler
+# 		in the Verse can be found in the README
+#
+
+
+
 
 # TODO: Should probably set it so that there's a function 
 # which takes care of parsing output
@@ -7,6 +23,7 @@
 #################################################################
 # Helper functions, Error declarations, Class declarations,
 # and all of that shiny stuff
+#
 
 # Set up a class for unexpected $tokens
 class FaultyTokenError < StandardError 
@@ -36,8 +53,8 @@ class CST
 		
 		# if there are no nodes yet, start it off!
 		if @root == nil
-			@root = Node.new(name, token)
-			@cur = @root
+			@root = Node.new(name, token, nil)
+			@current = @root
 		
 		# otherwise, move about this intelligently
 		else
@@ -45,6 +62,14 @@ class CST
 		end
 	end
 	
+	def ascend ()
+		
+		# just want to be careful
+		if @current != @root
+			@current = @current.parent
+		end
+		
+	end
 end
 
 # tentative class for nodes on the tree
@@ -59,20 +84,19 @@ class Node
 	@children = []
 	@parent = nil
 	
-	def initialize (name, token = nil)
+	def initialize (name, token = nil, parent = nil)
 		@@total_id = @@total_id + 1
 		@id = @@total_id
 		@name = name
 		@token = token
-		@parent = nil
+		@parent = parent
 		@children = []
 	end
 	
 	# add child, set child's parent
 	def add_child (child, token = nil)
-		new_node = Scope.new(child, token)
+		new_node = Scope.new(child, token, self)
 		@children.push(new_node)
-		new_node.add_parent(self)
 		return new_node
 	end
 	
@@ -87,6 +111,7 @@ end
 
 #################################################################
 # Main functions in the best gorram' parse tree in the Verse
+#
 
 
 # main function for this file
@@ -94,7 +119,7 @@ def parser (tokens)
 
 	# create the new, concrete syntax tree
 	# making it global to reduce headaches (hopefully XD )
-	$cst = CST.new
+	$cst = CST.new()
 	
 	# define some other useful, global vars
 	$tokens = tokens
@@ -107,9 +132,11 @@ def parser (tokens)
 		exit
 	end	
 	
-	# $cst.addNode("Program")
-	block()
-	match_token("T_EOFSIGN", $tokens[$index])
+	
+	# Engine to full burn!!!
+	parse(program)
+	
+	
 	
 	###############################
 	# The all-important parser
@@ -117,7 +144,7 @@ def parser (tokens)
 	# nodes in the CST, and will help to structure the program
 	#
 	def parse (next_step)
-		
+		$cst.add_node("Program"
 		
 	end
 	
