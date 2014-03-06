@@ -257,7 +257,7 @@ def parser (tokens)
 		when "T_LBRACE"
 			parse("Block", block())
 		else
-			raise FaultyTokenError.new(false, token)
+			raise FaultyTokenError.new(false, $tokens[$index])
 		end
 		
 	end
@@ -278,7 +278,10 @@ def parser (tokens)
 	# Assignment ::== Id = Expr
 	#
 	def assignment_stmt ()
-	
+		
+		parse("Id", id())
+		match_token("=", "T_ASSIGNMENT", $tokens[$index])
+		parse("Expr", expr())
 	
 	end
 
@@ -286,23 +289,32 @@ def parser (tokens)
 	# VarDec ::== type Id
 	#
 	def vardecl ()
-	
+		
+		parse("type", type())
+		parse("Id", id())
 	
 	end
 
 	###############################
-	# While ::== while Boolean Block
+	# While ::== while BooleanExpr Block
 	#
 	def while_stmt ()
-	
-	
+		
+		match_token("while", "T_WHILE", $tokens[$index])
+		parse("BooleanExpr", boolexpr())
+		parse("Block", block())
+		
 	end
 
 	###############################
-	# If ::== if Boolean Block
+	# If ::== if BooleanExpr Block
 	#
 	def if_stmt ()
-
+		
+		match_token("if", "T_IF", $tokens[$index])
+		parse("BooleanExpr", boolexpr())
+		parse("Block", block())
+		
 	end
 
 	###############################
@@ -311,9 +323,22 @@ def parser (tokens)
 	#		::== BooleanExpr
 	#		::== Id
 	#
-	def expr
-	
-	
+	def expr ()
+		
+		case scout_token()
+		when "T_DIGIT"
+			parse("IntExpr", intexpr())
+		when "T_QUOTE"
+			parse("StringExpr", stringexpr())
+		when "T_LPAREN"
+			parse("BooleanExpr", boolexpr())
+		when "T_ID"
+		
+		else
+			raise FaultyTokenError.new(false, $tokens[$index])
+		end
+		
+		
 	end
 
 	###############################
@@ -334,7 +359,7 @@ def parser (tokens)
 	end
 
 	###############################
-	# BooleanExpr 	::== ( expr boolop Expr )
+	# BooleanExpr 	::== ( Expr boolop Expr )
 	#				::== boolval
 	#
 	def boolexpr
