@@ -110,7 +110,7 @@ end
 
 
 #################################################################
-# Main functions in the best gorram' parse tree in the Verse
+# Main function of the best gorram' parse tree in the Verse
 #
 
 
