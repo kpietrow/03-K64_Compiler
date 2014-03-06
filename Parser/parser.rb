@@ -21,68 +21,31 @@ end
 class CST
 	
 	@@total_nodes = 0
-	@branches = []
 	@root = nil
-	@cur = nil
+	@current = nil
 	
 	
-	def initialize
-		@branches = []
+	def initialize ()
 		@root = nil
-		@cur = nil
+		@current = nil
 	end
 	
 	# add a node
-	def add_node(type, terminal, node)
-		@@total_nodes += 1
+	def add_node (node)
+		@@total_nodes = @@total_nodes + 1
 		
 		# if there are no nodes yet, start it off!
 		if @root == nil
-			branches.push([node])
 			@root = node
 			@cur = node
 			return
 		
 		# otherwise, move about this intelligently
 		else
-			insert_node(@branches, terminal, node)
-			return
+			@cur.children.push(node)
+			node.parent = @cur
+			@cur = node
 		end
-	end
-	
-	# helper method to add node
-	def insert_node (nodes, terminal, n_node)
-	
-		# cycle through all the nodes
-		nodes.cycle(1) { |node| 
-			
-			# check for parent's id
-			# if successful...
-			if node[0] == @cur
-			
-				# add child to parent's list of children
-				node[0].children.push(n_node)
-				
-				# add parent to child's list of parents
-				n_node.parent = node[0]
-				
-				# push child node into tree
-				node.push([n_node])
-				
-				# if the new node is not terminal, update
-				if !terminal
-					@cur = node
-				end
-				
-				return
-				
-			# else continue along current branch if there are more children
-			else
-				if !node.is_a? Array
-					node_finder(node, parentid, n_node)
-				end
-			end 
-		}
 	end
 	
 end
@@ -95,27 +58,25 @@ class Node
 	@@total_id = 0
 	@id = nil
 	@name = nil
-	@token = token
+	@token = nil
 	@children = []
 	@parent = nil
 	
-	def initialize (name, token, parent = nil, children = nil)
+	def initialize (name, token = nil, parent = nil, children = [])
 		@@total_id += 1
 		@id = @@total_id
 		@token = token
 		@parent = parent
-		@children = children_ids(children)
+		@children = children
 	end
 	
 	# if children given, return children ids
-	def children_ids (children)
-		if children == nil
-			return []
-		else
-			ids = []
-			children.cycle(1) {|child| ids.push(child.id) }
-			return ids
-		end
+	def add_child (child)
+		@children.push(child)
+	end
+	
+	def add_parent (parent)
+		@parent = parent
 	end
 	
 	def get_child (id)

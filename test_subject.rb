@@ -2,10 +2,7 @@
 
 # This file is purely for the purposes of testing different strategies
 
-test = [[1],[2, [4],[5, [6], [7]]],[3,[8],[9]]]
-
-found = false
-
+# require './test_subject2.rb'
 
 def tester (t)
 	t.cycle(1) {
@@ -37,6 +34,8 @@ end
 
 
 class Test1
+	attr_accessor :var
+	
 	@var = nil
 	
 	def initialize (var)
@@ -49,7 +48,7 @@ class Test1
 end
 
 class Test2
-	attr_accessor :var
+	attr_accessor :var, :collection
 	
 	@var = nil
 	@collection = []
@@ -69,7 +68,18 @@ class Test2
 		
 end
 
+def main1
 
-cat = Test2.new("hi")
-cat.add("hello")
-print cat.collection
+	c = 2
+	
+	def main2 (var)
+		puts var * 2
+	end
+	
+	main2(c)
+	
+	$cr = "I'm here!"
+	
+	puts $cr
+	
+end
