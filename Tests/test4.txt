@@ -1,2 +1,0 @@
-open ended
-string " test
