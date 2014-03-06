@@ -333,11 +333,10 @@ def parser (tokens)
 		when "T_LPAREN"
 			parse("BooleanExpr", boolexpr())
 		when "T_ID"
-		
+			parse("Id", id())
 		else
 			raise FaultyTokenError.new(false, $tokens[$index])
 		end
-		
 		
 	end
 
@@ -345,8 +344,15 @@ def parser (tokens)
 	# IntExpr 	::== digit intop Expr
 	#			::== digit
 	#
-	def intexpr
-	
+	def intexpr ()
+		
+		if $tokens[$index + 1].type == "T_PLUS"
+			parse("digit", digit())
+			parse("intop", intop())
+			parse("Expr", expr())
+		else
+			parse("digit", digit())
+		end
 	
 	end
 
@@ -354,7 +360,13 @@ def parser (tokens)
 	# StringExpr ::== " CharList "
 	#
 	def stringexpr
-	
+		
+		match_token('"', "T_QUOTE", $tokens[$index])
+		
+		# because we've already taken care of string formation
+		# in the lexer
+		match_token("STRING", "T_STRING", $tokens[$index])
+		match_token('"'
 	
 	end
 
