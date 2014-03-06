@@ -31,19 +31,18 @@ class CST
 	end
 	
 	# add a node
-	def add_node (node)
+	def add_node (node, token = nil)
 		@@total_nodes = @@total_nodes + 1
 		
 		# if there are no nodes yet, start it off!
 		if @root == nil
-			@root = node
-			@cur = node
-			return
+			@root = Node.new(node, token)
+			@cur = @root
 		
 		# otherwise, move about this intelligently
 		else
-			@cur.add_child(node)
-			@cur = node
+			new_node = @current.add_child(node, token)
+			@current = 
 		end
 	end
 	
@@ -61,18 +60,20 @@ class Node
 	@children = []
 	@parent = nil
 	
-	def initialize (name, token = nil, parent = nil, children = [])
-		@@total_id += 1
+	def initialize (name, token = nil)
+		@@total_id = @@total_id + 1
 		@id = @@total_id
+		@name = name
 		@token = token
 		@parent = parent
 		@children = children
 	end
 	
 	# add child, set child's parent
-	def add_child (child)
+	def add_child (child, token = nil)
 		@children.push(child)
-		child.add_parent(self)
+		@children[child].add_parent(self)
+		return 
 	end
 	
 	# add parent
@@ -109,7 +110,19 @@ def parser (tokens)
 	# $cst.addNode("Program")
 	block()
 	match_token("T_EOFSIGN", $tokens[$index])
-
+	
+	###############################
+	# The all-important parser
+	# This will control the ascent and descent of the 
+	# nodes in the CST, and will help to structure the program
+	#
+	def parse (next_step)
+		
+		
+	end
+	
+	
+	
 
 	###############################
 	# Block ::== { StatementList }

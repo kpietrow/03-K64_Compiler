@@ -23,10 +23,13 @@ class SymbolTable
 	
 	# returns a new layer of scope
 	def enter ()
-		@current_scope = current_scope.enter(@current_scope)
 		
 		if @root == nil
-			@root = @current_scope
+			new_scope = Scope.new()
+			@root = @new_scope
+			
+		else
+			@current_scope = @current_scope.enter(@current_scope)
 		end
 	end
 	
@@ -71,6 +74,12 @@ class Scope
 			raise SymbolTableError.new(id)
 		end
 		
+	end
+	
+	def enter (current)
+		new_scope = Scope.new(current)
+		current.children.push(new_scope)
+		return new_scope
 	end
 	
 end	
