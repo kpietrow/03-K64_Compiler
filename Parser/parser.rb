@@ -31,18 +31,17 @@ class CST
 	end
 	
 	# add a node
-	def add_node (node, token = nil)
+	def add_node (name, token = nil)
 		@@total_nodes = @@total_nodes + 1
 		
 		# if there are no nodes yet, start it off!
 		if @root == nil
-			@root = Node.new(node, token)
+			@root = Node.new(name, token)
 			@cur = @root
 		
 		# otherwise, move about this intelligently
 		else
-			new_node = @current.add_child(node, token)
-			@current = 
+			@current = @current.add_child(name, token)
 		end
 	end
 	
@@ -65,15 +64,16 @@ class Node
 		@id = @@total_id
 		@name = name
 		@token = token
-		@parent = parent
-		@children = children
+		@parent = nil
+		@children = []
 	end
 	
 	# add child, set child's parent
 	def add_child (child, token = nil)
-		@children.push(child)
-		@children[child].add_parent(self)
-		return 
+		new_node = Scope.new(child, token)
+		@children.push(new_node)
+		new_node.add_parent(self)
+		return new_node
 	end
 	
 	# add parent
