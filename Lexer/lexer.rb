@@ -81,9 +81,7 @@ def lexer(input)
 	
 	tokens = []   # Startin' with the input code in a mighty nice array
 	c_line = 0    # current line in program
-	eof_reached = false   # EOF status
-	s_check = false		# for ensuring complete strings
-	boolop_check = false	# for ensuring boolop completeness
+	special_case = false
 	
 	c_string = ""	# the current string of chars
 	c_pos = nil		# current position of string of chars
@@ -94,47 +92,55 @@ def lexer(input)
 		# check characters in line of input
 		for i in 0...line.length
 		
-			# checks for unfinished strings first
-			if s_check
+			# checks for special cases
+			if special_case
 			
-				# make sure that we're not going to be using nil for tokenize()
-				if c_pos == nil
-					c_pos = i
-				end
-			
-				# check the different options
-				case line[i]
+				last_token = tokens[tokens.length - 1]
 				
-				# found a closing quotation mark
-				when /"/
-					tokens.push(tokenize(c_string, "string", c_line, c_pos))
-					tokens.push(tokenize(line[i], "op", c_line, i))
-					c_string = ""
-					s_check = false
+				# Early EOF
+				if last_token == "T_EOFSIGN" and line[i] =~ /\S/
+				
+					raise EOFDetectionError.new("early", c_line, i)
+				
+				# Boolop
+				elsif last_token == "T_BOOLOP"
+				
+					special_case = false
+					next
+				
+				# String time!
+				elsif last_token == "T_QUOTE"
+				
+					# make sure that we're not going to be using nil for tokenize()
+					if c_pos == nil
+						c_pos = i
+					end
+			
+					# check the different options
+					case line[i]
+				
+					# found a closing quotation mark
+					when /"/
+						tokens.push(tokenize(c_string, "string", c_line, c_pos))
+						tokens.push(tokenize(line[i], "op", c_line, i))
+						c_string = ""
+						s_check = false
 					
-				# space or letter
-				when /( )/, /[a-z]/
-					c_string = c_string + line[i]
+					# space or letter
+					when /( )/, /[a-z]/
+						c_string = c_string + line[i]
 					
-				# invalid options
-				else
-					
-					# checks for end of line, else it's a bad character
-					if i == line.length - 1
-						raise StringDetectionError.new("unclosed", line[i], c_line, i)
+					# invalid options
 					else
-						raise StringDetectionError.new("char", line[i], c_line, i)
+					
+						# checks for end of line, else it's a bad character
+						if i == line.length - 1
+							raise StringDetectionError.new("unclosed", line[i], c_line, i)
+						else
+							raise StringDetectionError.new("char", line[i], c_line, i)
+						end
 					end
 				end
-			
-			# if boolop is active, skip this iteration
-			elsif boolop_check
-				boolop_check = false
-				next
-		
-			# test for anything after EOF
-			elsif eof_reached and line[i] =~ /\S/
-				raise EOFDetectionError.new("early", c_line, i)
 			
 		
 			# test here for EOF symbol
@@ -203,9 +209,19 @@ def lexer(input)
 			end
 		end
 		
-		# check to make sure that all strings on this line are finished
-		if s_check
-			raise StringDetectionError.new("unclosed", "", c_line, 0)
+		
+		# check for loose ends
+		if special_case
+		
+			# check to make sure that all strings on this line are finished
+			if tokens[length - 1] == "T_QUOTE" or tokens[length - 1] == "T_STRING"
+				raise StringDetectionError.new("unclosed", "", c_line, 0)
+			
+			# if boolop, reset special_case
+			elsif tokens[length - 1] == "T_BOOLOP"
+				special_case = false
+			end
+		
 		end
 		
 		# check to make sure no current strings are left
