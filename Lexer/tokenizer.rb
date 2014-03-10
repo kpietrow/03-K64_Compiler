@@ -47,11 +47,17 @@ def tokenize (p_token, type, lineno, pos)
 	if type == "op"
 		return op_tokenize(p_token, lineno, pos)
 	
-	elsif type == "alphanum"
-		return alphanum_tokenize(p_token, lineno, pos)
+	elsif type == "character"
+		return char_tokenize(p_token, lineno, pos)
 	
 	elsif type == "string"
 		return string_tokenize(p_token, lineno, pos)
+	
+	elsif type == "digit"
+		return digit_tokenize(p_token, lineno, pos)
+	
+	else
+		# should create an error here, just for thoroughness
 	end
 end
 
@@ -100,44 +106,43 @@ end
 
 
 # dealing with alphanumeric character strings
-def alphanum_tokenize(p_token, lineno, pos)
-
-	# Mixes of characters and digits are not allowed
-	if (p_token =~ $character) and (p_token =~ $digit)
-	
-		raise UnknownSymbolError.new(p_token, lineno, pos)
-	
-	
-	# T_DIGIT. Tokenize its value as an int and not a string
-	elsif p_token =~ $digit
-		return Token.new("T_DIGIT", Integer(p_token), lineno, pos)
-
+def char_tokenize(p_token, lineno, pos)
 
 	# could be a KEYWORD, TYPE, or ID here
-	elsif p_token =~ /[a-z]+/
-		case p_token
-		when /\b(while)\b/
-			return Token.new("T_WHILE", p_token, lineno, pos)
-		when /\b(if)\b/
-			return Token.new("T_IF", p_token, lineno, pos)
-		when /\b(false)\b/
-			return Token.new("T_BOOLEAN", p_token, lineno, pos)
-		when /\b(true)\b/
-			return Token.new("T_BOOLEAN", p_token, lineno, pos)
-		when /\b(print)\b/
-			return Token.new("T_PRINT", p_token, lineno, pos)
-		when /\b(int)\b/
-			return Token.new("T_TYPE", p_token, lineno, pos)
-		when /\b(string)\b/
-			return Token.new("T_TYPE", p_token, lineno, pos)
-		when /\b(boolean)\b/
-			return Token.new("T_TYPE", p_token, lineno, pos)
-		when /[a-z]+/
-			return Token.new("T_ID", p_token, lineno, pos)
-		else
-			raise UnknownSymbolError.new(p_token, lineno, pos)
-		end
+	case p_token
+	when /\b(while)\b/
+		return Token.new("T_WHILE", p_token, lineno, pos)
+	when /\b(if)\b/
+		return Token.new("T_IF", p_token, lineno, pos)
+	when /\b(false)\b/
+		return Token.new("T_BOOLEAN", p_token, lineno, pos)
+	when /\b(true)\b/
+		return Token.new("T_BOOLEAN", p_token, lineno, pos)
+	when /\b(print)\b/
+		return Token.new("T_PRINT", p_token, lineno, pos)
+	when /\b(int)\b/
+		return Token.new("T_TYPE", p_token, lineno, pos)
+	when /\b(string)\b/
+		return Token.new("T_TYPE", p_token, lineno, pos)
+	when /\b(boolean)\b/
+		return Token.new("T_TYPE", p_token, lineno, pos)
+	when /[a-z]+/
+		return Token.new("T_ID", p_token, lineno, pos)
 	else
 		raise UnknownSymbolError.new(p_token, lineno, pos)
 	end
+	
+end
+
+
+# digit time
+def digit_tokenize(p_token, lineno, pos)
+	
+	# just check digit length
+	if p_token.length == 1
+		return Token.new("T_DIGIT", p_token, lineno, pos)
+	else
+		raise UnknownSymbolError.new(p_token, lineno, pos)
+	end
+	
 end
