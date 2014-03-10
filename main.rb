@@ -36,8 +36,6 @@ end
 # Settin' up global regex variables now
 #
 $digit = /[0-9]/
-$alpha_numeric = /[a-z0-9]/
-
 $character = /[a-z]/
 $space = /\s/
 $eof = /\$/

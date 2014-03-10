@@ -72,8 +72,6 @@ end
 ###################################################
 # This here is the main body of the Lexing operations
 #
-#
-
 
 def lexer(input)
 	# We're gonna run a nice Lexer now
@@ -127,7 +125,7 @@ def lexer(input)
 						s_check = false
 					
 					# space or letter
-					when /( )/, /[a-z]/
+					when /( )/, $character
 						c_string = c_string + line[i]
 					
 					# invalid options
@@ -173,28 +171,33 @@ def lexer(input)
 				
 				# tokenize c_string if applicable
 				if c_string != ""
-					tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
+					tokens.push(tokenize(c_string, "character", c_line, c_pos))
 					
 					c_string = ""
 					c_pos = nil
 				end
 				
 				# test for that elusive boolop...
-				if /[!|=]/.match(line[i]) and /=/.match(line[i + 1])
-					# attempt to tokenize the operator
-					tokens.push(tokenize(line[i] + line[i + 1], "op", c_line, i))
-					boolop_check = true
+				# make sure we don't access a non-existent item...
+				if i != line.length - 1
+					if /[!|=]/.match(line[i]) and /=/.match(line[i + 1])
+						# attempt to tokenize the operator
+						tokens.push(tokenize(line[i] + line[i + 1], "op", c_line, i))
+						special_case = true
+					else
+						tokens.push(tokenize(line[i], "op", c_line, i))
+					end
 				else
 					tokens.push(tokenize(line[i], "op", c_line, i))
 				end
 				
 				# if op is ", start the string gathering process
 				if /"/.match(line[i])
-					s_check = true
+					special_case = true
 				end
 				
 			# Testin' for alpha numeric characters
-			elsif $alpha_numeric.match(line[i])
+			elsif $character.match(line[i])
 				# set position of current string
 				if c_string == "" and c_pos == nil
 					c_pos = i
@@ -202,6 +205,18 @@ def lexer(input)
 				
 				# add new character to current string
 				c_string = c_string + String(line[i])
+				
+			elsif $digit.match(line[i])
+			
+				# test for more than one digit
+				# make sure we don't access a non-existent item...
+				if i != line.length - 1
+					if $digit.match(line[i + 1])
+						raise UnknownSymbolError(line[i + 1], line, i)
+					end
+				end
+				
+				tokens.push(tokenize(line[i], "digit", line, i)
 			
 			# else raise error for unknown symbol
 			else
