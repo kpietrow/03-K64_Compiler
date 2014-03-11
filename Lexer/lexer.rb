@@ -122,7 +122,7 @@ def lexer(input)
 						tokens.push(tokenize(c_string, "string", c_line, c_pos))
 						tokens.push(tokenize(line[i], "op", c_line, i))
 						c_string = ""
-						s_check = false
+						special_case = false
 					
 					# space or letter
 					when /( )/, $character
@@ -143,7 +143,7 @@ def lexer(input)
 		
 			# test here for EOF symbol
 			elsif $eof.match(line[i])
-				eof_reached = true
+				special_case = true
 				
 				# tokenize current string
 				if c_string != ""
