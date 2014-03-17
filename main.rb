@@ -81,6 +81,12 @@ def main
 	
 	puts "\nLexing completed successfully, all tokens have been smuggled in to the system\n\nToken Stream (in order):\n"
 	
+	puts "\n"
+	puts String(token_stream.length)
+	puts "\n"
+	
+	print token_stream
+	
 	# print out the received tokens
 	for i in token_stream
 		print i.type

@@ -44,6 +44,9 @@ end
 
 # take in the potential token, type (char/op), lineno, and pos
 def tokenize (p_token, type, lineno, pos)
+
+	puts "HEYYYYYYYYYY: " + p_token
+	
 	if type == "op"
 		return op_tokenize(p_token, lineno, pos)
 	
@@ -57,6 +60,7 @@ def tokenize (p_token, type, lineno, pos)
 		return digit_tokenize(p_token, lineno, pos)
 	
 	else
+		puts "NOOOOOO"
 		# should create an error here, just for thoroughness
 	end
 end
@@ -65,6 +69,8 @@ end
 
 # examine for potential as an operator token
 def op_tokenize (p_token, lineno, pos)
+
+	puts "OPPPPPPPPPPPPP"
 	case p_token
 	when "="
 		return Token.new("T_ASSIGNMENT", p_token, lineno, pos)
@@ -95,6 +101,8 @@ end
 # dealing with strings
 def string_tokenize(p_token, lineno, pos)
 
+	puts "STRINGGGGGGGGGGG"
+
 	# the thinking behind this is that the string has already been 
 	# checked for and validated in the Lexer. This method being in 
 	# tokenizer.rb is to ensure consistency in the realm of token generation
@@ -107,6 +115,8 @@ end
 
 # dealing with alphanumeric character strings
 def char_tokenize(p_token, lineno, pos)
+
+	puts "CHARRRRRRRRRRRR"
 
 	# could be a KEYWORD, TYPE, or ID here
 	case p_token
@@ -137,6 +147,8 @@ end
 
 # digit time
 def digit_tokenize(p_token, lineno, pos)
+
+	puts "DIGITTTTTTTTTTT"
 	
 	# just check digit length
 	if p_token.length == 1

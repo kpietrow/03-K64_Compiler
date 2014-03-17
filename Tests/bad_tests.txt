@@ -1,0 +1,6 @@
+{
+	boolean c
+	c = true
+	boolean d
+	d = (true == (true == false))
+}

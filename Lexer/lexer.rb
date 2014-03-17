@@ -159,7 +159,7 @@ def lexer(input)
 			# Testin' for whitespace
 			elsif $space.match(line[i])
 				if c_string != ""
-					tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
+					tokens.push(tokenize(c_string, "character", c_line, c_pos))
 					
 					c_string = ""
 					c_pos = nil
@@ -198,6 +198,7 @@ def lexer(input)
 				
 			# Testin' for alpha numeric characters
 			elsif $character.match(line[i])
+			
 				# set position of current string
 				if c_string == "" and c_pos == nil
 					c_pos = i
@@ -216,7 +217,7 @@ def lexer(input)
 					end
 				end
 				
-				tokens.push(tokenize(line[i], "digit", line, i)
+				tokens.push(tokenize(line[i], "digit", c_line, i))
 			
 			# else raise error for unknown symbol
 			else
@@ -229,11 +230,11 @@ def lexer(input)
 		if special_case
 		
 			# check to make sure that all strings on this line are finished
-			if tokens[length - 1] == "T_QUOTE" or tokens[length - 1] == "T_STRING"
+			if tokens[tokens.length - 1] == "T_QUOTE" or tokens[tokens.length - 1] == "T_STRING"
 				raise StringDetectionError.new("unclosed", "", c_line, 0)
 			
 			# if boolop, reset special_case
-			elsif tokens[length - 1] == "T_BOOLOP"
+			elsif tokens[tokens.length - 1] == "T_BOOLOP"
 				special_case = false
 			end
 		
@@ -253,7 +254,7 @@ def lexer(input)
 	end
 	
 	# if no EOF symbol ($) detected
-	if !eof_reached
+	if !special_case
 		begin
 			raise EOFDetectionError.new("dne", 0, 0)
 		rescue EOFDetectionError

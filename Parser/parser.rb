@@ -26,21 +26,12 @@
 
 # Set up a class for unexpected $tokens
 class FaultyTokenError < StandardError 
-	def initialize(known, e_token, token)
-		if known
-			puts "-------------------------------------------------------------------"		
-			# the + 3 adjusts a bit for tab spacing
-			puts "\nERROR: Expected a '#{e_token}' token, but received a '#{token.type}' at Line: #{token.lineno} at about Position: #{token.pos + 3}"
-			puts $cst.current.name
-			puts "-------------------------------------------------------------------"
-			exit
-		else
-			puts "-------------------------------------------------------------------"
-			# the + 3 adjusts a bit for tab spacing
-			puts "\nERROR: Incorrect token received, received a '#{token.type}' at Line #{token.lineno} at about Position #{token.pos + 3} ---- #{token.value}"
-			puts "-------------------------------------------------------------------"
-			exit
-		end
+	def initialize(e_token, token)
+		puts "\n-------------------------------------------------------------------"		
+		# the + 3 adjusts a bit for tab spacing
+		puts "ERROR: Expected a '#{e_token}' token, but received a #{token.type} '#{token.value}' at Line: #{token.lineno} at about Position: #{token.pos + 3}"
+		puts "-------------------------------------------------------------------"
+		exit
 	end
 end
 	
@@ -208,7 +199,7 @@ def match_token (name, exp, token)
 		# Because a match_token only occurs for a leaf/terminal token
 		$cst.ascend()
 	else
-		raise FaultyTokenError.new(true, exp, token)
+		raise FaultyTokenError.new(exp, token)
 	end
 end
 
@@ -221,7 +212,7 @@ end
 # nodes in the CST, and will help to structure the program
 #
 def parse (name_next_step, next_step)
-
+	
 	$cst.add_node(name_next_step)
 	
 	next_step
@@ -297,7 +288,7 @@ def statement ()
 	when "T_LBRACE"
 		parse("Block", block())
 	else
-		raise FaultyTokenError.new(false, $tokens[$index])
+		raise FaultyTokenError.new("T_PRINT, T_ID, T_TYPE, T_WHILE, T_IF, or T_LBRACE", $tokens[$index])
 	end
 	
 end
@@ -307,7 +298,7 @@ end
 #
 def print_stmt ()
 
-	match_token("print", "T_PRINT", $tokens[$index])
+	match_token("PRINT", "T_PRINT", $tokens[$index])
 	match_token("(", "T_LPAREN", $tokens[$index])
 	parse("Expr", expr())
 	match_token(")", "T_RPAREN", $tokens[$index])
@@ -343,7 +334,7 @@ end
 #
 def while_stmt ()
 	
-	match_token("while", "T_WHILE", $tokens[$index])
+	match_token("WHILE", "T_WHILE", $tokens[$index])
 	parse("BooleanExpr", boolexpr())
 	parse("Block", block())
 	
@@ -354,7 +345,7 @@ end
 #
 def if_stmt ()
 	
-	match_token("if", "T_IF", $tokens[$index])
+	match_token("IF", "T_IF", $tokens[$index])
 	parse("BooleanExpr", boolexpr())
 	parse("Block", block())
 	
@@ -373,12 +364,12 @@ def expr ()
 		parse("IntExpr", intexpr())
 	when "T_QUOTE"
 		parse("StringExpr", stringexpr())
-	when "T_LPAREN"
+	when "T_LPAREN", "T_BOOLEAN"
 		parse("BooleanExpr", boolexpr())
 	when "T_ID"
 		parse("Id", id())
 	else
-		raise FaultyTokenError.new(false, "T_DIGIT, T_QUOTE, T_LPAREN, or T_ID", $tokens[$index])
+		raise FaultyTokenError.new("T_DIGIT, T_QUOTE, T_LPAREN, or T_ID", $tokens[$index])
 	end
 	
 end
@@ -415,8 +406,8 @@ end
 #				::== boolval
 #
 def boolexpr ()
-	
-	if scout_token() == "T_LPAREN"
+	puts "in boolexpr now: " + $tokens[$index + 1].type
+	if $tokens[$index + 1].type == "T_LPAREN"
 		match_token("(", "T_LPAREN", $tokens[$index])
 		parse("Expr", expr())
 		parse("boolop", boolop())
@@ -500,7 +491,7 @@ end
 ###############################
 # boolean ::== false | true
 #
-def boolean ()
+def boolval ()
 
 	match_token("BOOLEAN", "T_BOOLEAN", $tokens[$index])
 
