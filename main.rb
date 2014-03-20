@@ -98,7 +98,7 @@ def main
 	end
 	
 	# Parse it!
-	puts "Now we're gonna begin the parsin'..."
+	puts "\n\nNow we're gonna begin the parsin'..."
 	parsed_stream, symbol_table = parser(token_stream)
 	puts "\n\nParsing successful. We've got ourselves a nice parse stream and symbol table now.\n\n"
 	

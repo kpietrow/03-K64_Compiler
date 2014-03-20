@@ -406,8 +406,8 @@ end
 #				::== boolval
 #
 def boolexpr ()
-	puts "in boolexpr now: " + $tokens[$index + 1].type
-	if $tokens[$index + 1].type == "T_LPAREN"
+	
+	if $tokens[$index].type == "T_LPAREN"
 		match_token("(", "T_LPAREN", $tokens[$index])
 		parse("Expr", expr())
 		parse("boolop", boolop())

@@ -90,14 +90,16 @@ def lexer(input)
 		# check characters in line of input
 		for i in 0...line.length
 		
+			puts "*" + line[i] + "*"
+		
 			# checks for special cases
 			if special_case
-			
-				last_token = tokens[tokens.length - 1]
+				
+				last_token = tokens[tokens.length - 1].type
 				
 				# Early EOF
 				if last_token == "T_EOFSIGN" and line[i] =~ /\S/
-				
+					
 					raise EOFDetectionError.new("early", c_line, i)
 				
 				# Boolop
@@ -143,6 +145,7 @@ def lexer(input)
 		
 			# test here for EOF symbol
 			elsif $eof.match(line[i])
+			
 				special_case = true
 				
 				# tokenize current string
@@ -158,6 +161,7 @@ def lexer(input)
 				
 			# Testin' for whitespace
 			elsif $space.match(line[i])
+			
 				if c_string != ""
 					tokens.push(tokenize(c_string, "character", c_line, c_pos))
 					
@@ -168,7 +172,7 @@ def lexer(input)
 			# Testin' for operators
 			# note: the whitespace issue was handled with the previous elsif
 			elsif $operator.match(line[i])
-				
+			
 				# tokenize c_string if applicable
 				if c_string != ""
 					tokens.push(tokenize(c_string, "character", c_line, c_pos))
@@ -254,7 +258,7 @@ def lexer(input)
 	end
 	
 	# if no EOF symbol ($) detected
-	if !special_case
+	if special_case
 		begin
 			raise EOFDetectionError.new("dne", 0, 0)
 		rescue EOFDetectionError
