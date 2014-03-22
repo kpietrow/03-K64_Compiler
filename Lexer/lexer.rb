@@ -22,7 +22,7 @@
 # Declaring all relevant errors here
 #
 
-# error for unknown symbols
+# Error for unknown symbols
 class UnknownSymbolError < StandardError
 	def initialize(char, lineno, pos)
  		@char, @lineno, @pos = char, lineno + 1, pos + 1
@@ -82,7 +82,8 @@ def lexer(input)
 	special_case = false
 	
 	c_string = ""	# the current string of chars
-	c_pos = nil		# current position of string of chars
+	c_pos = 1		# current position in file
+	s_pos = nil 	# current position of string
 	
 	# get a line of input
 	for line in input
@@ -90,21 +91,14 @@ def lexer(input)
 		# check characters in line of input
 		for i in 0...line.length
 		
-			puts "*" + line[i] + "*"
-		
 			# checks for special cases
 			if special_case
 				
 				last_token = tokens[tokens.length - 1].type
 				
-				# Early EOF
-				if last_token == "T_EOFSIGN" and line[i] =~ /\S/
-					
-					raise EOFDetectionError.new("early", c_line, i)
-				
 				# Boolop
-				elsif last_token == "T_BOOLOP"
-				
+				if last_token == "T_BOOLOP"
+					
 					special_case = false
 					next
 				
@@ -112,8 +106,8 @@ def lexer(input)
 				elsif last_token == "T_QUOTE"
 				
 					# make sure that we're not going to be using nil for tokenize()
-					if c_pos == nil
-						c_pos = i
+					if s_pos == nil
+						s_pos = i
 					end
 			
 					# check the different options
@@ -121,7 +115,7 @@ def lexer(input)
 				
 					# found a closing quotation mark
 					when /"/
-						tokens.push(tokenize(c_string, "string", c_line, c_pos))
+						tokens.push(tokenize(c_string, "string", c_line, s_pos))
 						tokens.push(tokenize(line[i], "op", c_line, i))
 						c_string = ""
 						special_case = false
@@ -145,15 +139,13 @@ def lexer(input)
 		
 			# test here for EOF symbol
 			elsif $eof.match(line[i])
-			
-				special_case = true
 				
 				# tokenize current string
 				if c_string != ""
-					tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
+					tokens.push(tokenize(c_string, "alphanum", c_line, s_pos))
 					
 					c_string = ""
-					c_pos = nil
+					s_pos = nil
 				end
 				
 				# tokenize '$'
@@ -163,10 +155,10 @@ def lexer(input)
 			elsif $space.match(line[i])
 			
 				if c_string != ""
-					tokens.push(tokenize(c_string, "character", c_line, c_pos))
+					tokens.push(tokenize(c_string, "character", c_line, s_pos))
 					
 					c_string = ""
-					c_pos = nil
+					s_pos = nil
 				end
 			
 			# Testin' for operators
@@ -175,10 +167,10 @@ def lexer(input)
 			
 				# tokenize c_string if applicable
 				if c_string != ""
-					tokens.push(tokenize(c_string, "character", c_line, c_pos))
+					tokens.push(tokenize(c_string, "character", c_line, s_pos))
 					
 					c_string = ""
-					c_pos = nil
+					s_pos = nil
 				end
 				
 				# test for that elusive boolop...
@@ -204,8 +196,8 @@ def lexer(input)
 			elsif $character.match(line[i])
 			
 				# set position of current string
-				if c_string == "" and c_pos == nil
-					c_pos = i
+				if c_string == "" and s_pos == nil
+					s_pos = c_pos
 				end
 				
 				# add new character to current string
@@ -217,7 +209,7 @@ def lexer(input)
 				# make sure we don't access a non-existent item...
 				if i != line.length - 1
 					if $digit.match(line[i + 1])
-						raise UnknownSymbolError(line[i + 1], line, i)
+						raise UnknownSymbolError.new(line[i + 1], c_line, c_pos + 1)
 					end
 				end
 				
@@ -225,8 +217,16 @@ def lexer(input)
 			
 			# else raise error for unknown symbol
 			else
-				raise UnknownSymbolError.new(line[i], c_line, c_pos)
+				if s_pos != nil
+					raise UnknownSymbolError.new(line[i], c_line, s_pos)
+				else
+					raise UnknownSymbolError.new(line[i], c_line, c_pos)
+				end
 			end
+			
+			# update current position
+			c_pos = update_cpos(c_pos, line[i])
+
 		end
 		
 		
@@ -246,12 +246,13 @@ def lexer(input)
 		
 		# check to make sure no current strings are left
 		if c_string != ""
-			tokens.push(tokenize(c_string, "alphanum", c_line, c_pos))
+			tokens.push(tokenize(c_string, "alphanum", c_line, s_pos))
 		end
 		
 		# reset for next line
 		c_string = ""
-		c_pos = nil
+		c_pos = 0
+		s_pos = nil
 		
 		# increment the line number
 		c_line = c_line + 1
@@ -268,4 +269,20 @@ def lexer(input)
 	
 	# return token list
 	return tokens
+	
+end
+
+
+
+####
+# Helper for incrementing current line position
+#
+def update_cpos(c_pos, current)
+
+	if /\t/.match(current)
+		return c_pos + 4
+	else
+		return c_pos + 1
+	end
+
 end

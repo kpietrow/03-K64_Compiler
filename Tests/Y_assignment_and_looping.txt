@@ -1,15 +1,5 @@
 {
-	if ( 9 == 9 ) {
-		print ( "this is a successful test " )
-	}
-	
 	int a
-	a = 1
-	
-	while ( a != 5 ) {
-		print ( "in a while loop" )
-		a = 1 + a
-		string b
-	}
+	a = 4
 }
 $		

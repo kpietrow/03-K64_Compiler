@@ -28,15 +28,14 @@
 class FaultyTokenError < StandardError 
 	def initialize(e_token, token)
 		puts "\n-------------------------------------------------------------------"		
-		# the + 3 adjusts a bit for tab spacing
-		puts "ERROR: Expected a '#{e_token}' token, but received a #{token.type} '#{token.value}' at Line: #{token.lineno} at about Position: #{token.pos + 3}"
+		puts "ERROR: Expected a '#{e_token}' token, but received a #{token.type} '#{token.value}' at Line: #{token.lineno} at about Position: #{token.pos + 1}"
 		puts "-------------------------------------------------------------------"
 		exit
 	end
 end
 	
 
-# tentative class of a tree
+# CST tree class
 class CST
 	
 	attr_reader :current
@@ -97,7 +96,7 @@ class CST
 	
 end
 
-# tentative class for nodes on the tree
+# Class for nodes on the syntax trees
 class Node
 	attr_reader :total_id, :id, :token, :name
 	attr_accessor :parent, :children

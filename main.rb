@@ -81,12 +81,6 @@ def main
 	
 	puts "\nLexing completed successfully, all tokens have been smuggled in to the system\n\nToken Stream (in order):\n"
 	
-	puts "\n"
-	puts String(token_stream.length)
-	puts "\n"
-	
-	print token_stream
-	
 	# print out the received tokens
 	for i in token_stream
 		print i.type
@@ -98,7 +92,7 @@ def main
 	end
 	
 	# Parse it!
-	puts "\n\nNow we're gonna begin the parsin'..."
+	puts "\nNow we're gonna begin the parsin'..."
 	parsed_stream, symbol_table = parser(token_stream)
 	puts "\n\nParsing successful. We've got ourselves a nice parse stream and symbol table now.\n\n"
 	
