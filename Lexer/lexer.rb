@@ -39,9 +39,8 @@ class EOFDetectionError < StandardError
  		@type, @lineno, @pos = type, lineno + 1, pos + 1
  		if @type == "early"
  			puts "-------------------------------------------------------------------"
- 			puts "ERROR: Line #{@lineno}, Position #{@pos} -> EOF reached early at this location. Will now terminate the program."
+ 			puts "WARNING: Line #{@lineno}, Position #{@pos} -> Early EOF reached at this location. Compilation will continue, but extra code will be ignored."
  			puts "-------------------------------------------------------------------"
- 			exit
  		elsif @type == "dne"
  			puts "-------------------------------------------------------------------"
  			puts "WARNING: No EOF sign ($) reached. Will temporarily add one for this run-through, but the source code will not be altered."
@@ -80,6 +79,7 @@ def lexer(input)
 	tokens = []   # Startin' with the input code in a mighty nice array
 	c_line = 0    # current line in program
 	special_case = false
+	eof_reached = false
 	
 	c_string = ""	# the current string of chars
 	c_pos = 1		# current position in file
@@ -142,11 +142,13 @@ def lexer(input)
 				
 				# tokenize current string
 				if c_string != ""
-					tokens.push(tokenize(c_string, "alphanum", c_line, s_pos))
+					tokens.push(tokenize(c_string, "character", c_line, s_pos))
 					
 					c_string = ""
 					s_pos = nil
 				end
+				
+				eof_reached = true
 				
 				# tokenize '$'
 				tokens.push(tokenize(line[i], "op", c_line, i))
@@ -246,7 +248,7 @@ def lexer(input)
 		
 		# check to make sure no current strings are left
 		if c_string != ""
-			tokens.push(tokenize(c_string, "alphanum", c_line, s_pos))
+			tokens.push(tokenize(c_string, "character", c_line, s_pos))
 		end
 		
 		# reset for next line
@@ -259,7 +261,7 @@ def lexer(input)
 	end
 	
 	# if no EOF symbol ($) detected
-	if special_case
+	if !eof_reached
 		begin
 			raise EOFDetectionError.new("dne", 0, 0)
 		rescue EOFDetectionError

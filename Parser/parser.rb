@@ -28,7 +28,7 @@
 class FaultyTokenError < StandardError 
 	def initialize(e_token, token)
 		puts "\n-------------------------------------------------------------------"		
-		puts "ERROR: Expected a '#{e_token}' token, but received a #{token.type} '#{token.value}' at Line: #{token.lineno} at about Position: #{token.pos + 1}"
+		puts "ERROR: Expected a '#{e_token}' token, but received a #{token.type} '#{token.value}' at Line: #{token.lineno} at Position: #{token.pos + 1}"
 		puts "-------------------------------------------------------------------"
 		exit
 	end
@@ -160,6 +160,15 @@ def parser (tokens)
 	
 	# Engine to full burn!!!
 	parse("Program", program())
+	
+	begin
+		if $tokens.length != $index
+			raise EOFDetectionError.new("early", $tokens[$index - 1].lineno, $tokens[$index - 1].pos)
+		end
+	rescue EOFDetectionError
+	end
+		
+	
 	
 	return $cst, $symbol_tbl
 end	
