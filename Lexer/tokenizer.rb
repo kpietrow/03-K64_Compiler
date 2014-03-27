@@ -128,7 +128,7 @@ def char_tokenize(p_token, lineno, pos)
 		return Token.new("T_TYPE", p_token, lineno, pos)
 	when /\b(boolean)\b/
 		return Token.new("T_TYPE", p_token, lineno, pos)
-	when /[a-z]+/
+	when /\b[a-z]\b/
 		return Token.new("T_ID", p_token, lineno, pos)
 	else
 		raise UnknownSymbolError.new(p_token, lineno, pos)

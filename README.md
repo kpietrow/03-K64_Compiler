@@ -3,7 +3,11 @@
 
 This project involves building a compiler in Ruby, with the eventual goal of taking a custom grammar and converting it to machine code.
 
+The grammer currently being used: http://www.labouseur.com/courses/compilers/grammar.pdf
+
+
 The Lexer is currently tentatively finished, and so now the mysteries of parsing await!
+
 
 
 To run the compiler, run this command in the terminal:
