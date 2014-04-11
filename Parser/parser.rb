@@ -57,7 +57,7 @@ def parser (tokens)
 
 	# create the new, concrete syntax tree
 	# making it global to reduce headaches (hopefully XD )
-	$cst = CST.new
+	$cst = ConcreteSyntaxTree.new
 	
 	# define some other useful, global vars
 	$tokens = tokens

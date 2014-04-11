@@ -24,6 +24,7 @@ require './Parser/parser.rb'
 require './SymbolTable/symbol_table.rb'
 require './SemanticAnalysis/semantic_analysis.rb'
 require './SyntaxTrees/cst.rb'
+require './SyntaxTrees/ast.rb'
 require './SyntaxTrees/node.rb'
 
 # Error for a blank file of input

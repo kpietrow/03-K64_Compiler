@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
 
-# CST tree class
-class CST
+# CST class
+class ConcreteSyntaxTree
 	
 	attr_reader :current, :total_nodes
 	

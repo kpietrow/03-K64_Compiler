@@ -20,10 +20,48 @@
 def semantic_analysis (cst)
 
 
-	print cst.root
+	ast = AbstractSyntaxTree.new
+	symbol_table = SymbolTable.new
+
+	puts cst.root
+	node_analyzer(cst.root)
 	#analyze_element(cst.roo
 	
 	
 end
 	
 	
+def node_analyzer (node)
+	
+	if node.name == "Block"
+		ast.add_branch("Block")
+		#symbol_table.enter
+		node.children.cycle(1) { |child| node_analyzer(child) }
+		ast.ascend
+		
+	elsif node.name == "VarDecl"
+		match_vardecl(node)
+		
+	elsif node.name == "AssignmentStatement"
+		
+	elsif node.name == "PrintStatement"
+		
+	elsif node.name == "WhileStatement"
+		
+	elsif node.name == "IfStatement"
+		
+	elsif node.type == "leaf"
+		evaluate_leaf(node)
+	
+	else
+		node.children.cycle(1) { |child| node_analyzer(child) }
+	end	
+	
+end
+
+
+def match_vardecl
+
+	
+
+end

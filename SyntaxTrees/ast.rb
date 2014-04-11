@@ -2,8 +2,8 @@
 
 
 
-# CST tree class
-class AST
+# AST class
+class AbstractSyntaxTree
 	
 	attr_reader :current, :total_nodes
 	
