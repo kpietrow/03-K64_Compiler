@@ -28,107 +28,20 @@
 class FaultyTokenError < StandardError 
 	def initialize(e_token, token)
 		puts "\n-------------------------------------------------------------------"		
-		puts "ERROR: Expected a '#{e_token}' token, but received a #{token.type} '#{token.value}' at Line: #{token.lineno} at Position: #{token.pos + 1}"
+		puts "ERROR: Expected a '#{e_token}' token, but received a #{token.type} '#{token.value}' at Line: #{token.lineno} and Position: #{token.pos + 1}"
 		puts "-------------------------------------------------------------------"
 		exit
 	end
 end
-	
 
-# CST tree class
-class CST
-	
-	attr_reader :current
-	
-	@@total_nodes = 0
-	@root = nil
-	@current = nil
-	
-	
-	def initialize ()
-		@root = nil
-		@current = nil
+# Set up a class for early Leaf nodes
+class EarlyLeafError < StandardError
+	def initialize(token)
+		puts "\n-------------------------------------------------------------------"		
+		puts "ERROR: Received an early leaf token of #{token.type} '#{token.value}' at Line: #{token.lineno} and Position: #{token.pos + 1}"
+		puts "-------------------------------------------------------------------"
+		exit
 	end
-	
-	# add a node
-	def add_node (name, token = nil)
-		@@total_nodes = @@total_nodes + 1
-		
-		# if there are no nodes yet, start it off!
-		if @root == nil
-			@root = Node.new(name, token, nil)
-			@current = @root
-		
-		# otherwise, move about this intelligently
-		else
-			@current = @current.add_child(name, token)
-		end
-	end
-	
-	def ascend ()
-		
-		# just want to be careful
-		if @current != @root
-			@current = @current.parent
-		end
-		
-	end
-	
-	# Prints out the very basic details of the CST
-	def raw_print ()
-		
-		puts "The nodes in the constructed CST, going from lower left to upper right\n(Note: terminal nodes will be operators, or pure uppercase chars):"
-		
-		def child_loop (children)
-			children.cycle(1) { |child|
-				if child.children.length > 0
-					child_loop(child.children)
-				else
-					print "  ||  " + child.name
-				end
-			}
-		end
-		
-		print @root.name
-		child_loop(@root.children)
-		
-	end
-	
-end
-
-# Class for nodes on the syntax trees
-class Node
-	attr_reader :total_id, :id, :token, :name
-	attr_accessor :parent, :children
-	
-	@@total_id = 0
-	@id = nil
-	@name = nil
-	@token = nil
-	@children = []
-	@parent = nil
-	
-	def initialize (name, token = nil, parent = nil)
-		@@total_id = @@total_id + 1
-		@id = @@total_id
-		@name = name
-		@token = token
-		@parent = parent
-		@children = []
-	end
-	
-	# add child, set child's parent
-	def add_child (child, token = nil)
-		new_node = Node.new(child, token, self)
-		@children.push(new_node)
-		return new_node
-	end
-	
-	# add parent
-	def add_parent (parent)
-		@parent = parent
-	end
-	
 end
 
 
@@ -144,12 +57,12 @@ def parser (tokens)
 
 	# create the new, concrete syntax tree
 	# making it global to reduce headaches (hopefully XD )
-	$cst = CST.new()
+	$cst = CST.new
 	
 	# define some other useful, global vars
 	$tokens = tokens
 	$index = 0
-	$symbol_tbl = SymbolTable.new()
+	$symbol_tbl = SymbolTable.new
 	
 	# have to ask alan about this
 	if $tokens.length <= 1
@@ -159,7 +72,9 @@ def parser (tokens)
 	
 	
 	# Engine to full burn!!!
-	parse("Program", program())
+	#parse("Program", program)
+	program
+	
 	
 	begin
 		if $tokens.length != $index
@@ -178,34 +93,32 @@ end
 #
 
 # retrieves the type of the current token
-def scout_token ()
+def scout_token 
 	return $tokens[$index].type
 end
 
 
 # testing for a token match. name, expected, received
 # match is also going to help us with our symbol table scope
-def match_token (name, exp, token)
+def match_token (exp, token)
 	puts "Leaf token received: #{token.value}"
 	puts "\tExpecting token of type: #{exp}"
 
 	if exp == token.type
 		puts "\t\tShiny. Got #{token.type}!"
-		$cst.add_node(name, token)
+		$cst.add_leaf(token.value, token)
 		
 		# manage the symbol table here
 		if token.type == "T_LBRACE"
-			$symbol_tbl.enter()
+			$symbol_tbl.enter
 		elsif token.type == "T_RBRACE"
-			$symbol_tbl.exit()
+			$symbol_tbl.exit
 		end
 		
 		
 		# To try to make this auto-managed
 		$index = $index + 1
 		
-		# Because a match_token only occurs for a leaf/terminal token
-		$cst.ascend()
 	else
 		raise FaultyTokenError.new(exp, token)
 	end
@@ -219,13 +132,15 @@ end
 # This will control the ascent and descent of the 
 # nodes in the CST, and will help to structure the program
 #
-def parse (name_next_step, next_step)
+# NOTE: This method is currently deprecated
+#
+def parse (name_of_next_step, next_step)
 	
-	$cst.add_node(name_next_step)
+	puts "----------" + name_of_next_step + "------------"
+	
+	$cst.add_branch(name_of_next_step)
 	
 	next_step
-	
-	$cst.ascend()
 	
 end
 
@@ -233,21 +148,27 @@ end
 ###############################
 # Program ::== Block $
 #
-def program ()
+def program 
 	
-	parse("Block", block())
-	match_token("$", "T_EOFSIGN", $tokens[$index])
+	$cst.add_branch("Program")
+	
+	block
+	match_token("T_EOFSIGN", $tokens[$index])
 
 end
 
 ###############################
 # Block ::== { StatementList }
 #
-def block ()
+def block 
 	
-	match_token("{", "T_LBRACE", $tokens[$index])
-	parse("StatementList", statement_list())
-	match_token("}", "T_RBRACE", $tokens[$index])
+	$cst.add_branch("Block")
+	
+	match_token("T_LBRACE", $tokens[$index])
+	statement_list
+	match_token("T_RBRACE", $tokens[$index])
+	
+	$cst.ascend
 	
 end
 
@@ -257,18 +178,21 @@ end
 # StatementList ::== Statement StatementList
 #				::== Ɛ
 #
-def statement_list ()
-
+def statement_list 
+	
+	$cst.add_branch("StatementList")
+	
 	# } indicates that the StatementList is finished
-	if scout_token() != "T_RBRACE"
-		parse("Statement", statement())
-		parse("StatementList", statement_list())
+	if scout_token != "T_RBRACE"
+		statement
+		statement_list
 	
 	# handle an epsilon
 	else
-		$cst.add_node("Epsilon")
-		$cst.ascend()
+		$cst.add_leaf("Epsilon", nil)
 	end
+	
+	$cst.ascend
 
 end
 
@@ -280,82 +204,106 @@ end
 #			::== If
 #			::== Block
 #
-def statement ()
+def statement 
 
-	case scout_token()
+	$cst.add_branch("Statement")
+
+	case scout_token
 	when "T_PRINT"
-		parse("PrintStatement", print_stmt())
+		print_stmt
 	when "T_ID"
-		parse("AssignmentStatement", assignment_stmt())
+		assignment_stmt
 	when "T_TYPE"
-		parse("VarDecl", vardecl())
+		vardecl
 	when "T_WHILE"
-		parse("WhileStatement", while_stmt())
+		while_stmt
 	when "T_IF"
-		parse("IfStatement", if_stmt())
+		if_stmt
 	when "T_LBRACE"
-		parse("Block", block())
+		block
 	else
 		raise FaultyTokenError.new("T_PRINT, T_ID, T_TYPE, T_WHILE, T_IF, or T_LBRACE", $tokens[$index])
 	end
+	
+	$cst.ascend
 	
 end
 
 ###############################
 # Print ::== print ( Expr )
 #
-def print_stmt ()
+def print_stmt 
 
-	match_token("PRINT", "T_PRINT", $tokens[$index])
-	match_token("(", "T_LPAREN", $tokens[$index])
-	parse("Expr", expr())
-	match_token(")", "T_RPAREN", $tokens[$index])
+	$cst.add_branch("PrintStatement")
+
+	match_token("T_PRINT", $tokens[$index])
+	match_token("T_LPAREN", $tokens[$index])
+	expr
+	match_token("T_RPAREN", $tokens[$index])
+	
+	$cst.ascend
 	
 end
 
 ###############################
 # Assignment ::== Id = Expr
 #
-def assignment_stmt ()
+def assignment_stmt 
 	
-	parse("Id", id())
-	match_token("=", "T_ASSIGNMENT", $tokens[$index])
-	parse("Expr", expr())
+	$cst.add_branch("AssignmentStatement")
+	
+	id
+	match_token("T_ASSIGNMENT", $tokens[$index])
+	expr
+	
+	$cst.ascend
 
 end
 
 ###############################
 # VarDecl ::== type Id
 #
-def vardecl ()
+def vardecl 
+	
+	$cst.add_branch("VarDecl")
 	
 	# Add the var decl to the symbol table
 	$symbol_tbl.add_symbol($tokens[$index].value, $tokens[$index + 1].value)
 	
-	parse("type", type())
-	parse("Id", id())
+	type
+	id
+	
+	$cst.ascend
 
 end
 
 ###############################
 # While ::== while BooleanExpr Block
 #
-def while_stmt ()
+def while_stmt 
 	
-	match_token("WHILE", "T_WHILE", $tokens[$index])
-	parse("BooleanExpr", boolexpr())
-	parse("Block", block())
+	$cst.add_branch("WhileStatement")
+	
+	match_token("T_WHILE", $tokens[$index])
+	boolexpr
+	block
+	
+	$cst.ascend
 	
 end
 
 ###############################
 # If ::== if BooleanExpr Block
 #
-def if_stmt ()
+def if_stmt 
 	
-	match_token("IF", "T_IF", $tokens[$index])
-	parse("BooleanExpr", boolexpr())
-	parse("Block", block())
+	$cst.add_branch("IfStatement")
+	
+	match_token("T_IF", $tokens[$index])
+	boolexpr
+	block
+	
+	$cst.ascend
 	
 end
 
@@ -365,20 +313,24 @@ end
 #		::== BooleanExpr
 #		::== Id
 #
-def expr ()
+def expr 
+
+	$cst.add_branch("Expr")
 	
-	case scout_token()
+	case scout_token
 	when "T_DIGIT"
-		parse("IntExpr", intexpr())
+		intexpr
 	when "T_QUOTE"
-		parse("StringExpr", stringexpr())
+		stringexpr
 	when "T_LPAREN", "T_BOOLEAN"
-		parse("BooleanExpr", boolexpr())
+		boolexpr
 	when "T_ID"
-		parse("Id", id())
+		id
 	else
 		raise FaultyTokenError.new("T_DIGIT, T_QUOTE, T_LPAREN, or T_ID", $tokens[$index])
 	end
+	
+	$cst.ascend
 	
 end
 
@@ -386,53 +338,69 @@ end
 # IntExpr 	::== digit intop Expr
 #			::== digit
 #
-def intexpr ()
+def intexpr 
+
+	$cst.add_branch("IntExpr")
 	
 	if $tokens[$index + 1].type == "T_PLUS"
-		parse("digit", digit())
-		parse("intop", intop())
-		parse("Expr", expr())
+		digit
+		intop
+		expr
 	else
-		parse("digit", digit())
+		digit
 	end
+	
+	$cst.ascend
 
 end
 
 ###############################
 # StringExpr ::== " CharList "
 #
-def stringexpr ()
+def stringexpr 
 	
-	match_token('"', "T_QUOTE", $tokens[$index])
-	parse("CharList", charList())
-	match_token('"', "T_QUOTE", $tokens[$index])
+	$cst.add_branch("StringExpr")
+	
+	match_token("T_QUOTE", $tokens[$index])
+	charList
+	match_token("T_QUOTE", $tokens[$index])
 
+	$cst.ascend
+	
 end
 
 ###############################
 # BooleanExpr 	::== ( Expr boolop Expr )
 #				::== boolval
 #
-def boolexpr ()
+def boolexpr 
+
+	$cst.add_branch("BooleanExpr")
 	
 	if $tokens[$index].type == "T_LPAREN"
-		match_token("(", "T_LPAREN", $tokens[$index])
-		parse("Expr", expr())
-		parse("boolop", boolop())
-		parse("Expr", expr())
-		match_token(")", "T_RPAREN", $tokens[$index])
+		match_token("T_LPAREN", $tokens[$index])
+		expr
+		boolop
+		expr
+		match_token("T_RPAREN", $tokens[$index])
 	else
-		parse("boolval", boolval())
+		boolval
 	end
+	
+	$cst.ascend
 
 end
 
 ###############################
 # Id ::== char
 #
-def id ()
+def id 
 	
-	parse("char", char())
+	$cst.add_branch("Id")
+	
+	char
+	
+	$cst.ascend
 
 end
 
@@ -441,32 +409,43 @@ end
 #			::== space CharList
 #			::== Ɛ
 #
-def charList ()
+def charList 
+
+	$cst.add_branch("CharList")
 	
 	# because we've already taken care of string formation
 	# in the lexer
-	match_token("STRING", "T_STRING", $tokens[$index])
+	match_token("T_STRING", $tokens[$index])
+
+	$cst.ascend
 
 end
 
 ###############################
 # type	::== int | string | boolean
 #
-def type ()
+def type 
 	
-	match_token("TYPE", "T_TYPE", $tokens[$index])
+	$cst.add_branch("type")
 	
+	match_token("T_TYPE", $tokens[$index])
+	
+	$cst.ascend
 end
 
 ###############################
 # char	::== [a-z]
 #
-def char ()
+def char 
+	
+	$cst.add_branch("char")
 	
 	# We know that strings have already been taken care of,
 	# so these can only be id's
-	match_token("ID", "T_ID", $tokens[$index])
-
+	match_token("T_ID", $tokens[$index])
+	
+	$cst.ascend
+	
 end
 
 ###############################
@@ -475,41 +454,57 @@ end
 # Only necessary in strings, which have already
 # been taken care of
 #
-# def space ()
+# def space 
 # end
 
 ###############################
 # digit	::== [0-9]
 #
-def digit ()
+def digit 
 	
-	match_token("DIGIT", "T_DIGIT", $tokens[$index])
+	$cst.add_branch("digit")
+	
+	match_token("T_DIGIT", $tokens[$index])
+	
+	$cst.ascend
 	
 end
 
 ###############################
 # boolop ::== == | !=
 #
-def boolop ()
+def boolop 
 	
-	match_token("BOOLOP", "T_BOOLOP", $tokens[$index])
+	$cst.add_branch("boolop")
+	
+	match_token("T_BOOLOP", $tokens[$index])
+	
+	$cst.ascend
 
 end
 
 ###############################
 # boolean ::== false | true
 #
-def boolval ()
+def boolval 
 
-	match_token("BOOLEAN", "T_BOOLEAN", $tokens[$index])
+	$cst.add_branch("boolval")
+
+	match_token("T_BOOLEAN", $tokens[$index])
+	
+	$cst.ascend
 
 end
 
 ###############################
 # intop ::== +
 #
-def intop ()
+def intop 
 
-	match_token("PLUS", "T_PLUS", $tokens[$index])
+	$cst.add_branch("intop")
+
+	match_token("T_PLUS", $tokens[$index])
+	
+	$cst.ascend
 
 end

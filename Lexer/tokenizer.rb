@@ -36,7 +36,7 @@ end
 
 
 ###################################################
-# Here, inside the main tokenize() method, we've 
+# Here, inside the main tokenize method, we've 
 # sorted out the different tokenizing methods
 # for the various types we can encounter: operators, 
 # strings, and alphanumerics

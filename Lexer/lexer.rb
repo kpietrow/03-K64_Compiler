@@ -105,7 +105,7 @@ def lexer(input)
 				# String time!
 				elsif last_token == "T_QUOTE"
 				
-					# make sure that we're not going to be using nil for tokenize()
+					# make sure that we're not going to be using nil for tokenize
 					if s_pos == nil
 						s_pos = i
 					end

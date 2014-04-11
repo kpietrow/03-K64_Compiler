@@ -22,10 +22,13 @@ require './Lexer/lexer.rb'
 require './Lexer/tokenizer.rb'
 require './Parser/parser.rb'
 require './SymbolTable/symbol_table.rb'
+require './SemanticAnalysis/semantic_analysis.rb'
+require './SyntaxTrees/cst.rb'
+require './SyntaxTrees/node.rb'
 
 # Error for a blank file of input
 class BlankFileError < StandardError
-	def initialize()
+	def initialize
 		puts "ERROR: There don't seem to be any information in that here file. We're just gonna exit the program for ye."
 		exit
 	end
@@ -79,7 +82,7 @@ def main
 	puts "\nBeginnin' the Lexing process now...\n"
 	token_stream = lexer(input_file)
 	
-	puts "\nLexing completed successfully, all tokens have been smuggled in to the system\n\nToken Stream (in order):\n"
+	puts "\nLexing completed successfully, all tokens have been smuggled into the system\n\nToken Stream (in order):\n"
 	
 	# print out the received tokens
 	for i in token_stream
@@ -93,14 +96,16 @@ def main
 	
 	# Parse it!
 	puts "\nNow we're gonna begin the parsin'..."
-	parsed_stream, symbol_table = parser(token_stream)
+	cst, symbol_table = parser(token_stream)
 	puts "\n\nParsing successful. We've got ourselves a nice parse stream and symbol table now.\n\n"
 	
-	parsed_stream.raw_print()
+	cst.raw_print
 	puts "\n\n\n"
-	symbol_table.raw_print()
+	symbol_table.raw_print
 	puts "\n\n"
+	
+	semantic_analysis(cst)
 	
 end
 
-main()
+main

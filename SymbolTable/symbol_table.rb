@@ -18,14 +18,14 @@ class SymbolTable
 	@root = nil
 	@current_scope = nil
 	
-	def initialize ()
+	def initialize 
 	end
 	
 	# returns a new layer of scope
-	def enter ()
+	def enter 
 		
 		if @root == nil
-			new_scope = Scope.new()
+			new_scope = Scope.new
 			@root = new_scope
 			@current_scope = @root
 			
@@ -34,7 +34,7 @@ class SymbolTable
 		end
 	end
 	
-	def exit ()
+	def exit 
 		@current_scope = @current_scope.parent
 	end
 	
@@ -42,7 +42,7 @@ class SymbolTable
 		@current_scope.add_symbol(type, id)
 	end
 	
-	def raw_print ()
+	def raw_print 
 		
 		puts "The symbol tables of the various scopes: "
 		
