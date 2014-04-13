@@ -20,7 +20,7 @@
 def semantic_analysis (cst)
 
 
-	ast = AbstractSyntaxTree.new
+	$ast = AbstractSyntaxTree.new
 	symbol_table = SymbolTable.new
 
 	puts cst.root
@@ -38,29 +38,76 @@ def node_analyzer (node)
 		#symbol_table.enter
 		node.children.cycle(1) { |child| node_analyzer(child) }
 		ast.ascend
+		#symbol_table.leave
 		
 	elsif node.name == "VarDecl"
 		match_vardecl(node)
 		
 	elsif node.name == "AssignmentStatement"
+		match_assignment_statement(node)
 		
 	elsif node.name == "PrintStatement"
+		match_print_statement(node)
 		
 	elsif node.name == "WhileStatement"
+		match_while_statement(node)
 		
 	elsif node.name == "IfStatement"
+		match_if_statement(node)
 		
 	elsif node.type == "leaf"
 		evaluate_leaf(node)
-	
-	else
-		node.children.cycle(1) { |child| node_analyzer(child) }
-	end	
+	end
 	
 end
 
+def match_unknown_expr (node)
 
-def match_vardecl
+	
+
+end
+
+
+
+def match_vardecl (node)
+
+	$ast.add_branch("VarDecl")
+
+	match_leaf("T_TYPE", node.children[0].children[0])
+	
+	match_leaf("T_ID", node.children[1].children[0].children[0])
+	
+	$ast.ascend
+
+end
+
+def match_assignment_statement (node)
+
+	$ast.add_branch("Assignment")
+	
+	match_leaf("T_ID", node.children[0].children[0].children[0])
+	
+	match_leaf("T_ASSIGNMENT", node.children[1])
+	
+	match__unknown_expr(node.children[2].children[0])
+	
+	$ast.ascend
+
+end
+
+def match_if_statement (node)
+
+	
+
+end
+
+def match_print_statement (node)
+
+	
+
+end
+
+def match_while_statement (node)
 
 	
 

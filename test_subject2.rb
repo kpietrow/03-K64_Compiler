@@ -25,4 +25,7 @@ def test3 (test)
 
 end
 
-test1
+#test1
+
+children = [1,2]
+puts children[3]

@@ -105,7 +105,7 @@ def main
 	symbol_table.raw_print
 	puts "\n\n"
 	
-	semantic_analysis(cst)
+	#semantic_analysis(cst)
 	
 end
 
