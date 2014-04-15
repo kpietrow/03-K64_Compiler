@@ -108,14 +108,6 @@ def match_token (exp, token)
 		puts "\t\tShiny. Got #{token.type}!"
 		$cst.add_leaf(token.value, token)
 		
-		# manage the symbol table here
-		if token.type == "T_LBRACE"
-			$symbol_tbl.enter
-		elsif token.type == "T_RBRACE"
-			$symbol_tbl.exit
-		end
-		
-		
 		# To try to make this auto-managed
 		$index = $index + 1
 		
@@ -266,9 +258,6 @@ end
 def vardecl 
 	
 	$cst.add_branch("VarDecl")
-	
-	# Add the var decl to the symbol table
-	$symbol_tbl.add_symbol($tokens[$index].value, $tokens[$index + 1].value)
 	
 	type
 	id

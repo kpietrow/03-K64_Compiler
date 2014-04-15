@@ -21,7 +21,7 @@ def semantic_analysis (cst)
 
 
 	$ast = AbstractSyntaxTree.new
-	symbol_table = SymbolTable.new
+	$st = SymbolTable.new
 
 	puts cst.root
 	node_analyzer(cst.root)
@@ -34,11 +34,11 @@ end
 def node_analyzer (node)
 	
 	if node.name == "Block"
-		ast.add_branch("Block")
-		#symbol_table.enter
+		$ast.add_branch("stmt block")
+		$st.enter
 		node.children.cycle(1) { |child| node_analyzer(child) }
-		ast.ascend
-		#symbol_table.leave
+		$ast.ascend
+		$st.exit
 		
 	elsif node.name == "VarDecl"
 		match_vardecl(node)
@@ -61,8 +61,20 @@ def node_analyzer (node)
 	
 end
 
-def match_unknown_expr (node)
-
+def match_expr (node)
+	
+	if node.type == "IntExpr"
+	
+	elsif node.type == "StringExpr"
+		
+	
+	elsif node.type == "BooleanExpr"
+	
+	elsif node.type == "Id"
+	
+	else
+		#raise error
+	end
 	
 
 end
@@ -71,25 +83,20 @@ end
 
 def match_vardecl (node)
 
-	$ast.add_branch("VarDecl")
-
+	$ast.add_branch("declare")
 	match_leaf("T_TYPE", node.children[0].children[0])
-	
-	match_leaf("T_ID", node.children[1].children[0].children[0])
-	
+	match_leaf("T_ID", node.children[1].children[0].children[0])	
 	$ast.ascend
 
 end
 
 def match_assignment_statement (node)
 
-	$ast.add_branch("Assignment")
+	$ast.add_branch("assignment")
 	
 	match_leaf("T_ID", node.children[0].children[0].children[0])
 	
-	match_leaf("T_ASSIGNMENT", node.children[1])
-	
-	match__unknown_expr(node.children[2].children[0])
+	match_expr(node.children[2].children[0])
 	
 	$ast.ascend
 
@@ -97,7 +104,11 @@ end
 
 def match_if_statement (node)
 
+	$ast.add_branch("if")
 	
+	$ast.add_branch("Comp")
+	
+	$ast.ascend
 
 end
 
