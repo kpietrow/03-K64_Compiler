@@ -137,7 +137,7 @@ def match_expr (node)
 		match_booleanexpr(node.children[0])
 	
 	elsif node.children[0].type == "Id"
-		match_id(node.children[0])
+		match_idexpr(node.children[0])
 	
 	else
 		#raise error
@@ -177,6 +177,17 @@ def match_booleanexpr (node)
 	
 	else
 		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
+	end
+
+end
+
+
+def match_idexpr (node)
+
+	if $st.scan_table(node.children[0].children[0].token.value)
+		$add.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
+	else
+		raise SymbolTableUndeclaredError.new(node.children[0].children[0].token.value)
 	end
 
 end
