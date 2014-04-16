@@ -62,7 +62,6 @@ def parser (tokens)
 	# define some other useful, global vars
 	$tokens = tokens
 	$index = 0
-	$symbol_tbl = SymbolTable.new
 	
 	# have to ask alan about this
 	if $tokens.length <= 1
@@ -85,7 +84,7 @@ def parser (tokens)
 		
 	
 	
-	return $cst, $symbol_tbl
+	return $cst
 end	
 	
 ##########################################

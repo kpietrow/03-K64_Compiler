@@ -3,29 +3,21 @@
 # This file is purely for the purposes of testing different strategies
 # NOTE: This file should NOT be used for testing the compiler directly
 
-
-
-def test1
+total = 0
+a = []
 		
-	test3(test2)
+def looper (list)
+	# remember, we only support + in this grammar
+	list.cycle(1) { |child|
+		if child[0] == 4
+			total = total + Integer(child[1])
+		end
+	}
 	
-end
+end	
 
-def test2
-	
-	puts "hi"
-	
-end
+#looper(a)
 
-def test3 (test)
-	
-	puts "yo"
-	test
-	puts "second"
-
-end
-
-#test1
-
-children = [1,2]
-puts children[3]
+b = Hash.new
+b["a"] = [100, 200]
+puts b["a"]

@@ -25,8 +25,6 @@ def semantic_analysis (cst)
 
 	puts cst.root
 	node_analyzer(cst.root)
-	#analyze_element(cst.roo
-	
 	
 end
 	
@@ -34,11 +32,7 @@ end
 def node_analyzer (node)
 	
 	if node.name == "Block"
-		$ast.add_branch("stmt block")
-		$st.enter
-		node.children.cycle(1) { |child| node_analyzer(child) }
-		$ast.ascend
-		$st.exit
+		match_block(node)
 		
 	elsif node.name == "VarDecl"
 		match_vardecl(node)
@@ -61,25 +55,16 @@ def node_analyzer (node)
 	
 end
 
-def match_expr (node)
-	
-	if node.type == "IntExpr"
-	
-	elsif node.type == "StringExpr"
-		
-	
-	elsif node.type == "BooleanExpr"
-	
-	elsif node.type == "Id"
-	
-	else
-		#raise error
-	end
-	
+
+def match_block (node)
+
+	$ast.add_branch("stmt block")
+	$st.enter
+	node.children.cycle(1) { |child| node_analyzer(child) }
+	$st.exit
+	$ast.ascend
 
 end
-
-
 
 def match_vardecl (node)
 
@@ -94,9 +79,9 @@ def match_assignment_statement (node)
 
 	$ast.add_branch("assignment")
 	
-	match_leaf("T_ID", node.children[0].children[0].children[0])
+	$ast.add_leaf(node.children[0].children[0].children[0].token.value, node.children[0].children[0].children[0].token)
 	
-	match_expr(node.children[2].children[0])
+	match_expr(node)
 	
 	$ast.ascend
 
@@ -106,7 +91,8 @@ def match_if_statement (node)
 
 	$ast.add_branch("if")
 	
-	$ast.add_branch("Comp")
+	match_comparison(node)
+	match_block(node)
 	
 	$ast.ascend
 
@@ -122,4 +108,63 @@ def match_while_statement (node)
 
 	
 
+end
+
+def match_comparison (node)
+
+	$ast.add_branch("comp")
+	
+	
+	$ast.ascend
+end
+
+
+def match_expr (node)
+	
+	if node.children[2].children[0].type == "IntExpr"
+		$st.update_symbol("int", node.children[0].children[0].children[0].token)
+		match_intexpr(node.children[2].children[0])
+				
+	elsif node.children[0].type == "StringExpr"
+		$st.update_symbol("string", node.children[0].children[0].children[0].token)
+		match_stringexpr(node.children[2].children[0])
+	
+	elsif node.children[0].type == "BooleanExpr"
+		$st.update_symbol("boolean", node.children[0].children[0].children[0].token)
+		match_booleanexpr(node.children[2].children[0])
+	
+	elsif node.children[0].type == "Id"
+		match_id(node.children[0])
+	
+	else
+		#raise error
+	end
+	
+end
+
+def match_intexpr (node)
+	
+	
+	def small_loop (node)
+	
+		if node.children.length > 1
+			$ast.add_branch("+")
+			$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
+			small_loop(node.children[2])
+			$ast.ascend
+	
+		else 
+			$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
+		end
+	
+	end
+	
+	small_loop(node, total)
+
+end
+
+def match_stringexpr (node)
+
+	
+	
 end

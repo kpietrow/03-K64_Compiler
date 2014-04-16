@@ -8,7 +8,7 @@ class Node
 	
 	@@total_id = 0
 	@id = nil
-	@type
+	@type = nil
 	@name = nil
 	@token = nil
 	@children = []

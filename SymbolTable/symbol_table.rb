@@ -2,9 +2,9 @@
 
 # Works with the symbol table
 
-class SymbolTableError < StandardError
+class SymbolTableTypeError < StandardError
 	def initialize (id)
-		puts "ERROR: Id '#{id}' was declared twice in the same scope"
+		puts "ERROR: Id '#{id}' was declared as two different types in the same scope"
 		exit
 	end
 end
@@ -84,14 +84,17 @@ class Scope
 	end
 	
 	# add symbol to symbols table
-	def add_symbol (type, id)
+	def add_symbol (type, token)
 		
-		if !@symbols.has_key?(id)
-			@symbols[id] = type
+		if !@symbols.has_key?(token.value)
+			@symbols[token.value] = [type, token]
 			
 		# raise error on already defined id's
+		elsif @symbols.has_key?(token.value) and @symbols[token.value][0] == type
+			@symbols[token.value] = [type, token]
+			
 		else
-			raise SymbolTableError.new(id)
+			raise SymbolTableTypeError.new(id)
 		end
 		
 	end
