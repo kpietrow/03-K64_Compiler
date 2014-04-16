@@ -97,13 +97,14 @@ def main
 	
 	# Parse it!
 	puts "\nNow we're gonna begin the parsin'..."
-	cst = parser(token_stream)
+	parser(token_stream)
 	puts "\n\nParsing successful. We've got ourselves a nice parse stream and symbol table now.\n\n"
 	
-	cst.raw_print
+	$cst.raw_print
 	puts "\n\n\n"
 	
-	semantic_analysis(cst)
+	semantic_analysis
+	$ast.raw_print
 	
 end
 

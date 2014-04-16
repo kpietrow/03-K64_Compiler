@@ -4,7 +4,7 @@
 # CST class
 class ConcreteSyntaxTree
 	
-	attr_reader :current, :total_nodes
+	attr_reader :total_nodes
 	
 	@@total_nodes = 0
 	@root = nil
@@ -84,6 +84,12 @@ class ConcreteSyntaxTree
 	def root
 		
 		@root
+		
+	end
+	
+	def current
+		
+		@current
 		
 	end
 	

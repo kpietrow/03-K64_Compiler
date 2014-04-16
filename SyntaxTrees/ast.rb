@@ -65,7 +65,10 @@ class AbstractSyntaxTree
 		
 		def small_loop (first)
 		
-			if first == @root
+			if @root == nil
+				puts "This AST is currently empty"
+				return
+			elsif first == @root
 				print " (" + @root.name + ") "
 			end
 		

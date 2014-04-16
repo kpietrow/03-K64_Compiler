@@ -17,14 +17,12 @@
 
 
 
-def semantic_analysis (cst)
-
+def semantic_analysis
 
 	$ast = AbstractSyntaxTree.new
 	$st = SymbolTable.new
 
-	puts cst.root
-	node_analyzer(cst.root)
+	node_analyzer($cst.root)
 	
 end
 	
@@ -57,7 +55,9 @@ end
 
 
 def match_block (node)
-
+	
+	puts "match_block"
+	
 	$ast.add_branch("stmt block")
 	$st.enter
 	node.children.cycle(1) { |child| node_analyzer(child) }
@@ -68,6 +68,8 @@ end
 
 def match_vardecl (node)
 
+	puts "match_vardecl"
+
 	$ast.add_branch("declare")
 	match_leaf("T_TYPE", node.children[0].children[0])
 	match_leaf("T_ID", node.children[1].children[0].children[0])	
@@ -77,17 +79,21 @@ end
 
 def match_assignment_statement (node)
 
+	puts "match_assignment"
+
 	$ast.add_branch("assignment")
 	
 	$ast.add_leaf(node.children[0].children[0].children[0].token.value, node.children[0].children[0].children[0].token)
 	
-	match_expr(node)
+	match_expr(node.children[2])
 	
 	$ast.ascend
 
 end
 
 def match_if_statement (node)
+
+	puts "match_if"
 
 	$ast.add_branch("if")
 	
@@ -121,17 +127,14 @@ end
 
 def match_expr (node)
 	
-	if node.children[2].children[0].type == "IntExpr"
-		$st.update_symbol("int", node.children[0].children[0].children[0].token)
-		match_intexpr(node.children[2].children[0])
+	if node.children[0].type == "IntExpr"
+		match_intexpr(node.children[0])
 				
 	elsif node.children[0].type == "StringExpr"
-		$st.update_symbol("string", node.children[0].children[0].children[0].token)
-		match_stringexpr(node.children[2].children[0])
+		match_stringexpr(node.children[0])
 	
 	elsif node.children[0].type == "BooleanExpr"
-		$st.update_symbol("boolean", node.children[0].children[0].children[0].token)
-		match_booleanexpr(node.children[2].children[0])
+		match_booleanexpr(node.children[0])
 	
 	elsif node.children[0].type == "Id"
 		match_id(node.children[0])
@@ -142,29 +145,38 @@ def match_expr (node)
 	
 end
 
+
 def match_intexpr (node)
 	
-	
-	def small_loop (node)
-	
-		if node.children.length > 1
-			$ast.add_branch("+")
-			$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
-			small_loop(node.children[2])
-			$ast.ascend
-	
-		else 
-			$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
-		end
-	
+	if node.children.length == 3
+		$ast.add_branch("+")
+		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
+		match_expr(node.children[2])
+		$ast.ascend
+
+	else 
+		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
 	end
 	
-	small_loop(node, total)
-
 end
+
 
 def match_stringexpr (node)
 
+	$ast.add_leaf(node.children[1].children[0].token.value, node.children[1].children[0].token)
 	
+end
+
+
+def match_booleanexpr (node)
+
+	if node.children.length == 5
+		match_expr(node.children[1])
+		add_leaf(node.children[2].children[0].token.value, node.children[2].children[0].token)
+		match_expr(node.children[3])
 	
+	else
+		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
+	end
+
 end
