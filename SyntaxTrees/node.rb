@@ -1,6 +1,15 @@
 #!/usr/bin/env ruby
 
 
+class UnknownNodeError < StandardError
+	def initialize (node)
+		puts "ERROR: Found out-of-place node: #{node.name}."
+		exit
+	end
+end
+
+
+
 # Class for nodes on the syntax trees
 class Node
 	attr_reader :total_id, :id, :token, :name, :type

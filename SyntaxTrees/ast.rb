@@ -73,7 +73,7 @@ class AbstractSyntaxTree
 			end
 		
 			if first.type == "branch"
-				print " ("
+				print " (" + "parent -> " + first.name + ": "
 				first.children.cycle(1) { |child| print child.name + " " }
 				print ") "
 				first.children.cycle(1) { |child| small_loop(child) }

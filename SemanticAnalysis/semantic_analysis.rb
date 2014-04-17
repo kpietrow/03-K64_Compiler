@@ -77,7 +77,7 @@ def match_vardecl (node)
 	$ast.add_leaf(node.children[1].children[0].children[0].token.value, node.children[1].children[0].children[0].token)	
 	$ast.ascend
 	
-	#$st.add_symbol(node.children[0].children[0].token.value, node.children[1].children[0].children[0].token.value)
+	$st.add_symbol(node.children[0].children[0].token.value, node.children[1].children[0].children[0].token.value, node.children[1].children[0].children[0], node.children[1].children[0].children[0].token)
 	
 end
 
@@ -147,7 +147,7 @@ def match_expr (node)
 		match_idexpr(node.children[0])
 	
 	else
-		#raise error
+		raise UnknownNodeError.new(node.children[0])
 	end
 	
 end
@@ -187,6 +187,7 @@ def match_booleanexpr (node)
 		$ast.add_branch(node.children[2].children[0].token.value)
 		match_expr(node.children[1])
 		match_expr(node.children[3])
+		$ast.ascend
 	
 	else
 		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
@@ -197,8 +198,9 @@ end
 
 def match_idexpr (node)
 
-	if $st.scan_table(node.children[0].children[0].token.value)
+	if $st.scan_table_id(node.children[0].children[0].token.value)
 		$add.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
+		
 	else
 		raise SymbolTableUndeclaredError.new(node.children[0].children[0].token.value)
 	end

@@ -54,19 +54,36 @@ class SymbolTable
 	end
 	
 	def add_symbol (type, id, ast_node, token)
-		@current_scope.add_symbol(type, id, ast_node)
+		@current_scope.add_symbol(type, id, ast_node, token)
 	end
 	
 	def update_symbol (type, id, ast_node, token)
 		@current_scope.update_symbol(type, id, ast_node, token)
 	end
 	
+	def scan_table_id (id)
+
+		def small_loop(current_scope, id)
+			if current_scope.symbols.has_key?(id)
+				current_scope.symbols[id].is_used = true
+				return true
+			elsif current_scope == @root
+				return false
+			else
+				scan_table(current_scope.parent)
+			end
+		end
+
+		small_loop(@current_scope, id)
+	end
+	
+	
 	def raw_print 
 		
 		puts "The symbol tables of the various scopes: "
 		
-		def child_loop (children)
-			children.cycle(1) { |child|
+		def child_loop (scope)
+			scope.children.cycle(1) { |child|
 				if child.children.length > 0
 					child_loop(child.children)
 				else
@@ -75,8 +92,7 @@ class SymbolTable
 			}
 		end
 		
-		print @root.symbols
-		child_loop(@root.children)
+		child_loop(@root)
 		
 	end
 	
@@ -87,7 +103,7 @@ end
 # Creates instances of Symbol
 # Created to reduce complexity of long arrays
 #
-class Symbol
+class SymbolEntry
 	
 	attr_accessor :is_used, :is_initialized
 	attr_reader :type, :id, :token, :ast_node
@@ -99,7 +115,9 @@ class Symbol
 	@is_used = false
 	@is_initialized = false
 	
-	def initialize (type, id, ast_node, token, scope)
+	def initialize (type, id, ast_node, token)
+		
+		puts "THE COLE TRAIN BABY"
 		
 		@type = type
 		@id = id
@@ -140,7 +158,7 @@ class Scope
 	def add_symbol (type, id, ast_node, token)
 		
 		if !@symbols.has_key?(token.value)
-			@symbols[id] = Symbol.new(type, id, ast_node, token)
+			@symbols[id] = SymbolEntry.new(type, id, ast_node, token)
 		
 		# raise error on already defined id's	
 		else

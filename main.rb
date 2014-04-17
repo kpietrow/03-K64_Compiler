@@ -105,6 +105,8 @@ def main
 	
 	semantic_analysis
 	$ast.raw_print
+	puts "\n\n\n"
+	$st.raw_print
 	
 end
 
