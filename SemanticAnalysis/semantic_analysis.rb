@@ -22,6 +22,13 @@ class UnknownTypeError < StandardError
 		exit
 	end
 end
+
+class TypeMismatchError < StandardError
+	def initialize (exp, received, token)
+		puts "ERROR: Exprected a type '#{exp}', but received a type '#{received} on Line #{token.lineno}"
+		exit
+	end
+end
 		
 
 
@@ -93,19 +100,19 @@ end
 
 def match_assignment_statement (node)
 
-	
+	print String($index += 1) + " " + $st.c_scope + "Assignment: "
 
 	$ast.add_branch("assignment")
 	
 	$ast.add_leaf(node.children[0].children[0].children[0].token.value, node.children[0].children[0].children[0].token)
-	
 	match_expr(node.children[2])
 	
 	type = determine_type($ast.current)
+	$st.update_symbol(type, node.children[0].children[0].children[0].token.value, $ast.current, node.children[0].children[0].children[0].token, node.children[2])
+	
 	$ast.ascend
 	
-	puts String($index += 1) + " " + $st.c_scope + "Entering a new block, creating scope"
-
+	puts type + " to " + type
 
 end
 
@@ -145,8 +152,6 @@ end
 
 
 def match_expr (node)
-
-	puts "match_expr"
 	
 	if node.children[0].name == "IntExpr"
 		match_intexpr(node.children[0])
@@ -168,8 +173,6 @@ end
 
 
 def match_intexpr (node)
-
-	puts "match_intexpr"
 	
 	if node.children.length == 3
 		$ast.add_branch("+")
@@ -186,16 +189,12 @@ end
 
 def match_stringexpr (node)
 
-	puts "match_stringexpr"
-
 	$ast.add_leaf(node.children[1].children[0].token.value, node.children[1].children[0].token)
 	
 end
 
 
 def match_booleanexpr (node)
-
-	puts "match_booleanexpr"
 	
 	if node.children.length == 5
 		$ast.add_branch(node.children[2].children[0].token.value)
@@ -212,7 +211,7 @@ end
 
 def match_idexpr (node)
 
-	if $st.scan_table_id(node.children[0].children[0].token.value)
+	if $st.scan_table_used(node.children[0].children[0].token.value)
 		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
 		
 	else
@@ -229,13 +228,12 @@ def determine_type (node)
 	if node.children[1].type == "leaf"
 		tester = node.children[1].name
 		
-	
 	else
 			
 		def small_loop (node, tester)
 			
 			puts tester
-			tester = tester + node.name
+			tester = tester + " " + node.name
 			for child in node.children
 				tester = small_loop(child, tester)
 			end
@@ -245,17 +243,26 @@ def determine_type (node)
 		
 		tester = small_loop(node.children[1], tester)
 	end
+	puts "tester: " + tester
+	tester = tester.scan(/\w+/)
 	
-	puts "TESTER: " + tester
-	
-	if /==/.match(tester) or /true/.match(tester) or /false/.match(tester) and tester.length > 2
-		return "boolean"
-	elsif /[a-z]/.match(tester)
-		return "string"
-	elsif /[0-9]/.match(tester) or (/[+]/.match(tester) and tester.length > 1)
-		return "int"
-	else
-		raise UnknownTypeError.new(node.parent.children[0])
+	for sequence in tester
+		if /\b==\b/.match(sequence) or /\btrue\b/.match(sequence) or /\bfalse\b/.match(sequence) and sequence.length > 2
+			return "boolean"
+		elsif /\b[a-z]\b/.match(sequence)
+			if $st.scan_table_used($ast.current.name)
+				type = $st.retrieve_type($ast.current.name)
+				return type
+			else
+				return "string"
+			end
+		elsif /[a-z]/.match(sequence)
+			return "string"
+		elsif /[0-9]/.match(sequence) or (/[+]/.match(sequence) and sequence.length > 1)
+			return "int"
+		else
+			raise UnknownTypeError.new(node.parent.children[0])
+		end
 	end
 end
 	

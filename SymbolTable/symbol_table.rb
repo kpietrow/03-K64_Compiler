@@ -4,21 +4,21 @@
 
 class SymbolTableRepeatError < StandardError
 	def initialize (id, token)
-		puts "ERROR: ID '#{id}' was declared twice in the same scope. The source code location is Line: #{token.lineno}, Position: #{token.pos}"
+		puts "ERROR: ID '#{id}' was declared twice in the same scope. The source code location is Line: #{token.lineno + 1}"
 		exit
 	end
 end
 
 class SymbolTableUndeclaredError < StandardError
 	def initialize (id, token)
-		puts "ERROR: ID '#{id}' was used without being previously declared. The source code location is Line: #{token.lineno}, Position: #{token.pos}"
+		puts "ERROR: ID '#{id}' was used without being previously declared. The source code location is Line: #{token.lineno + 1}"
 		exit
 	end
 end
 
 class SymbolTableReassignmentTypeMismatchError < StandardError
-	def initialize (id, token)
-		puts "ERROR: ID '#{id}' was reassigned using the wrong type. The source code location is Line: #{token.lineno}, Position: #{token.pos}"
+	def initialize (e_type, r_type, id, token)
+		puts "ERROR: ID '#{id}' was reassigned using the wrong type, a(n) '#{r_type}' instead of a(n) '#{e_type}'. The source code location is Line: #{token.lineno + 1}"
 		exit
 	end
 end
@@ -62,11 +62,11 @@ class SymbolTable
 		@current_scope.add_symbol(type, id, ast_node, token)
 	end
 	
-	def update_symbol (type, id, ast_node, token)
+	def update_symbol (type, id, ast_node, token, cst_node)
 		@current_scope.update_symbol(type, id, ast_node, token)
 	end
 	
-	def scan_table_id (id)
+	def scan_table_used (id)
 
 		def small_loop(current_scope, id)
 			if current_scope.symbols.has_key?(id)
@@ -75,7 +75,23 @@ class SymbolTable
 			elsif current_scope == @root
 				return false
 			else
-				scan_table(current_scope.parent)
+				scan_table_used(current_scope.parent)
+			end
+		end
+
+		small_loop(@current_scope, id)
+	end
+	
+	def retrieve_type (id)
+
+		def small_loop(current_scope, id)
+			if current_scope.symbols.has_key?(id)
+				current_scope.symbols[id].is_used = true
+				return current_scope.symbols[id].type
+			elsif current_scope == @root
+				return false
+			else
+				scan_table_used(current_scope.parent)
 			end
 		end
 
@@ -188,15 +204,15 @@ class Scope
 		
 	end
 	
-	def update_symbol (type, id, ast_node, token)
-		if @symbols.has_key?(id) and @symbols[id].type == type
+	def update_symbol (expected_type, id, ast_node, token)
+		if @symbols.has_key?(id) and @symbols[id].type == expected_type
 			@symbols[id].update_symbol(ast_node, token)
 		else
-			symbol = scan_table(id)
-			if symbol.type == type
-				@symbols[id] = symbol.add_symbol(type, id, ast_node, token)
+			symbol = scan_table(id, token)
+			if symbol.type == expected_type
+				@symbols[id] = symbol.add_symbol(expected_type, id, ast_node, token)
 			else
-				raise SymbolTableReassignmentTypeMismatchError.new(id, token)
+				raise SymbolTableReassignmentTypeMismatchError.new(symbol.type, expected_type, id, token)
 			end
 		end
 	end
