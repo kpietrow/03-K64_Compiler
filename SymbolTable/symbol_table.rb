@@ -94,8 +94,8 @@ class Symbol
 	
 	@type = nil
 	@id = nil
-	@ast_node = []
-	@token = []
+	@ast_node = nil
+	@token = nil
 	@is_used = false
 	@is_initialized = false
 	
@@ -103,32 +103,15 @@ class Symbol
 		
 		@type = type
 		@id = id
-		@ast_node = [[scope, ast_node]]
-		@token = [[scope, token]]
+		@ast_node = ast_node
+		@token = token
 		
 	end
 	
-	def update_symbol (ast_node, token, scope)
+	def update_symbol (ast_node, token)
 		
-		def ast_node_small_loop
-			for child in @ast_node
-				if child[0] == scope
-					child[1] = ast_node
-					return
-				end
-			end
-			@ast_node.push([scope, ast_node])
-		end
-		
-		def token_small_loop
-			for child in @token
-				if child[0] == scope
-					child[1] = token
-					return
-				end
-			end
-			@token.push([scope, token])
-		end
+		@ast_node = ast_node
+		@token = token
 
 	end
 	
@@ -157,7 +140,7 @@ class Scope
 	def add_symbol (type, id, ast_node, token)
 		
 		if !@symbols.has_key?(token.value)
-			@symbols[id] = Symbol.new(type, id, ast_node, token, self)
+			@symbols[id] = Symbol.new(type, id, ast_node, token)
 		
 		# raise error on already defined id's	
 		else
@@ -168,11 +151,11 @@ class Scope
 	
 	def update_symbol (type, id, ast_node, token)
 		if @symbols.has_key?(id) and @symbols[id].type == type
-			@symbols[id].update_symbol(ast_node, token, self)
+			@symbols[id].update_symbol(ast_node, token)
 		else
 			symbol = scan_table(id)
 			if symbol.type == type
-				@symbols[id] = symbol.update_symbol(ast_node, token, self)
+				@symbols[id] = symbol.add_symbol(type, id, ast_node, token)
 			else
 				raise SymbolTableReassignmentTypeMismatchError.new(id, token)
 			end

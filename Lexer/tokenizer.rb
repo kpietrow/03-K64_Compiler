@@ -9,7 +9,7 @@
 #
 #
 # Author: Kevin Pietrow
-# Version: The shiny one
+# Version: The shinier one
 # 
 # Note: Instructions for running the best compiler
 # 		in the Verse can be found in the README

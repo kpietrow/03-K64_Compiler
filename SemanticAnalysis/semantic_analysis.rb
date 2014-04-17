@@ -4,12 +4,12 @@
 ###################################################
 # This is the tokenizer of the 03-K64 Compiler.
 # Crafted for Alan's 'Design Compilers' class,
-# lovingly coded in Ruby magic and narrated by
-# her captain.
+# narrated by her captain, and lovingly coded in
+# Ruby magic.
 #
 #
 # Author: Kevin Pietrow
-# Version: The shiny one
+# Version: The shinier one
 # 
 # Note: Instructions for running the best compiler
 # 		in the Verse can be found in the README
