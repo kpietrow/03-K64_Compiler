@@ -6,7 +6,7 @@ This project involves building a compiler in Ruby, with the eventual goal of tak
 The grammer currently being used: http://www.labouseur.com/courses/compilers/grammar.pdf
 
 
-The Lexer is currently tentatively finished, and so now the mysteries of parsing await!
+The Lexer as well as the Parser are currently finished, with Semantic Analysis being currently smuggled into the system.
 
 
 
