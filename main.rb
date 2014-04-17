@@ -110,6 +110,7 @@ def main
 	puts "\n\n"
 	$st.raw_print
 	puts "\n\n"
+	$st.analysis
 	
 end
 

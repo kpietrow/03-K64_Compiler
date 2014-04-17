@@ -23,6 +23,19 @@ class SymbolTableReassignmentTypeMismatchError < StandardError
 	end
 end
 
+class UnusedIdentifierError < StandardError
+	def initialize (type, id, scope)
+		puts "WARNING: The ID '#{type}:#{id}' was initialized in scope #{scope}, but never used"
+	end
+end
+
+class UninitializedIdentifierError < StandardError
+	def initialize (type, id, scope)
+		puts "WARNING: The ID '#{type}:#{id}' was created in scope #{scope}, but never initialized"
+	end
+end
+
+
 
 ##
 # Creates the Symbol Table
@@ -75,7 +88,7 @@ class SymbolTable
 			elsif current_scope == @root
 				return false
 			else
-				scan_table_used(current_scope.parent)
+				scan_table_used(current_scope.parent, id)
 			end
 		end
 
@@ -91,7 +104,7 @@ class SymbolTable
 			elsif current_scope == @root
 				return false
 			else
-				scan_table_used(current_scope.parent)
+				retrieve_type(current_scope.parent, id)
 			end
 		end
 
@@ -99,10 +112,11 @@ class SymbolTable
 	end
 	
 	
+		
 	def raw_print 
-		
+
 		puts "The symbol tables of the various scopes: "
-		
+
 		def child_loop (scope)
 			print "{"
 			scope.symbols.each {|child| 
@@ -111,10 +125,12 @@ class SymbolTable
 			print "}"
 			scope.children.each {|child| child_loop(child)}
 		end
-		
+
 		child_loop(@root)
-		
+
 	end
+		
+		
 	
 	def c_scope
 		if @@current_scope_number != nil
@@ -127,6 +143,32 @@ class SymbolTable
 		else
 			return ""
 		end
+	end
+	
+	def analysis 
+		
+		puts "Analyzing the symbol table: "
+		
+		def child_loop (scope, scope_num)
+			scope.symbols.each {|child| 
+				if !child[1].is_initialized
+					begin
+						raise UninitializedIdentifierError.new(child[1].type, child[1].id, scope_num)
+					rescue UninitializedIdentifierError
+					end
+				end
+				if !child[1].is_used
+					begin
+						raise UnusedIdentifierError.new(child[1].type, child[1].id, scope_num)
+					rescue UnusedIdentifierError
+					end
+				end
+			}
+			scope.children.each {|child| child_loop(child, scope_num + 1)}
+		end
+		
+		child_loop(@root, 0)
+		
 	end
 	
 end
@@ -207,10 +249,12 @@ class Scope
 	def update_symbol (expected_type, id, ast_node, token)
 		if @symbols.has_key?(id) and @symbols[id].type == expected_type
 			@symbols[id].update_symbol(ast_node, token)
+			@symbols[id].is_initialized = true
 		else
 			symbol = scan_table(id, token)
 			if symbol.type == expected_type
-				@symbols[id] = symbol.add_symbol(expected_type, id, ast_node, token)
+				@symbols[id] = SymbolEntry.new(expected_type, id, ast_node, token)
+				@symbols[id].is_initialized = true
 			else
 				raise SymbolTableReassignmentTypeMismatchError.new(symbol.type, expected_type, id, token)
 			end
@@ -225,7 +269,7 @@ class Scope
 			elsif scope.parent == nil
 				raise SymbolTableUndeclaredError.new(id, token)
 			else
-				small_loop(scope.parent)
+				small_loop(scope.parent, id, token)
 			end
 		end
 		

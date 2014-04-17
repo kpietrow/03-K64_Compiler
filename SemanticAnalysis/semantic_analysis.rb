@@ -30,6 +30,13 @@ class TypeMismatchError < StandardError
 	end
 end
 		
+class MysteriousError < StandardError
+	def initialize
+		puts "ERROR: The worst has come to pass. Only the gods can help us now."
+		exit
+	end
+end
+
 
 
 def semantic_analysis
@@ -39,7 +46,7 @@ def semantic_analysis
 	$index = 0
 
 	node_analyzer($cst.root)
-	
+	$st.analysis
 end
 	
 	
@@ -100,9 +107,7 @@ end
 
 def match_assignment_statement (node)
 
-	print String($index += 1) + " " + $st.c_scope + "Assignment: "
-
-	$ast.add_branch("assignment")
+	$ast.add_branch("assign")
 	
 	$ast.add_leaf(node.children[0].children[0].children[0].token.value, node.children[0].children[0].children[0].token)
 	match_expr(node.children[2])
@@ -112,17 +117,17 @@ def match_assignment_statement (node)
 	
 	$ast.ascend
 	
-	puts type + " to " + type
+	puts String($index += 1) + " " + $st.c_scope + "Assignment: " + type + " to " + type
 
 end
 
 def match_if_statement (node)
 
-	puts "match_if"
+	puts String($index += 1) + " " + $st.c_scope + "If Statement encountered"
 
 	$ast.add_branch("if")
 	
-	match_comparison(node)
+	match_booleanexpr(node)
 	match_block(node)
 	
 	$ast.ascend
@@ -131,7 +136,7 @@ end
 
 def match_print_statement (node)
 
-	puts "match_print"
+	puts String($index += 1) + " " + $st.c_scope + "Print Statement encountered"
 	
 	$ast.add_branch("print")
 	match_expr(node.children[2])
@@ -141,7 +146,7 @@ end
 
 def match_while_statement (node)
 
-	puts "match_while"
+	puts String($index += 1) + " " + $st.c_scope + "While Statement encountered"
 	
 	$ast.add_branch("while")
 	match_booleanexpr(node.children[1])
@@ -211,6 +216,8 @@ end
 
 def match_idexpr (node)
 
+	puts String($index) + " " + $st.c_scope + "Checking existence of " + node.children[0].children[0].token.value 
+
 	if $st.scan_table_used(node.children[0].children[0].token.value)
 		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
 		
@@ -243,16 +250,18 @@ def determine_type (node)
 		
 		tester = small_loop(node.children[1], tester)
 	end
-	puts "tester: " + tester
+
 	tester = tester.scan(/\w+/)
 	
 	for sequence in tester
 		if /\b==\b/.match(sequence) or /\btrue\b/.match(sequence) or /\bfalse\b/.match(sequence) and sequence.length > 2
 			return "boolean"
+			
 		elsif /\b[a-z]\b/.match(sequence)
-			if $st.scan_table_used($ast.current.name)
-				type = $st.retrieve_type($ast.current.name)
+			if $st.scan_table_used(sequence)
+				type = $st.retrieve_type($ast.current.children[0].name)
 				return type
+					
 			else
 				return "string"
 			end

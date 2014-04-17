@@ -66,7 +66,7 @@ class ConcreteSyntaxTree
 		
 			
 			if @root == nil
-				puts "This AST is currently empty"
+				puts "This CST is currently empty"
 				return
 			elsif first == @root
 				print " (" + @root.name + ") "
