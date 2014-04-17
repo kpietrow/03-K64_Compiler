@@ -18,7 +18,7 @@ end
 
 class SymbolTableReassignmentTypeMismatchError < StandardError
 	def initialize (e_type, r_type, id, token)
-		puts "ERROR: ID '#{id}' was reassigned using the wrong type, a(n) '#{r_type}' instead of a(n) '#{e_type}'. The source code location is Line: #{token.lineno + 1}"
+		puts "ERROR: ID '#{id}' was reassigned using the wrong type, a(n) '#{r_type}' instead of a(n) '#{e_type}'. The source code's location is Line: #{token.lineno + 1}"
 		exit
 	end
 end
@@ -157,7 +157,7 @@ class SymbolTable
 					rescue UninitializedIdentifierError
 					end
 				end
-				if !child[1].is_used
+				if !child[1].is_used and child[1].is_initialized
 					begin
 						raise UnusedIdentifierError.new(child[1].type, child[1].id, scope_num)
 					rescue UnusedIdentifierError

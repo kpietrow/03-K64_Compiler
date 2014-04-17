@@ -1,0 +1,5 @@
+{
+	{}
+	boolean d
+	d = (true == (true == false))
+} $

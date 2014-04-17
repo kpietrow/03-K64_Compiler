@@ -46,7 +46,6 @@ def semantic_analysis
 	$index = 0
 
 	node_analyzer($cst.root)
-	$st.analysis
 end
 	
 	
@@ -208,6 +207,9 @@ def match_booleanexpr (node)
 		$ast.ascend
 	
 	else
+		for child in node.children
+			puts node
+		end
 		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
 	end
 
@@ -239,7 +241,6 @@ def determine_type (node)
 			
 		def small_loop (node, tester)
 			
-			puts tester
 			tester = tester + " " + node.name
 			for child in node.children
 				tester = small_loop(child, tester)
@@ -259,7 +260,7 @@ def determine_type (node)
 			
 		elsif /\b[a-z]\b/.match(sequence)
 			if $st.scan_table_used(sequence)
-				type = $st.retrieve_type($ast.current.children[0].name)
+				type = $st.retrieve_type(sequence)
 				return type
 					
 			else
