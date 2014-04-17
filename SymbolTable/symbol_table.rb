@@ -2,16 +2,23 @@
 
 # Works with the symbol table
 
-class SymbolTableTypeError < StandardError
-	def initialize (id)
-		puts "ERROR: ID '#{id}' was declared as two different types in the same scope"
+class SymbolTableRepeatError < StandardError
+	def initialize (id, token)
+		puts "ERROR: ID '#{id}' was declared twice in the same scope. The source code location is Line: #{token.lineno}, Position: #{token.pos}"
 		exit
 	end
 end
 
 class SymbolTableUndeclaredError < StandardError
-	def initialize (id)
-		puts "ERROR: ID '#{id}' was used without being previously declared"
+	def initialize (id, token)
+		puts "ERROR: ID '#{id}' was used without being previously declared. The source code location is Line: #{token.lineno}, Position: #{token.pos}"
+		exit
+	end
+end
+
+class SymbolTableReassignmentTypeMismatchError < StandardError
+	def initialize (id, token)
+		puts "ERROR: ID '#{id}' was reassigned using the wrong type. The source code location is Line: #{token.lineno}, Position: #{token.pos}"
 		exit
 	end
 end
@@ -46,8 +53,12 @@ class SymbolTable
 		@current_scope = @current_scope.parent
 	end
 	
-	def add_symbol (type, id)
-		@current_scope.add_symbol(type, id)
+	def add_symbol (type, id, ast_node, token)
+		@current_scope.add_symbol(type, id, ast_node)
+	end
+	
+	def update_symbol (type, id, ast_node, token)
+		@current_scope.update_symbol(type, id, ast_node, token)
 	end
 	
 	def raw_print 
@@ -69,23 +80,59 @@ class SymbolTable
 		
 	end
 	
-	def scan_table (id)
+end
+
+
+##
+# Creates instances of Symbol
+# Created to reduce complexity of long arrays
+#
+class Symbol
+	
+	attr_accessor :is_used, :is_initialized
+	attr_reader :type, :id, :token, :ast_node
+	
+	@type = nil
+	@id = nil
+	@ast_node = []
+	@token = []
+	@is_used = false
+	@is_initialized = false
+	
+	def initialize (type, id, ast_node, token, scope)
 		
-		def small_loop(current_scope, id)
-			if current_scope.symbols.has_key?(id)
-				return true
-			elsif current_scope == @root
-				return false
-			else
-				scan_table(current_scope.parent)
+		@type = type
+		@id = id
+		@ast_node = [[scope, ast_node]]
+		@token = [[scope, token]]
+		
+	end
+	
+	def update_symbol (ast_node, token, scope)
+		
+		def ast_node_small_loop
+			for child in @ast_node
+				if child[0] == scope
+					child[1] = ast_node
+					return
+				end
 			end
+			@ast_node.push([scope, ast_node])
 		end
 		
-		small_loop(@current_scope, id)
+		def token_small_loop
+			for child in @token
+				if child[0] == scope
+					child[1] = token
+					return
+				end
+			end
+			@token.push([scope, token])
+		end
+
 	end
 	
 end
-
 
 ##
 # Creates Scope instances
@@ -107,20 +154,46 @@ class Scope
 	end
 	
 	# add symbol to symbols table
-	def add_symbol (type, token)
+	def add_symbol (type, id, ast_node, token)
 		
 		if !@symbols.has_key?(token.value)
-			@symbols[token.value] = [type, token]
-			
-		# raise error on already defined id's
-		elsif @symbols.has_key?(token.value) and @symbols[token.value][0] == type
-			@symbols[token.value] = [type, token]
-			
+			@symbols[id] = Symbol.new(type, id, ast_node, token, self)
+		
+		# raise error on already defined id's	
 		else
-			raise SymbolTableTypeError.new(id)
+			raise SymbolTableRepeatError.new(id, token)
 		end
 		
 	end
+	
+	def update_symbol (type, id, ast_node, token)
+		if @symbols.has_key?(id) and @symbols[id].type == type
+			@symbols[id].update_symbol(ast_node, token, self)
+		else
+			symbol = scan_table(id)
+			if symbol.type == type
+				@symbols[id] = symbol.update_symbol(ast_node, token, self)
+			else
+				raise SymbolTableReassignmentTypeMismatchError.new(id, token)
+			end
+		end
+	end
+	
+	def scan_table (id, token)
+		
+		def small_loop(scope, id, token)
+			if scope.symbols.has_key?(id)
+				return scope.symbols[id]
+			elsif scope.parent == nil
+				raise SymbolTableUndeclaredError.new(id, token)
+			else
+				small_loop(scope.parent)
+			end
+		end
+		
+		return small_loop(self, id, token)
+	end
+	
 	
 	def enter (current)
 		new_scope = Scope.new(current)

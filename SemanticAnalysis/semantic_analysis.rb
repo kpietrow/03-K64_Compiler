@@ -28,6 +28,8 @@ end
 	
 	
 def node_analyzer (node)
+
+	puts "node_analyzer"
 	
 	if node.name == "Block"
 		match_block(node)
@@ -47,8 +49,8 @@ def node_analyzer (node)
 	elsif node.name == "IfStatement"
 		match_if_statement(node)
 		
-	elsif node.type == "leaf"
-		evaluate_leaf(node)
+	else
+		node.children.cycle(1) { |child| node_analyzer(child) }
 	end
 	
 end
@@ -58,7 +60,7 @@ def match_block (node)
 	
 	puts "match_block"
 	
-	$ast.add_branch("stmt block")
+	$ast.add_branch("block")
 	$st.enter
 	node.children.cycle(1) { |child| node_analyzer(child) }
 	$st.exit
@@ -71,10 +73,12 @@ def match_vardecl (node)
 	puts "match_vardecl"
 
 	$ast.add_branch("declare")
-	match_leaf("T_TYPE", node.children[0].children[0])
-	match_leaf("T_ID", node.children[1].children[0].children[0])	
+	$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
+	$ast.add_leaf(node.children[1].children[0].children[0].token.value, node.children[1].children[0].children[0].token)	
 	$ast.ascend
-
+	
+	#$st.add_symbol(node.children[0].children[0].token.value, node.children[1].children[0].children[0].token.value)
+	
 end
 
 def match_assignment_statement (node)
@@ -106,37 +110,40 @@ end
 
 def match_print_statement (node)
 
+	puts "match_print"
 	
+	$ast.add_branch("print")
+	match_expr(node.children[2])
+	$ast.ascend
 
 end
 
 def match_while_statement (node)
 
+	puts "match_while"
 	
-
-end
-
-def match_comparison (node)
-
-	$ast.add_branch("comp")
-	
-	
+	$ast.add_branch("while")
+	match_booleanexpr(node.children[1])
+	match_block(node.children[2])
 	$ast.ascend
+
 end
 
 
 def match_expr (node)
+
+	puts "match_expr"
 	
-	if node.children[0].type == "IntExpr"
+	if node.children[0].name == "IntExpr"
 		match_intexpr(node.children[0])
 				
-	elsif node.children[0].type == "StringExpr"
+	elsif node.children[0].name == "StringExpr"
 		match_stringexpr(node.children[0])
 	
-	elsif node.children[0].type == "BooleanExpr"
+	elsif node.children[0].name == "BooleanExpr"
 		match_booleanexpr(node.children[0])
 	
-	elsif node.children[0].type == "Id"
+	elsif node.children[0].name == "Id"
 		match_idexpr(node.children[0])
 	
 	else
@@ -147,6 +154,8 @@ end
 
 
 def match_intexpr (node)
+
+	puts "match_intexpr"
 	
 	if node.children.length == 3
 		$ast.add_branch("+")
@@ -163,6 +172,8 @@ end
 
 def match_stringexpr (node)
 
+	puts "match_stringexpr"
+
 	$ast.add_leaf(node.children[1].children[0].token.value, node.children[1].children[0].token)
 	
 end
@@ -170,9 +181,11 @@ end
 
 def match_booleanexpr (node)
 
+	puts "match_booleanexpr"
+	
 	if node.children.length == 5
+		$ast.add_branch(node.children[2].children[0].token.value)
 		match_expr(node.children[1])
-		add_leaf(node.children[2].children[0].token.value, node.children[2].children[0].token)
 		match_expr(node.children[3])
 	
 	else
