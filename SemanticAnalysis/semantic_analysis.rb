@@ -16,11 +16,20 @@
 #
 
 
+class UnknownTypeError < StandardError
+	def initialize (node)
+		puts "ERROR: Unknown type received. Location is approximately at Line: #{node.lineno} and Position #{node.pos}"
+		exit
+	end
+end
+		
+
 
 def semantic_analysis
 
 	$ast = AbstractSyntaxTree.new
 	$st = SymbolTable.new
+	$index = 0
 
 	node_analyzer($cst.root)
 	
@@ -28,8 +37,6 @@ end
 	
 	
 def node_analyzer (node)
-
-	puts "node_analyzer"
 	
 	if node.name == "Block"
 		match_block(node)
@@ -58,19 +65,20 @@ end
 
 def match_block (node)
 	
-	puts "match_block"
+	puts String($index += 1) + " " + $st.c_scope + "Entering a new block, creating scope"
 	
 	$ast.add_branch("block")
 	$st.enter
 	node.children.cycle(1) { |child| node_analyzer(child) }
 	$st.exit
 	$ast.ascend
+	
+	puts String($index += 1) + " " + $st.c_scope + "Leaving block, exiting scope"
+
 
 end
 
 def match_vardecl (node)
-
-	puts "match_vardecl"
 
 	$ast.add_branch("declare")
 	$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
@@ -79,11 +87,13 @@ def match_vardecl (node)
 	
 	$st.add_symbol(node.children[0].children[0].token.value, node.children[1].children[0].children[0].token.value, node.children[1].children[0].children[0], node.children[1].children[0].children[0].token)
 	
+	puts String($index += 1) + " " + $st.c_scope + "Declaration: Adding symbol: '" + node.children[1].children[0].children[0].token.value + "' of type: " + node.children[0].children[0].token.value
+	
 end
 
 def match_assignment_statement (node)
 
-	puts "match_assignment"
+	
 
 	$ast.add_branch("assignment")
 	
@@ -91,7 +101,11 @@ def match_assignment_statement (node)
 	
 	match_expr(node.children[2])
 	
+	type = determine_type($ast.current)
 	$ast.ascend
+	
+	puts String($index += 1) + " " + $st.c_scope + "Entering a new block, creating scope"
+
 
 end
 
@@ -199,10 +213,52 @@ end
 def match_idexpr (node)
 
 	if $st.scan_table_id(node.children[0].children[0].token.value)
-		$add.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
+		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
 		
 	else
 		raise SymbolTableUndeclaredError.new(node.children[0].children[0].token.value)
 	end
 
 end
+
+
+def determine_type (node)
+	
+	tester = ""
+	
+	if node.children[1].type == "leaf"
+		tester = node.children[1].name
+		
+	
+	else
+			
+		def small_loop (node, tester)
+			
+			puts tester
+			tester = tester + node.name
+			for child in node.children
+				tester = small_loop(child, tester)
+			end
+			
+			return tester
+		end
+		
+		tester = small_loop(node.children[1], tester)
+	end
+	
+	puts "TESTER: " + tester
+	
+	if /==/.match(tester) or /true/.match(tester) or /false/.match(tester) and tester.length > 2
+		return "boolean"
+	elsif /[a-z]/.match(tester)
+		return "string"
+	elsif /[0-9]/.match(tester) or (/[+]/.match(tester) and tester.length > 1)
+		return "int"
+	else
+		raise UnknownTypeError.new(node.parent.children[0])
+	end
+end
+	
+	
+	
+	

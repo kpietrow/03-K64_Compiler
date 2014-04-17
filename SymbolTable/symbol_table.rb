@@ -29,28 +29,33 @@ end
 # This mostly just manages the Scope instances
 #
 class SymbolTable
-	
+		
 	@root = nil
 	@current_scope = nil
+	@@current_scope_number = nil
 	
 	def initialize 
+		@@current_scope_number = nil
 	end
 	
 	# returns a new layer of scope
 	def enter 
 		
 		if @root == nil
-			new_scope = Scope.new
+			@@current_scope_number = 0
+			new_scope = Scope.new(@@current_scope_number)
 			@root = new_scope
 			@current_scope = @root
 			
 		else
-			@current_scope = @current_scope.enter(@current_scope)
+			@@current_scope_number += 1
+			@current_scope = @current_scope.enter(@@current_scope_number, @current_scope)
 		end
 	end
 	
 	def exit 
 		@current_scope = @current_scope.parent
+		@@current_scope_number -= 1
 	end
 	
 	def add_symbol (type, id, ast_node, token)
@@ -83,17 +88,29 @@ class SymbolTable
 		puts "The symbol tables of the various scopes: "
 		
 		def child_loop (scope)
-			scope.children.cycle(1) { |child|
-				if child.children.length > 0
-					child_loop(child.children)
-				else
-					print " | " + String(child.symbols)
-				end
+			print "{"
+			scope.symbols.each {|child| 
+				print "#{child[1].type}:#{child[1].id} "
 			}
+			print "}"
+			scope.children.each {|child| child_loop(child)}
 		end
 		
 		child_loop(@root)
 		
+	end
+	
+	def c_scope
+		if @@current_scope_number != nil
+			
+			printable = ""
+			for i in 0..@@current_scope_number
+				printable = printable + String(i) + "-> "
+			end
+			return printable
+		else
+			return ""
+		end
 	end
 	
 end
@@ -117,8 +134,6 @@ class SymbolEntry
 	
 	def initialize (type, id, ast_node, token)
 		
-		puts "THE COLE TRAIN BABY"
-		
 		@type = type
 		@id = id
 		@ast_node = ast_node
@@ -131,6 +146,10 @@ class SymbolEntry
 		@ast_node = ast_node
 		@token = token
 
+	end
+	
+	def id
+		@id
 	end
 	
 end
@@ -147,8 +166,10 @@ class Scope
 	@parent = nil
 	@children = []
 	@symbols = nil
+	@scope_number = 0
 	
-	def initialize (parent = nil)
+	def initialize (current_scope_number, parent = nil)
+		@scope_number = current_scope_number
 		@symbols = Hash.new
 		@parent = parent
 		@children = []
@@ -196,8 +217,8 @@ class Scope
 	end
 	
 	
-	def enter (current)
-		new_scope = Scope.new(current)
+	def enter (current_scope_number, current)
+		new_scope = Scope.new(current_scope_number, current)
 		@children.push(new_scope)
 		return new_scope
 	end
