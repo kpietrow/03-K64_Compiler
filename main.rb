@@ -104,13 +104,13 @@ def main
 	puts "\n\n\n"
 	
 	puts "We're gonna begin the semantic analysis now.\n\n"
-	semantic_analysis
+	#semantic_analysis
 	puts "\n\n"
-	$ast.raw_print
+	#$ast.raw_print
 	puts "\n\n"
-	$st.raw_print
+	#$st.raw_print
 	puts "\n\n"
-	$st.analysis
+	#$st.analysis
 	
 end
 
