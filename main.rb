@@ -26,6 +26,7 @@ require './SemanticAnalysis/semantic_analysis.rb'
 require './SyntaxTrees/cst.rb'
 require './SyntaxTrees/ast.rb'
 require './SyntaxTrees/node.rb'
+require './SyntaxTrees/cst_converter.rb'
 
 # Error for a blank file of input
 class BlankFileError < StandardError
@@ -104,6 +105,11 @@ def main
 	puts "\n\n\n"
 	
 	puts "We're gonna begin the semantic analysis now.\n\n"
+	
+	convert_cst
+	
+	$ast.raw_print
+	
 	#semantic_analysis
 	puts "\n\n"
 	#$ast.raw_print

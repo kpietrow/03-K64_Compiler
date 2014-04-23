@@ -15,6 +15,13 @@
 # 		in the Verse can be found in the README
 #
 
+class NoChildrenError < StandardError
+	def initialize(name)
+		puts "ERROR: No children found for branch node '#{name}'. Every branch node must have at least one child."
+		exit
+	end
+end
+
 
 def convert_cst
 
@@ -26,6 +33,7 @@ end
 
 def traverse (node)
 
+	puts node.name
 	case node.name
 	# Program
 	when "Block"
@@ -52,6 +60,7 @@ def traverse_children (node)
 
 	if node.children.length > 0
 		for child in node.children
+			puts "--" + child.name
 			return traverse(child)
 		end
 	else
@@ -63,7 +72,7 @@ end
 
 def traverse_block (node)
 
-	return build_branch("block", node, [traverse(node.children[1])])
+	return build_branch("block", node, traverse(node.children[1]))
 
 end
 
@@ -88,22 +97,35 @@ end
 
 def traverse_statement (node)
 	child = node.children[0]
+	puts "+" + child.name
+	
 	
 	if child.type == "branch"
 		
 		if child.name == "PrintStatement"
+			node = child
 			return build_branch("print", node, [traverse(node.children[2])])
+		
 		elsif child.name == "VarDecl"
-			return build_branch("declaration", node, [traverse(node.children[0]), traverse(node.children[1]))
+			node = child
+			return build_branch("declaration", node, [traverse(node.children[0]), traverse(node.children[1])])
+			
 		elsif child.name == "WhileStatement"
-			return build_branch("while", node, [traverse(node.children[1]), build_branch("block", node, traverse(node.children[2]))])
+			node = child
+			return build_branch("while", node, [traverse(node.children[1]), traverse(node.children[2])])
+		
 		elsif child.name == "IfStatement"
-			return build_branch("if", node, [traverse(node.children[1]), build_branch("block", node, traverse(node.children[2]))])
+			node = child
+			return build_branch("if", node, [traverse(node.children[1]), traverse(node.children[2])])
+		
 		elsif child.name == "Block"
 			return build_branch("block", node, traverse(node.children[1]))
+		
 		elsif child.name == "AssignmentStatement"
-			return build_branch("assignment", node, [traverse(node.children[0]), traverse(node.children[2])])
+			node = child
+			return build_branch("assignment", node, [traverse(node.children[0]), traverse(node.children[2])])			
 		end
+	end
 end
 
 
@@ -113,7 +135,7 @@ def traverse_intexpr (node)
 		# not sure if build_leaf(traverse....) or not
 		return traverse(node.children[0])
 	else
-		return build_branch("+", node [traverse(node.children[0]), traverse(node.children[2])])
+		return build_branch("+", node, [traverse(node.children[0]), traverse(node.children[2])])
 	end
 
 end
@@ -131,10 +153,10 @@ def traverse_booleanexpr (node)
 	child = node.children[0]
 	
 	if child.name == "("
-		op_name = node.children[2].name
+		op_name = node.children[2].children[0].name
 		return build_branch(op_name, node, [traverse(node.children[1]), traverse(node.children[3])])
-	elsif
-		return traverse(node.children[0]))
+	elsif child.name == "boolval"
+		return traverse(node.children[0])
 	end
 
 end
@@ -147,17 +169,23 @@ def build_leaf (node)
 end
 
 
-def build_branch (node, children = nil)
+def build_branch (name, node, children = [])
 
-	new_node = ASTNode.new("branch", node)
+	new_node = ASTNode.new("branch", node, name)
 	
-	if children != nil
+	puts " ---- " + node.name + " ----"
+		print children
+	puts ""
+	
+	if children.length > 0
 		for child in children
-			child.parent = node
+			new_node.children.push(child)
+			puts "-----\nbranch"
+			print child.name
+			puts "\n-------"
 		end
-		new_node.children = children
 	else
-		# error
+		raise NoChildrenError.new(name)
 	end
 	
 	return new_node

@@ -35,7 +35,7 @@ class CSTNode
 	
 	# add child, set child's parent
 	def add_child (type, name, token = nil)
-		new_node = Node.new(type, name, token, self)
+		new_node = CSTNode.new(type, name, token, self)
 		@children.push(new_node)
 		return new_node
 	end
@@ -65,11 +65,16 @@ class ASTNode
 	@children = []
 	@parent = nil
 	
-	def initialize (type, node)
+	def initialize (type, node, name = nil)
 		@@total_id = @@total_id + 1
 		@id = @@total_id
 		@type = node.type
-		@name = node.name
+		if name == nil
+			@name = node.name
+		else
+			@name = name
+		end
+		@children = []
 		@token = node.token
 	end
 	

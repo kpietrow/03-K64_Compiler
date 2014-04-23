@@ -1,1 +1,5 @@
-{ boolean a }$
+{ 
+	while (2 == 2) {
+		print(3)
+	}
+}$
