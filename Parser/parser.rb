@@ -37,10 +37,17 @@ end
 # Set up a class for early Leaf nodes
 class EarlyLeafError < StandardError
 	def initialize(token)
-		puts "\n-------------------------------------------------------------------"		
-		puts "ERROR: Received an early leaf token of #{token.type} '#{token.value}' at Line: #{token.lineno} and Position: #{token.pos + 1}"
-		puts "-------------------------------------------------------------------"
-		exit
+		if token != nil
+			puts "\n-------------------------------------------------------------------"		
+			puts "ERROR: Received an early leaf token of #{token.type} '#{token.value}' at Line: #{token.lineno} and Position: #{token.pos + 1}"
+			puts "-------------------------------------------------------------------"
+			exit
+		else
+			puts "\n-------------------------------------------------------------------"		
+			puts "ERROR: Received an early leaf token of 'nil'"
+			puts "-------------------------------------------------------------------"
+			exit
+		end
 	end
 end
 

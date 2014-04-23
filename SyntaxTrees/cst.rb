@@ -23,7 +23,7 @@ class ConcreteSyntaxTree
 		
 		# if there are no nodes yet, start it off!
 		if @root == nil
-			@root = Node.new("branch", name)
+			@root = CSTNode.new("branch", name)
 			@current = @root
 		
 		# otherwise, move about this intelligently
@@ -86,15 +86,12 @@ class ConcreteSyntaxTree
 	end
 	
 	def root
-		
 		@root
-		
 	end
 	
-	def current
-		
+	
+	def current	
 		@current
-		
 	end
 	
 end

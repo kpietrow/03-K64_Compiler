@@ -16,3 +16,15 @@
 #
 
 
+def semantic_analysis
+
+	$ast = AbstractSyntaxTree.new
+	$st = SymbolTable.new
+	$index = 0
+	
+	
+	
+	$ast = convert_cst
+	
+end
+

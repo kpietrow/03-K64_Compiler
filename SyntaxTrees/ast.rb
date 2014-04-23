@@ -6,8 +6,8 @@
 class AbstractSyntaxTree
 	
 	attr_reader :current, :total_nodes
+	attr_accessor :root
 	
-	@@total_nodes = 0
 	@root = nil
 	@current = nil
 	
@@ -17,37 +17,6 @@ class AbstractSyntaxTree
 		@current = nil
 	end
 	
-	# add a node
-	def add_branch (name)
-	
-		@@total_nodes = @@total_nodes + 1
-		
-		# if there are no nodes yet, start it off!
-		if @root == nil
-			@root = Node.new("branch", name)
-			@current = @root
-		
-		# otherwise, move about this intelligently
-		else
-			@current.add_child("branch", name)
-			@current = @current.children[@current.children.length - 1]
-		end
-	end
-	
-	def add_leaf (name, token)
-	
-		@@total_nodes = @@total_nodes + 1
-		
-		# if there are no nodes yet, start it off!
-		if @root == nil
-			raise EarlyLeafError.new(token)
-		
-		# otherwise, move about this intelligently
-		else
-			@current.add_child("leaf", name, token)
-		end
-		
-	end
 	
 	def ascend 
 		
@@ -171,10 +140,6 @@ class AbstractSyntaxTree
 		
 		small_loop(@root, spaces)
 =end
-	end
-	
-	def total_nodes
-		@@total_nodes
 	end
 	
 end

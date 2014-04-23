@@ -11,7 +11,7 @@ end
 
 
 # Class for nodes on the syntax trees
-class Node
+class CSTNode
 	attr_reader :total_id, :id, :token, :name, :type
 	attr_accessor :parent, :children
 	
@@ -43,6 +43,44 @@ class Node
 	# add parent
 	def add_parent (parent)
 		@parent = parent
+	end
+	
+	def get_first_leaf
+		@children[0]
+	end
+	
+end
+
+
+# Class for nodes on the syntax trees
+class ASTNode
+	attr_reader :total_id, :id, :token, :name, :type
+	attr_accessor :parent, :children
+	
+	@@total_id = 0
+	@id = nil
+	@type = nil
+	@name = nil
+	@token = nil
+	@children = []
+	@parent = nil
+	
+	def initialize (type, node)
+		@@total_id = @@total_id + 1
+		@id = @@total_id
+		@type = node.type
+		@name = node.name
+		@token = node.token
+	end
+	
+	
+	# add parent
+	def add_parent (parent)
+		@parent = parent
+	end
+	
+	def get_first_leaf
+		@children[0]
 	end
 	
 end
