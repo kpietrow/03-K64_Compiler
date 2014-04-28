@@ -18,7 +18,7 @@
 
 def semantic_analysis
 
-	$ast = AbstractSyntaxTree.new
+	convert_cst
 	$st = SymbolTable.new
 	$index = 0
 	

@@ -55,4 +55,8 @@ class AbstractSyntaxTree
 	
 	end
 	
+	def root
+		@root
+	end
+	
 end

@@ -88,4 +88,8 @@ class ASTNode
 		@children[0]
 	end
 	
+	def get_token_type
+		@token.type
+	end
+	
 end

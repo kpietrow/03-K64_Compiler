@@ -179,8 +179,9 @@ def build_branch (name, node, children = [])
 	
 	if children.length > 0
 		for child in children
+			child.add_parent(new_node)
 			new_node.children.push(child)
-			puts "-----\nbranch"
+			puts "-----\n---branch---"
 			print child.name
 			puts "\n-------"
 		end

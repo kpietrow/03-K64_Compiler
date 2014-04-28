@@ -48,7 +48,7 @@ class SymbolTable
 	@@current_scope_number = nil
 	
 	def initialize 
-		@@current_scope_number = nil
+		@@current_scope_number = -1
 	end
 	
 	# returns a new layer of scope
