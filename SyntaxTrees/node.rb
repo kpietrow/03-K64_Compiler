@@ -68,7 +68,7 @@ class ASTNode
 	def initialize (type, node, name = nil)
 		@@total_id = @@total_id + 1
 		@id = @@total_id
-		@type = node.type
+		@type = type
 		if name == nil
 			@name = node.name
 		else

@@ -33,7 +33,6 @@ end
 
 def traverse (node)
 
-	puts node.name
 	case node.name
 	# Program
 	when "Block"
@@ -60,7 +59,6 @@ def traverse_children (node)
 
 	if node.children.length > 0
 		for child in node.children
-			puts "--" + child.name
 			return traverse(child)
 		end
 	else
@@ -97,8 +95,6 @@ end
 
 def traverse_statement (node)
 	child = node.children[0]
-	puts "+" + child.name
-	
 	
 	if child.type == "branch"
 		
@@ -123,7 +119,7 @@ def traverse_statement (node)
 		
 		elsif child.name == "AssignmentStatement"
 			node = child
-			return build_branch("assignment", node, [traverse(node.children[0]), traverse(node.children[2])])			
+			return build_branch("assign", node, [traverse(node.children[0]), traverse(node.children[2])])			
 		end
 	end
 end
@@ -173,17 +169,10 @@ def build_branch (name, node, children = [])
 
 	new_node = ASTNode.new("branch", node, name)
 	
-	puts " ---- " + node.name + " ----"
-		print children
-	puts ""
-	
 	if children.length > 0
 		for child in children
 			child.add_parent(new_node)
 			new_node.children.push(child)
-			puts "-----\n---branch---"
-			print child.name
-			puts "\n-------"
 		end
 	else
 		raise NoChildrenError.new(name)

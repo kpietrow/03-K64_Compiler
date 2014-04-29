@@ -109,8 +109,9 @@ def main
 	convert_cst
 	
 	$ast.raw_print
+	puts "\n\n"
 	
-	#semantic_analysis
+	semantic_analysis
 	puts "\n\n"
 	#$ast.raw_print
 	puts "\n\n"

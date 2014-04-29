@@ -3,8 +3,8 @@
 # Works with the symbol table
 
 class SymbolTableRepeatError < StandardError
-	def initialize (id, token)
-		puts "ERROR: ID '#{id}' was declared twice in the same scope. The source code location is Line: #{token.lineno + 1}"
+	def initialize (id, line)
+		puts "ERROR: ID '#{id}' was declared twice in the same scope. The source code location is Line: #{line + 1}"
 		exit
 	end
 end
@@ -71,8 +71,14 @@ class SymbolTable
 	
 	def add_symbol (name, type, line)
 		
-		symbol = SymbolEntry.new(name, type, line, @current_scope.scope_level)
-		@current_scope.add(name, symbol)
+		symbol = SymbolEntry.new(name, type, line, @current_scope.scope_number)
+		
+		if @current_scope.symbols[name]
+			raise SymbolTableRepeatError.new(name, line)
+			
+		else
+			@current_scope.add(name, symbol)
+		end
 	
 	end
 	
@@ -80,13 +86,13 @@ class SymbolTable
 	
 		scope = @current_scope
 		
-		while node
+		while scope
 			symbol = scope.symbols[name]
 			
 			if symbol
 				return symbol
 			else
-				node = node.parent
+				scope = scope.parent
 			end
 		end
 		
@@ -95,6 +101,11 @@ class SymbolTable
 	end
 	
 	
+	def current_scope
+		@current_scope
+	end
+	
+		
 	def ascend
 		
 		if @current_scope != @root
@@ -153,17 +164,23 @@ end
 class SymbolEntry
 
 	attr_reader :name, :type, :line, :scope_level
+	attr_accessor :is_used, :is_initialized
 
 	@name = nil
 	@type = nil
 	@line = nil
 	@scope_level = nil
+	@is_used = false
+	@is_initialized = false
 	
 	def initialize  (name, type, line, scope_level)
 		@name = name
 		@type = type
 		@line = line
 		@scope_level = scope_level
+		
+		@is_used = false
+		@is_initialized = false
 	end
 
 end
