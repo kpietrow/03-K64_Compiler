@@ -129,7 +129,7 @@ def analyze_while (node)
 	puts "Analyzing while"
 	
 	# ==
-	anaylze(node.children[0])
+	analyze(node.children[0])
 	# block
 	analyze(node.children[1])
 

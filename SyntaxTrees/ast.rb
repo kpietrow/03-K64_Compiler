@@ -27,32 +27,27 @@ class AbstractSyntaxTree
 		
 	end
 	
-	# Prints out the very basic details of the AST
-	def raw_print 
+	# Prints out the AST
+	def printout
 		
-		puts "The nodes in the constructed AST: "
+		index = 0
 		
-		def small_loop (first)
-		
+		def small_loop (node, index)
 			
-			if @root == nil
-				puts "This AST is currently empty"
-				return
-			elsif first == @root
-				print " (" + @root.name + ") "
+			for i in 0...index
+				print " "
 			end
-		
-			if first.type == "branch"
-				print " ("
-				first.children.cycle(1) { |child| print child.name + " " }
-				print ") "
-				first.children.cycle(1) { |child| small_loop(child) }
+			
+			puts node.name
+			index += 1
+			
+			if node.children.length > 0
+				index += 1
+				node.children.cycle(1) { |child| small_loop(child, index) }
 			end
-		
 		end
 		
-		small_loop(@root)
-	
+		small_loop(@root, index)
 	end
 	
 	def root

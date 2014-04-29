@@ -101,7 +101,7 @@ def main
 	parser(token_stream)
 	puts "\n\nParsing successful. We've got ourselves a nice parse stream and symbol table now.\n\n"
 	
-	$cst.raw_print
+	$cst.printout
 	puts "\n\n\n"
 	
 	puts "We're gonna begin the semantic analysis now.\n\n"
@@ -115,7 +115,7 @@ def main
 	puts "\n\n"
 	#$ast.raw_print
 	puts "\n\n"
-	#$st.raw_print
+	$st.raw_print
 	puts "\n\n"
 	#$st.analysis
 	

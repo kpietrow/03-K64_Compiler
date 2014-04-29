@@ -115,6 +115,25 @@ class SymbolTable
 	end
 	
 	
+	def raw_print 
+
+		puts "The symbol tables of the various scopes: "
+
+		def child_loop (scope)
+			print "{"
+			scope.symbols.each {|child| 
+				print "#{child[1].type}:#{child[1].name} "
+			}
+			print "}"
+			scope.children.each {|child| child_loop(child)}
+		end
+
+		child_loop(@root)
+
+	end
+	
+	
+	
 	
 end
 
@@ -125,7 +144,7 @@ end
 #
 class Scope
 
-	attr_accessor :symbols, :parent
+	attr_accessor :symbols, :parent, :children
 	attr_reader :scope_number
 
 	@scope_number = nil
