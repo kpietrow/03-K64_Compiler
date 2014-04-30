@@ -10,15 +10,15 @@ class SymbolTableRepeatError < StandardError
 end
 
 class SymbolTableUndeclaredError < StandardError
-	def initialize (id, token)
-		puts "ERROR: ID '#{id}' was used without being previously declared. The source code location is Line: #{token.lineno + 1}"
+	def initialize (id, line)
+		puts "ERROR: ID '#{id}' was used without being previously declared. The source code location is Line: #{line + 1}"
 		exit
 	end
 end
 
 class SymbolTableReassignmentTypeMismatchError < StandardError
-	def initialize (e_type, r_type, id, token)
-		puts "ERROR: ID '#{id}' was reassigned using the wrong type, a(n) '#{r_type}' instead of a(n) '#{e_type}'. The source code's location is Line: #{token.lineno + 1}"
+	def initialize (e_type, r_type, id, line)
+		puts "ERROR: ID '#{id}' was reassigned using the wrong type, a(n) '#{r_type}' instead of a(n) '#{e_type}'. The source code's location is Line: #{line + 1}"
 		exit
 	end
 end
@@ -82,7 +82,7 @@ class SymbolTable
 	
 	end
 	
-	def get_symbol (name)
+	def get_symbol (name, line)
 	
 		scope = @current_scope
 		
@@ -96,7 +96,7 @@ class SymbolTable
 			end
 		end
 		
-		return nil
+		raise SymbolTableUndeclaredError.new(name, line)
 		
 	end
 	

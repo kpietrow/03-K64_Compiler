@@ -18,7 +18,14 @@
 
 class TypeMismatchError < StandardError
 	def initialize (type1, type2, line)
-		puts "ERROR: Recieved a type mismatch of type '#{type1}' and type '#{type2}' at line #{line}"
+		puts "ERROR: Recieved a type mismatch of type '#{type1}' and type '#{type2}' at line #{line + 1}"
+		exit
+	end
+end
+
+class UnexpectedTypeError < StandardError
+	def initialize (type1, type2, line)
+		puts "ERROR: Expected type '#{type2}', but received '#{type1}' at line #{line + 1}"
 		exit
 	end
 end
@@ -27,7 +34,6 @@ end
 
 def semantic_analysis
 
-	convert_cst
 	$st = SymbolTable.new
 	
 	analyze($ast.root)
@@ -104,7 +110,7 @@ def analyze_assign (node)
 	end
 	
 	# set symbol as initialized
-	symbol = $st.get_symbol(node.children[0].name)
+	symbol = $st.get_symbol(node.children[0].name, node.children[0].token.lineno)
 	symbol.is_initialized = true
 	
 	return left_type
@@ -119,7 +125,7 @@ def analyze_declaration (node)
 	type = node.children[0].name
 	
 	$st.add_symbol(id, type, node.children[1].token.lineno)
-	symbol = $st.get_symbol(id)
+	symbol = $st.get_symbol(id, node.children[1].token.lineno)
 	symbol.is_initialized = true
 
 end
@@ -156,13 +162,13 @@ def analyze_op (node)
 	type_left = analyze(node.children[0])
 	
 	if type_left != "int"
-		# raise TypeMismatch
+		raise UnexpectedTypeError.new(type_left, "int", line)
 	end
 	
 	type_right = analyze(node.children[1])
 	
 	if type_right != "int"
-		raise TypeMismatchError.new(type_left, type_right, line)
+		raise UnexpectedTypeError.new(type_right, "int", line)
 	end
 
 	return type_right
@@ -189,7 +195,7 @@ end
 
 def analyze_id (node)
 
-	symbol = $st.get_symbol(node.name)
+	symbol = $st.get_symbol(node.name, node.token.lineno)
 	
 	symbol.is_used = true
 	

@@ -104,16 +104,17 @@ def main
 	$cst.printout
 	puts "\n\n\n"
 	
-	puts "We're gonna begin the semantic analysis now.\n\n"
+	puts "Now we're doin' some calculations and conversions, trying to change that CST to a nice AST"
 	
 	convert_cst
 	
-	$ast.raw_print
+	puts "Printing out that AST now"
+	$ast.printout
 	puts "\n\n"
 	
+	puts "We're gonna begin the semantic analysis now.\n\n"
+	
 	semantic_analysis
-	puts "\n\n"
-	#$ast.raw_print
 	puts "\n\n"
 	$st.raw_print
 	puts "\n\n"

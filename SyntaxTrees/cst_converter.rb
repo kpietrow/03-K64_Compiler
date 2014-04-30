@@ -116,7 +116,8 @@ def traverse_statement (node)
 			return build_branch("if", node, [traverse(node.children[1]), traverse(node.children[2])])
 		
 		elsif child.name == "Block"
-			return build_branch("block", node, traverse(node.children[1]))
+			#return build_branch("block", node, traverse(node.children[1]))
+			return traverse_block(child)
 		
 		elsif child.name == "AssignmentStatement"
 			node = child
@@ -175,8 +176,6 @@ def build_branch (name, node, children = [])
 			child.add_parent(new_node)
 			new_node.children.push(child)
 		end
-	else
-		raise NoChildrenError.new(name)
 	end
 	
 	return new_node

@@ -1,0 +1,22 @@
+{
+	print("")
+	{}
+	int a
+	a = 0
+	a = 3 + a
+	int b
+	b = 8
+	{
+		{
+			print("inta is not int a ")
+			print(1 + 2 + 3 + 4 + 5)
+			print(a)
+		}
+		
+		int a
+		a = 7
+		string b
+		b = "one string"
+		print(b)
+	}
+}$
