@@ -16,6 +16,13 @@ class SymbolTableUndeclaredError < StandardError
 	end
 end
 
+class SymbolTableUninitialzedIdUseError < StandardError
+	def initialize (id, line)
+		puts "ERROR: ID '#{id}' was used on Line: #{line + 1} without prior initialization"
+		exit
+	end
+end
+
 class SymbolTableReassignmentTypeMismatchError < StandardError
 	def initialize (e_type, r_type, id, line)
 		puts "ERROR: ID '#{id}' was reassigned using the wrong type, a(n) '#{r_type}' instead of a(n) '#{e_type}'. The source code's location is Line: #{line + 1}"
@@ -115,16 +122,35 @@ class SymbolTable
 	end
 	
 	
-	def raw_print 
+	def analysis (node)
+	
+		symbols = node.symbols
+		
+		for id in symbols
+			symbol = symbols[id]
+			
+			if !symbol.is_initialized
+			
+			end
+		end
+	end
+	
+	
+	
+	
+	def printout
 
 		puts "The symbol tables of the various scopes: "
 
 		def child_loop (scope)
-			print "{"
-			scope.symbols.each {|child| 
-				print "#{child[1].type}:#{child[1].name} "
-			}
-			print "}"
+			if scope.symbols.length > 0
+				print "{" + String(scope.scope_number) + "| "
+				scope.symbols.each {|child| 
+					print "#{child[1].type}:#{child[1].name} "
+				}
+				print "} "
+			end
+			
 			scope.children.each {|child| child_loop(child)}
 		end
 

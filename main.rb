@@ -116,7 +116,7 @@ def main
 	
 	semantic_analysis
 	puts "\n\n"
-	$st.raw_print
+	$st.printout
 	puts "\n\n"
 	#$st.analysis
 	

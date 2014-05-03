@@ -32,6 +32,8 @@ end
 
 
 
+
+
 def semantic_analysis
 
 	$st = SymbolTable.new
@@ -126,7 +128,6 @@ def analyze_declaration (node)
 	
 	$st.add_symbol(id, type, node.children[1].token.lineno)
 	symbol = $st.get_symbol(id, node.children[1].token.lineno)
-	symbol.is_initialized = true
 
 end
 
@@ -196,6 +197,10 @@ end
 def analyze_id (node)
 
 	symbol = $st.get_symbol(node.name, node.token.lineno)
+	
+	if !symbol.is_initialized
+		raise SymbolTableUninitialzedIdUseError.new(node.name, node.token.lineno)
+	end
 	
 	symbol.is_used = true
 	
