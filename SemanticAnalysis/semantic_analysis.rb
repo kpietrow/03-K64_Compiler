@@ -198,11 +198,15 @@ def analyze_id (node)
 
 	symbol = $st.get_symbol(node.name, node.token.lineno)
 	
-	if !symbol.is_initialized
-		raise SymbolTableUninitialzedIdUseError.new(node.name, node.token.lineno)
+	if node.parent.name == "assign" and node == node.parent.children[0]
+	else
+		if !symbol.is_initialized
+			raise SymbolTableUninitialzedIdUseError.new(node.name, node.token.lineno)
+		end
+		
+		symbol.is_used = true
 	end
 	
-	symbol.is_used = true
 	
 	return symbol.type
 

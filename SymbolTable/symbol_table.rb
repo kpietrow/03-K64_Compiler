@@ -30,13 +30,13 @@ class SymbolTableReassignmentTypeMismatchError < StandardError
 	end
 end
 
-class UnusedIdentifierError < StandardError
+class UnusedIdentifierWarning < StandardError
 	def initialize (type, id, scope)
 		puts "WARNING: The ID '#{type}:#{id}' was initialized in scope #{scope}, but never used"
 	end
 end
 
-class UninitializedIdentifierError < StandardError
+class UninitializedIdentifierWarning < StandardError
 	def initialize (type, id, scope)
 		puts "WARNING: The ID '#{type}:#{id}' was created in scope #{scope}, but never initialized"
 	end
@@ -112,6 +112,10 @@ class SymbolTable
 		@current_scope
 	end
 	
+	def root
+		@root
+	end
+	
 		
 	def ascend
 		
@@ -126,12 +130,25 @@ class SymbolTable
 	
 		symbols = node.symbols
 		
-		for id in symbols
-			symbol = symbols[id]
+		for symbol in symbols
+			symbol = symbol[1]
 			
 			if !symbol.is_initialized
-			
+				begin
+					raise UninitializedIdentifierWarning.new(symbol.type, symbol.name, node.scope_number)
+				rescue UninitializedIdentifierWarning
+				end
+			elsif !symbol.is_used
+				begin
+					raise UnusedIdentifierWarning.new(symbol.type, symbol.name, node.scope_number)
+				rescue UnusedIdentifierWarning
+				end
 			end
+			
+			for child in node.children
+				analysis(child)
+			end
+			
 		end
 	end
 	

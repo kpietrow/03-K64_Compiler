@@ -118,7 +118,8 @@ def main
 	puts "\n\n"
 	$st.printout
 	puts "\n\n"
-	#$st.analysis
+	$st.analysis($st.root)
+	puts "\n\n"
 	
 end
 
