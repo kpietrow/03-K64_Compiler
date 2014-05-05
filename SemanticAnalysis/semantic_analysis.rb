@@ -128,7 +128,10 @@ def analyze_declaration (node)
 	
 	$st.add_symbol(id, type, node.children[1].token.lineno)
 	symbol = $st.get_symbol(id, node.children[1].token.lineno)
-
+	
+	# store that symbol for later
+	node.children[1].symbol = symbol
+	
 end
 
 def analyze_while (node)
@@ -207,6 +210,7 @@ def analyze_id (node)
 		symbol.is_used = true
 	end
 	
+	node.symbol = symbol
 	
 	return symbol.type
 

@@ -10,7 +10,7 @@ end
 
 
 
-# Class for nodes on the syntax trees
+# Class for nodes on the concrete syntax tree
 class CSTNode
 	attr_reader :total_id, :id, :token, :name, :type
 	attr_accessor :parent, :children
@@ -52,10 +52,10 @@ class CSTNode
 end
 
 
-# Class for nodes on the syntax trees
+# Class for nodes on the abstract syntax tree
 class ASTNode
 	attr_reader :total_id, :id, :token, :name, :type
-	attr_accessor :parent, :children
+	attr_accessor :parent, :children, :symbol
 	
 	@@total_id = 0
 	@id = nil
@@ -64,6 +64,9 @@ class ASTNode
 	@token = nil
 	@children = []
 	@parent = nil
+	
+	# for help with the symbol table later
+	@symbol = nil
 	
 	def initialize (type, node, name = nil)
 		@@total_id = @@total_id + 1
