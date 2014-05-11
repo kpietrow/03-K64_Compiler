@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
 
-
-"hi all".length.downto(0) do |i|
-			puts i
-		end 
+a = 110
+puts (a + 1).to_s(16).is_a? String

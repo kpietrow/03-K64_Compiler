@@ -69,8 +69,114 @@ def generate_block(node)
 	end
 end
 
+
+######################
+# Add symbol to static table
+#
 def generate_declaration(node)
 
-
+	
 
 end
+
+######################
+# 6502 instructions
+# Default address set to 'FF00'
+#
+default_address = "FF00"
+
+
+######################
+# Load Accumulator
+# If input length is 2, it's a constant
+# Else, id
+# 
+def lda (input = default_address)
+
+	if input.length length > 2
+		$code.add("AD" + input)
+	else
+		$code.add("A9" + input)
+	end
+
+end
+
+
+######################
+# Store accumulator
+#
+def sta (input = default_address)
+	$code.add("8D" + input)
+end
+
+
+######################
+# Load X register
+#
+def ldx (input = default_address)
+	
+	if input.length > 2
+		$code.add("AE" + input)
+	else
+		$code.add("A2" + input)
+	end
+
+end
+
+
+######################
+# Load Y register
+#
+def ldy (input = default_address)
+	
+	if input.length > 2
+		$code.add("AC" + input)
+	else
+		$code.add("A0" + input)
+	end
+
+end
+
+
+######################
+# Break/System Call
+#
+def brk
+	$code.add("00")
+end
+
+
+######################
+# Compare
+#
+def cpx (input = default_address)
+	$code.add("EC" + input)
+end
+
+
+######################
+# Branch not equal
+#
+def bne (input = default_address)
+	$code.add("D0" + input)
+end
+
+
+######################
+# System call
+#
+def sys
+	$code.add("FF")
+end
+
+
+
+
+
+
+
+
+
+
+
+

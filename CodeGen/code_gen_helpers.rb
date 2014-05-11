@@ -19,7 +19,6 @@ end
 # Class for the collection, organization, and 
 # smugglin' duties of the machine code generation
 #
-
 class Code
 
 	# main body of code
@@ -38,7 +37,7 @@ class Code
 	
 	def add (codes)
 	
-		if codes.class == "Array"
+		if codes.is_a? Array
 			for code in codes
 				# Eliminate illegal characters. Not that there's anything
 				# wrong with something in the Verse being illegal, that is
@@ -51,9 +50,9 @@ class Code
 				end
 			end
 		else
-			code = code.gsub(/[^TJA-F0-9]/, "")
-			for i in 0...code.length
-				section = code[i..i+1]
+			codes = codes.gsub(/[^TJA-F0-9]/, "")
+			for i in 0...codes.length
+				section = codes[i..i+1]
 				section = prepad(section, 2, "0")
 				@code.push(section)
 				@current_address += 1 
@@ -91,6 +90,7 @@ end
 
 ############################
 # Some helper functions
+#
 #
 
 def prepad (string, length, character = " ")
@@ -130,7 +130,6 @@ end
 ###################################################
 # Jump table time!
 #
-
 class JumpTable
 
 	attr_reader :entries, :last_entries
@@ -197,7 +196,6 @@ end
 # table for the code generation part of this
 # compiler
 #
-
 class StaticTable
 	
 	attr_reader :entries
@@ -218,7 +216,7 @@ class StaticTable
 			raise SymbolRepeatError.new(symbol)
 		end
 		
-		address = "T" + String(@temp_address + 1).to_s(16)
+		address = "T" + (@temp_address + 1).to_s(16)
 		@temp_address += 1
 		entry = StableTableEntry.new(symbol, address, offset)
 		@offset += 1
