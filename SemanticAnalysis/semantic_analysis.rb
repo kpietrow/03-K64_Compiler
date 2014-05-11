@@ -36,7 +36,7 @@ end
 
 def semantic_analysis
 
-	$st = SymbolTable.new
+	$symbol_table = SymbolTable.new
 	
 	analyze($ast.root)
 	
@@ -88,13 +88,13 @@ def analyze_block (node)
 
 	puts "Analyzing block"
 
-	$st.create_scope
+	$symbol_table.create_scope
 	
 	for child in node.children
 		analyze(child)
 	end
 	
-	$st.ascend
+	$symbol_table.ascend
 
 end
 
@@ -112,7 +112,7 @@ def analyze_assign (node)
 	end
 	
 	# set symbol as initialized
-	symbol = $st.get_symbol(node.children[0].name, node.children[0].token.lineno)
+	symbol = $symbol_table.get_symbol(node.children[0].name, node.children[0].token.lineno)
 	symbol.is_initialized = true
 	
 	return left_type
@@ -126,11 +126,13 @@ def analyze_declaration (node)
 	id = node.children[1].name
 	type = node.children[0].name
 	
-	$st.add_symbol(id, type, node.children[1].token.lineno)
-	symbol = $st.get_symbol(id, node.children[1].token.lineno)
+	$symbol_table.add_symbol(id, type, node.children[1].token.lineno)
+	symbol = $symbol_table.get_symbol(id, node.children[1].token.lineno)
 	
 	# store that symbol for later
 	node.children[1].symbol = symbol
+	print "898989898 ->"
+	puts node.children[1].symbol
 	
 end
 
@@ -199,7 +201,7 @@ end
 
 def analyze_id (node)
 
-	symbol = $st.get_symbol(node.name, node.token.lineno)
+	symbol = $symbol_table.get_symbol(node.name, node.token.lineno)
 	
 	if node.parent.name == "assign" and node == node.parent.children[0]
 	else

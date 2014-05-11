@@ -27,6 +27,8 @@ require './SyntaxTrees/cst.rb'
 require './SyntaxTrees/ast.rb'
 require './SyntaxTrees/node.rb'
 require './SyntaxTrees/cst_converter.rb'
+#require './CodeGen/code_gen.rb'
+require './CodeGen/code_gen_helpers.rb'
 
 # Error for a blank file of input
 class BlankFileError < StandardError
@@ -116,9 +118,9 @@ def main
 	
 	semantic_analysis
 	puts "\n\n"
-	$st.printout
+	$symbol_table.printout
 	puts "\n\n"
-	$st.analysis($st.root)
+	$symbol_table.analysis($symbol_table.root)
 	puts "\n\n"
 	
 end

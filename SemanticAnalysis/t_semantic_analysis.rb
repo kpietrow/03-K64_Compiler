@@ -42,7 +42,7 @@ end
 def semantic_analysis
 
 	$ast = AbstractSyntaxTree.new
-	$st = SymbolTable.new
+	$symbol_table = SymbolTable.new
 	$index = 0
 
 	node_analyzer($cst.root)
@@ -78,15 +78,15 @@ end
 
 def match_block (node)
 	
-	puts String($index += 1) + " " + $st.c_scope + "Entering a new block, creating scope"
+	puts String($index += 1) + " " + $symbol_table.c_scope + "Entering a new block, creating scope"
 	
 	$ast.add_branch("block")
-	$st.enter
+	$symbol_table.enter
 	node.children.cycle(1) { |child| node_analyzer(child) }
-	$st.exit
+	$symbol_table.exit
 	$ast.ascend
 	
-	puts String($index += 1) + " " + $st.c_scope + "Leaving block, exiting scope"
+	puts String($index += 1) + " " + $symbol_table.c_scope + "Leaving block, exiting scope"
 
 
 end
@@ -98,9 +98,9 @@ def match_vardecl (node)
 	$ast.add_leaf(node.children[1].children[0].children[0].token.value, node.children[1].children[0].children[0].token)	
 	$ast.ascend
 	
-	$st.add_symbol(node.children[0].children[0].token.value, node.children[1].children[0].children[0].token.value, node.children[1].children[0].children[0], node.children[1].children[0].children[0].token)
+	$symbol_table.add_symbol(node.children[0].children[0].token.value, node.children[1].children[0].children[0].token.value, node.children[1].children[0].children[0], node.children[1].children[0].children[0].token)
 	
-	puts String($index += 1) + " " + $st.c_scope + "Declaration: Adding symbol: '" + node.children[1].children[0].children[0].token.value + "' of type: " + node.children[0].children[0].token.value
+	puts String($index += 1) + " " + $symbol_table.c_scope + "Declaration: Adding symbol: '" + node.children[1].children[0].children[0].token.value + "' of type: " + node.children[0].children[0].token.value
 	
 end
 
@@ -112,17 +112,17 @@ def match_assignment_statement (node)
 	match_expr(node.children[2])
 	
 	type = determine_type($ast.current)
-	$st.update_symbol(type, node.children[0].children[0].children[0].token.value, $ast.current, node.children[0].children[0].children[0].token, node.children[2])
+	$symbol_table.update_symbol(type, node.children[0].children[0].children[0].token.value, $ast.current, node.children[0].children[0].children[0].token, node.children[2])
 	
 	$ast.ascend
 	
-	puts String($index += 1) + " " + $st.c_scope + "Assignment: " + type + " to " + type
+	puts String($index += 1) + " " + $symbol_table.c_scope + "Assignment: " + type + " to " + type
 
 end
 
 def match_if_statement (node)
 
-	puts String($index += 1) + " " + $st.c_scope + "If Statement encountered"
+	puts String($index += 1) + " " + $symbol_table.c_scope + "If Statement encountered"
 
 	$ast.add_branch("if")
 	
@@ -135,7 +135,7 @@ end
 
 def match_print_statement (node)
 
-	puts String($index += 1) + " " + $st.c_scope + "Print Statement encountered"
+	puts String($index += 1) + " " + $symbol_table.c_scope + "Print Statement encountered"
 	
 	$ast.add_branch("print")
 	match_expr(node.children[2])
@@ -145,7 +145,7 @@ end
 
 def match_while_statement (node)
 
-	puts String($index += 1) + " " + $st.c_scope + "While Statement encountered"
+	puts String($index += 1) + " " + $symbol_table.c_scope + "While Statement encountered"
 	
 	$ast.add_branch("while")
 	match_booleanexpr(node.children[1])
@@ -216,9 +216,9 @@ end
 
 def match_idexpr (node)
 
-	puts String($index) + " " + $st.c_scope + "Checking existence of " + node.children[0].children[0].token.value 
+	puts String($index) + " " + $symbol_table.c_scope + "Checking existence of " + node.children[0].children[0].token.value 
 
-	if $st.scan_table_used(node.children[0].children[0].token.value)
+	if $symbol_table.scan_table_used(node.children[0].children[0].token.value)
 		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
 		
 	else
@@ -257,8 +257,8 @@ def determine_type (node)
 			return "boolean"
 			
 		elsif /\b[a-z]\b/.match(sequence)
-			if $st.scan_table_used(sequence)
-				type = $st.retrieve_type(sequence)
+			if $symbol_table.scan_table_used(sequence)
+				type = $symbol_table.retrieve_type(sequence)
 				return type
 					
 			else
