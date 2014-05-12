@@ -27,7 +27,7 @@ require './SyntaxTrees/cst.rb'
 require './SyntaxTrees/ast.rb'
 require './SyntaxTrees/node.rb'
 require './SyntaxTrees/cst_converter.rb'
-#require './CodeGen/code_gen.rb'
+require './CodeGen/code_gen.rb'
 require './CodeGen/code_gen_helpers.rb'
 
 # Error for a blank file of input

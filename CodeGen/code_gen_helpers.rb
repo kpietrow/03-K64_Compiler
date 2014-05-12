@@ -14,12 +14,21 @@ class JumpTableError < StandardError
 	end
 end
 
+class CodeOverflowError < StandardError
+	def initialize
+		puts "ERROR: Too much code given for current block size."
+		end
+	end
+end
+
 
 ###################################################
 # Class for the collection, organization, and 
 # smugglin' duties of the machine code generation
 #
 class Code
+
+	attr_accessor :code, :current_address, :heap, :heap_address
 
 	# main body of code
 	@code = []
@@ -76,14 +85,39 @@ class Code
 	end
 	
 	
-	#def backpatch (static_table, jump_table)
-	#	
-	#	for i in 0..@code.length
-	#		word = @code[i]
-	#		
-	#		if /T/.match(word)
+	def backpatch
+		
+		for i in 0...@code.length
+			word = @code[i]
+			
+			if /T/.match(word)
+				temp_address = word + @code[i + 1]
+				entry = $static_table.get(temp_address)
+				@code[i] = hex_converter((@current_address + entry.offset), 2)
+				@code[i + 1] = "00"
+			elsif /J/.match(word)
+				entry = $jump_table.get(word)
+				this.code[i] = hex_converter(String(entry.distance), 2)
+			end
+		end
+	end
 	
 	
+	def printout
+	
+		# copy @code
+		code = @code.map(&:dup)
+		
+		while code.length + @heap.length < 255
+			code.push("00")
+		end
+		
+		code = code.concat(@heap)
+		
+		if code.length > 255
+			raise
+	
+	end
 
 end
 
@@ -184,9 +218,7 @@ class JumpTableEntry
 		@first_address = first_address
 		@address = address
 	end
-
-
-
+	
 end
 
 
@@ -198,7 +230,7 @@ end
 #
 class StaticTable
 	
-	attr_reader :entries
+	attr_accessor :temp_address, :offset, :entries
 	
 	@temp_address
 	@offset
