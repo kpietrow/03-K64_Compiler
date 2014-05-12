@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+a = "helloty"
 
-a = 110
-puts (a + 1).to_s(16).is_a? String
+0.step(10, 2) do |v|
+    puts v
+end

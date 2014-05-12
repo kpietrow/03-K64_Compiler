@@ -121,7 +121,8 @@ def main
 	$symbol_table.printout
 	puts "\n\n"
 	$symbol_table.analysis($symbol_table.root)
-	puts "\n\n"
+	puts "\n"
+	code_gen
 	
 end
 

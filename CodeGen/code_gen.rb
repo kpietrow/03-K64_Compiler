@@ -21,10 +21,11 @@ def code_gen
 	
 	generate($ast.root)
 	brk
+	print $static_table.entries
 	
 	$code.backpatch
 	$code.printout
-	
+	puts $code.printout
 	
 end
 
@@ -50,7 +51,7 @@ def generate (node)
 	when "declaration"
 		return generate_declaration(node)
 	when "assign"
-		return generate_declaration(node)
+		return generate_assignment(node)
 	when "print"
 		return generate_print(node)
 	when "+"
@@ -70,7 +71,6 @@ def generate (node)
 		return generate_string(node)
 	end
 	
-	puts "WHOAAAAA"
 
 end
 
@@ -129,7 +129,7 @@ end
 # Add symbol to static table
 #
 def generate_declaration (node)
-
+		
 	entry = $static_table.add(node.children[1].symbol)
 	lda("00")
 	sta(entry.address)
@@ -157,7 +157,7 @@ def generate_string (node)
 	# add string to heap
 	address = $code.add_string(node.name)
 	# load string's address
-	lda(hex_converter(address, 2))
+	lda(hex_converter(String(address), 2))
 end
 
 
@@ -170,12 +170,12 @@ def generate_print (node)
 	# string symbol
 	if child.token.type == "T_STRING" and child.symbol != nil
 		ldx("02")
-		ldy($static_table.get(child).address)
+		ldy($static_table.get(child.symbol).address)
 		sys
 	# normal string
 	elsif child.token.type == "T_STRING" and child.symbol != nil
 		address = $code.add_string(child.name)
-		lda(hex_converter(address, 2))
+		lda(hex_converter(String(address), 2))
 		sta
 		ldx("02")
 		ldy
@@ -247,22 +247,10 @@ end
 
 
 
-
-
-
-
-
-######################
-# 6502 instructions
-# Default address set to 'FF00'
-#
-default_address = "FF00"
-
-
 ######################
 # Add with carry
 # 
-def adc (input = default_address)
+def adc (input = "FF00")
 
 	if input.length > 2
 		$code.add("6D" + input)
@@ -280,9 +268,9 @@ end
 # If input length is 2, it's a constant
 # Else, id
 # 
-def lda (input = default_address)
+def lda (input = "FF00")
 
-	if input.length length > 2
+	if input.length > 2
 		$code.add("AD" + input)
 	else
 		
@@ -295,7 +283,7 @@ end
 ######################
 # Store accumulator
 #
-def sta (input = default_address)
+def sta (input = "FF00")
 	$code.add("8D" + input)
 end
 
@@ -303,7 +291,7 @@ end
 ######################
 # Load X register
 #
-def ldx (input = default_address)
+def ldx (input = "FF00")
 	
 	if input.length > 2
 		$code.add("AE" + input)
@@ -317,7 +305,7 @@ end
 ######################
 # Load Y register
 #
-def ldy (input = default_address)
+def ldy (input = "FF00")
 	
 	if input.length > 2
 		$code.add("AC" + input)
@@ -339,7 +327,7 @@ end
 ######################
 # Compare
 #
-def cpx (input = default_address)
+def cpx (input = "FF00")
 	$code.add("EC" + input)
 end
 
@@ -347,7 +335,7 @@ end
 ######################
 # Branch not equal
 #
-def bne (input = default_address)
+def bne (input = "FF00")
 	$code.add("D0" + input)
 end
 

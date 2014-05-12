@@ -17,7 +17,7 @@ end
 class CodeOverflowError < StandardError
 	def initialize
 		puts "ERROR: Too much code given for current block size."
-		end
+		exit
 	end
 end
 
@@ -29,19 +29,18 @@ end
 class Code
 
 	attr_accessor :code, :current_address, :heap, :heap_address
-
-	# main body of code
-	@code = []
-	@current_address = 0
-	
-	# the heap itself. will grow up, reflecting variables being
-	# added in at its end
-	@heap = []
-	
-	# end of the heap
-	@heap_address = 255
 	
 	def initialize
+		# main body of code
+		@code = Array.new
+		@current_address = 0
+	
+		# the heap itself. will grow up, reflecting variables being
+		# added in at its end
+		@heap = Array.new
+	
+		# end of the heap
+		@heap_address = 255
 	end
 	
 	def add (codes)
@@ -51,7 +50,7 @@ class Code
 				# Eliminate illegal characters. Not that there's anything
 				# wrong with something in the Verse being illegal, that is
 				code = code.gsub(/[^TJA-F0-9]/, "")
-				for i in 0...code.length
+			0.step(codes.length - 1, 2) do |i|
 					section = code[i..i+1]
 					section = prepad(section, 2, "0")
 					@code.push(section)
@@ -59,10 +58,14 @@ class Code
 				end
 			end
 		else
+			puts ")))))))"
+		print codes
+		puts "(((((((\n"
 			codes = codes.gsub(/[^TJA-F0-9]/, "")
-			for i in 0...codes.length
+			0.step(codes.length - 1, 2) do |i|
 				section = codes[i..i+1]
 				section = prepad(section, 2, "0")
+				puts "^" + section + "^"
 				@code.push(section)
 				@current_address += 1 
 			end
@@ -89,15 +92,16 @@ class Code
 		
 		for i in 0...@code.length
 			word = @code[i]
+			puts "*****" + word + "********"
 			
 			if /T/.match(word)
 				temp_address = word + @code[i + 1]
 				entry = $static_table.get(temp_address)
-				@code[i] = hex_converter((@current_address + entry.offset), 2)
+				@code[i] = prepad(String(@current_address + entry.offset), 2)
 				@code[i + 1] = "00"
 			elsif /J/.match(word)
 				entry = $jump_table.get(word)
-				this.code[i] = hex_converter(String(entry.distance), 2)
+				this.code[i] = prepad(String(entry.distance), 2)
 			end
 		end
 	end
@@ -107,15 +111,25 @@ class Code
 	
 		# copy @code
 		code = @code.map(&:dup)
+		puts code
 		
 		while code.length + @heap.length < 255
 			code.push("00")
 		end
 		
 		code = code.concat(@heap)
+		puts "--------------------"
+		puts code
 		
 		if code.length > 255
-			raise
+			raise CodeOverflowError.new
+		end
+		
+		for i in 0...code.length
+			print_string += code[i] + " "
+		end
+		
+		return print_string + " "
 	
 	end
 
@@ -150,10 +164,11 @@ end
 def hex_converter (string, prepad_amount = 0)
 
 	hex = ""
-	string = string.prepad(string, prepad_amount, '0')
-
+	string = prepad(string, prepad_amount, '0').upcase
+	
+	
 	string.each_byte do |char|
-		hex += (char.upcase).to_s(16)
+		hex += char.to_s(16)
 	end
 	
 	return hex
@@ -248,20 +263,23 @@ class StaticTable
 			raise SymbolRepeatError.new(symbol)
 		end
 		
-		address = "T" + (@temp_address + 1).to_s(16)
+		#address = "T" + hex_converter(String(@temp_address + 1), 3)
+		address = "T" + String(@temp_address + 1) + "00"
+
 		@temp_address += 1
-		entry = StableTableEntry.new(symbol, address, offset)
+		entry = StaticTableEntry.new(symbol, address, offset)
 		@offset += 1
-		entries[symbol.name] = entry
+		@entries[symbol.name] = @entries[address] = entry
 		return entry
 		
 	end
 	
 	def get (key)
-	
 		if key.is_a? SymbolEntry
+			puts "%%%%%%" + key.name + "%%%%%%%"
 			return @entries[key.name]
 		else
+			puts "&&&&&" + key + "&&&&&&&"
 			return @entries[key]
 		end
 		
