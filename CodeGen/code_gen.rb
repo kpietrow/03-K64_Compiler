@@ -63,7 +63,7 @@ def generate (node)
 end
 
 
-def generate_block(node)
+def generate_block (node)
 	for child in node.children
 		generate(child)
 	end
@@ -73,17 +73,126 @@ end
 ######################
 # Add symbol to static table
 #
-def generate_declaration(node)
+def generate_declaration (node)
 
-	
+	entry = $static_table.add(node.children[1].symbol)
+	lda("00")
+	sta(entry.address)
 
 end
+
+
+######################
+# Assign new value to symbol
+#
+def generate_assignment (node)
+
+	# right side
+	generate(node.children[1])
+
+	sta($static_table.get(node.children[0].symbol).address)
+
+end
+
+
+######################
+# Generates a string
+#
+def generate_string (node)
+	# add string to heap
+	address = $code.add_string(node.name)
+	# load string's address
+	lda(hex_converter(address, 2))
+end
+
+
+######################
+# Generate a print statement
+#
+def generate_print (node)
+	child = node.children[0]
+
+	# string symbol
+	if child.token.type == "T_STRING" and child.symbol != nil
+		ldx("02")
+		ldy($static_table.get(child).address)
+		sys
+	# normal string
+	elsif child.token.type == "T_STRING" and child.symbol != nil
+		address = $code.add_string(child.name)
+		lda(hex_converter(address, 2))
+		sta
+		ldx("02")
+		ldy
+		sys
+	else
+		generate(child)
+		ldx("01")
+		sta
+		ldy
+		sys
+		
+	end
+
+end
+
+
+def generate_add (node)
+
+	generate(node.children[1])
+	
+	
+	
+end
+
+A9 FA 8D 0B 00 AC 0B 00 A2 02 FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 70 6F 6F 70 00 00 
+
+A9 00 8D 11 00 A9 FB 8D 11 00 A2 02 AC 11 00 FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 70 6F 6F 70 00
+
+A9 FB 8D 0C 00 A2 02 AC 0C 00 FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 70 6F 6F 70 00
+
+def generate_id (node)
+
+	lda($static_table.get(node.symbol).address)
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ######################
 # 6502 instructions
 # Default address set to 'FF00'
 #
 default_address = "FF00"
+
+
+######################
+# Add with carry
+# 
+def adc (input = default_address)
+
+	if input.length > 2
+		$code.add("6D" + input)
+	else
+		sta
+		lda
+		adc
+	end
+
+end
 
 
 ######################
