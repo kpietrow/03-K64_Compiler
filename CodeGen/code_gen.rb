@@ -4,6 +4,15 @@
 # Starter function for code gen
 #
 
+class UnfinishedError < StandardError
+	def initialize (function)
+		puts "ERROR: '#{function}' isn't supported yet"
+		exit
+	end
+end
+
+
+
 def code_gen
 
 	$code = Code.new
@@ -44,7 +53,7 @@ def generate (node)
 	when "+"
 		return generate_add(node)
 	when "=="
-		return generate_equal(node)
+		return generate_equals(node)
 	when "!="
 		return generate_notequal(node)
 	end
@@ -140,10 +149,20 @@ end
 def generate_add (node)
 
 	generate(node.children[1])
-	
-	
+	adc(node.children[0].name)
 	
 end
+
+
+def generate_equals (node)
+	raise UnfinishedError.new("==")
+end
+
+
+def generate_notequal (node)
+	raise UnfinishedError.new("!=")
+end
+
 
 A9 FA 8D 0B 00 AC 0B 00 A2 02 FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 70 6F 6F 70 00 00 
 
@@ -158,9 +177,29 @@ def generate_id (node)
 end
 
 
+def generate_digit (node)
+
+	digit = prepad(Integer(node.name).to_s(16), 2, "0")
+	lda(digit)
+
+end
 
 
+def generate_boolean (node)
 
+	if (node.name == "true")
+		lda("01")
+		sta
+		ldx("01")
+		cpx
+	else
+		lda("00")
+		sta
+		ldx("01")
+		cpx
+	end
+
+end
 
 
 
@@ -205,6 +244,7 @@ def lda (input = default_address)
 	if input.length length > 2
 		$code.add("AD" + input)
 	else
+		
 		$code.add("A9" + input)
 	end
 

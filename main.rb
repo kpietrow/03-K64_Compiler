@@ -106,7 +106,7 @@ def main
 	$cst.printout
 	puts "\n\n\n"
 	
-	puts "Now we're doin' some calculations and conversions, trying to change that CST to a nice AST"
+	puts "Now we're doin' some calculations and conversions, trying to change that CST to a nice AST...\n\n"
 	
 	convert_cst
 	

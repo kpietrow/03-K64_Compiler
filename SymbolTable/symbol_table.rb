@@ -62,6 +62,9 @@ class SymbolTable
 	end
 	
 	def create_scope
+	
+		puts self.display_scope_path + "Creating new scope..."
+		
 		@global_scope_number += 1
 		new_scope = Scope.new(@global_scope_number)
 		new_scope.parent = @current_scope
@@ -73,6 +76,7 @@ class SymbolTable
 			@current_scope.children.push(new_scope)
 			@current_scope = new_scope
 		end
+		
 			
 	end
 	
@@ -118,11 +122,19 @@ class SymbolTable
 	
 		
 	def ascend
+		output = self.display_scope_path
+		if output.length > 3
+			output = output[0..output.length - 4]
+		else
+			output = ""
+		end
+		puts output + "Leaving a scope..."
+		
 		
 		if @current_scope != @root
 			@current_scope = @current_scope.parent
 		end
-		
+				
 	end
 	
 	
@@ -152,7 +164,26 @@ class SymbolTable
 		end
 	end
 	
-	
+	#######
+	# Displays the current scope path
+	#
+	def display_scope_path
+		
+		if @current_scope != nil
+			node = @current_scope
+			printout = String(node.scope_number) + "> "
+			
+			while node.parent != nil
+				node = node.parent
+				printout = String(node.scope_number) + "> " + printout
+			end
+			
+			return printout
+		else
+			return ""
+		end 
+		
+	end
 	
 	
 	def printout

@@ -33,7 +33,6 @@ end
 
 def traverse (node)
 
-	puts "----" + node.name + "----"
 	case node.name
 	# Program
 	when "Block"

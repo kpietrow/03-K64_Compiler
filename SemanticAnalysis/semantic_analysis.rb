@@ -50,6 +50,7 @@ def analyze (node)
 		when "block"
 			return analyze_block(node)
 		when "print"
+			puts $symbol_table.display_scope_path + "Analyzing print"
 			return analyze(node.children[0])
 		when "assign"
 			return analyze_assign(node)
@@ -86,7 +87,7 @@ end
 
 def analyze_block (node)
 
-	puts "Analyzing block"
+	puts $symbol_table.display_scope_path + "Analyzing block"
 
 	$symbol_table.create_scope
 	
@@ -101,7 +102,7 @@ end
 
 def analyze_assign (node)
 
-	puts "Analyzing assign"
+	puts $symbol_table.display_scope_path + "Analyzing assign"
 	
 	line = node.children[0].token.lineno
 	left_type = analyze(node.children[0])
@@ -121,7 +122,7 @@ end
 
 def analyze_declaration (node)
 
-	puts "Analyzing declaration"
+	puts $symbol_table.display_scope_path + "Analyzing declaration"
 
 	id = node.children[1].name
 	type = node.children[0].name
@@ -131,14 +132,12 @@ def analyze_declaration (node)
 	
 	# store that symbol for later
 	node.children[1].symbol = symbol
-	print "898989898 ->"
-	puts node.children[1].symbol
 	
 end
 
 def analyze_while (node)
 
-	puts "Analyzing while"
+	puts $symbol_table.display_scope_path + "Analyzing while"
 	
 	# ==
 	analyze(node.children[0])
@@ -150,7 +149,7 @@ end
 
 def analyze_if (node)
 	
-	puts "Analyzing if"
+	puts $symbol_table.display_scope_path + "Analyzing if"
 	
 	# ==
 	analyze(node.children[0])
@@ -162,7 +161,7 @@ end
 
 def analyze_op (node)
 
-	puts "Analyzing +"
+	puts $symbol_table.display_scope_path + "Analyzing '+'"
 
 	line = node.children[0].token.lineno
 	type_left = analyze(node.children[0])
