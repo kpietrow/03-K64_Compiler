@@ -4,8 +4,8 @@
 ###################################################
 # This is the tokenizer of the 03-K64 Compiler.
 # Crafted for Alan's 'Design Compilers' class,
-# narrated by her captain, and lovingly coded in
-# Ruby magic.
+# lovingly coded in Ruby magic, and narrated by
+# her captain.
 #
 #
 # Author: Kevin Pietrow
@@ -16,266 +16,203 @@
 #
 
 
-class UnknownTypeError < StandardError
-	def initialize (node)
-		puts "ERROR: Unknown type received. Location is approximately at Line: #{node.lineno} and Position #{node.pos}"
+class TypeMismatchError < StandardError
+	def initialize (type1, type2, line)
+		puts "ERROR: Recieved a type mismatch of type '#{type1}' and type '#{type2}' at line #{line + 1}"
 		exit
 	end
 end
 
-class TypeMismatchError < StandardError
-	def initialize (exp, received, token)
-		puts "ERROR: Exprected a type '#{exp}', but received a type '#{received} on Line #{token.lineno}"
+class UnexpectedTypeError < StandardError
+	def initialize (type1, type2, line)
+		puts "ERROR: Expected type '#{type2}', but received '#{type1}' at line #{line + 1}"
 		exit
 	end
 end
-		
-class MysteriousError < StandardError
-	def initialize
-		puts "ERROR: The worst has come to pass. Only the gods can help us now."
-		exit
-	end
-end
+
+
 
 
 
 def semantic_analysis
 
-	$ast = AbstractSyntaxTree.new
-	$st = SymbolTable.new
-	$index = 0
-
-	node_analyzer($cst.root)
-end
+	$symbol_table = SymbolTable.new
 	
-	
-def node_analyzer (node)
-	
-	if node.name == "Block"
-		match_block(node)
-		
-	elsif node.name == "VarDecl"
-		match_vardecl(node)
-		
-	elsif node.name == "AssignmentStatement"
-		match_assignment_statement(node)
-		
-	elsif node.name == "PrintStatement"
-		match_print_statement(node)
-		
-	elsif node.name == "WhileStatement"
-		match_while_statement(node)
-		
-	elsif node.name == "IfStatement"
-		match_if_statement(node)
-		
-	else
-		node.children.cycle(1) { |child| node_analyzer(child) }
-	end
+	analyze($ast.root)
 	
 end
 
 
-def match_block (node)
-	
-	puts String($index += 1) + " " + $st.c_scope + "Entering a new block, creating scope"
-	
-	$ast.add_branch("block")
-	$st.enter
-	node.children.cycle(1) { |child| node_analyzer(child) }
-	$st.exit
-	$ast.ascend
-	
-	puts String($index += 1) + " " + $st.c_scope + "Leaving block, exiting scope"
+def analyze (node)
 
-
-end
-
-def match_vardecl (node)
-
-	$ast.add_branch("declare")
-	$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
-	$ast.add_leaf(node.children[1].children[0].children[0].token.value, node.children[1].children[0].children[0].token)	
-	$ast.ascend
-	
-	$st.add_symbol(node.children[0].children[0].token.value, node.children[1].children[0].children[0].token.value, node.children[1].children[0].children[0], node.children[1].children[0].children[0].token)
-	
-	puts String($index += 1) + " " + $st.c_scope + "Declaration: Adding symbol: '" + node.children[1].children[0].children[0].token.value + "' of type: " + node.children[0].children[0].token.value
-	
-end
-
-def match_assignment_statement (node)
-
-	$ast.add_branch("assign")
-	
-	$ast.add_leaf(node.children[0].children[0].children[0].token.value, node.children[0].children[0].children[0].token)
-	match_expr(node.children[2])
-	
-	type = determine_type($ast.current)
-	$st.update_symbol(type, node.children[0].children[0].children[0].token.value, $ast.current, node.children[0].children[0].children[0].token, node.children[2])
-	
-	$ast.ascend
-	
-	puts String($index += 1) + " " + $st.c_scope + "Assignment: " + type + " to " + type
-
-end
-
-def match_if_statement (node)
-
-	puts String($index += 1) + " " + $st.c_scope + "If Statement encountered"
-
-	$ast.add_branch("if")
-	
-	match_booleanexpr(node)
-	match_block(node)
-	
-	$ast.ascend
-
-end
-
-def match_print_statement (node)
-
-	puts String($index += 1) + " " + $st.c_scope + "Print Statement encountered"
-	
-	$ast.add_branch("print")
-	match_expr(node.children[2])
-	$ast.ascend
-
-end
-
-def match_while_statement (node)
-
-	puts String($index += 1) + " " + $st.c_scope + "While Statement encountered"
-	
-	$ast.add_branch("while")
-	match_booleanexpr(node.children[1])
-	match_block(node.children[2])
-	$ast.ascend
-
-end
-
-
-def match_expr (node)
-	
-	if node.children[0].name == "IntExpr"
-		match_intexpr(node.children[0])
-				
-	elsif node.children[0].name == "StringExpr"
-		match_stringexpr(node.children[0])
-	
-	elsif node.children[0].name == "BooleanExpr"
-		match_booleanexpr(node.children[0])
-	
-	elsif node.children[0].name == "Id"
-		match_idexpr(node.children[0])
-	
-	else
-		raise UnknownNodeError.new(node.children[0])
-	end
-	
-end
-
-
-def match_intexpr (node)
-	
-	if node.children.length == 3
-		$ast.add_branch("+")
-		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
-		match_expr(node.children[2])
-		$ast.ascend
-
-	else 
-		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
-	end
-	
-end
-
-
-def match_stringexpr (node)
-
-	$ast.add_leaf(node.children[1].children[0].token.value, node.children[1].children[0].token)
-	
-end
-
-
-def match_booleanexpr (node)
-	
-	if node.children.length == 5
-		$ast.add_branch(node.children[2].children[0].token.value)
-		match_expr(node.children[1])
-		match_expr(node.children[3])
-		$ast.ascend
-	
-	else
-		for child in node.children
-			puts node
-		end
-		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
-	end
-
-end
-
-
-def match_idexpr (node)
-
-	puts String($index) + " " + $st.c_scope + "Checking existence of " + node.children[0].children[0].token.value 
-
-	if $st.scan_table_used(node.children[0].children[0].token.value)
-		$ast.add_leaf(node.children[0].children[0].token.value, node.children[0].children[0].token)
-		
-	else
-		raise SymbolTableUndeclaredError.new(node.children[0].children[0].token.value)
-	end
-
-end
-
-
-def determine_type (node)
-	
-	tester = ""
-	
-	if node.children[1].type == "leaf"
-		tester = node.children[1].name
-		
-	else
-			
-		def small_loop (node, tester)
-			
-			tester = tester + " " + node.name
-			for child in node.children
-				tester = small_loop(child, tester)
-			end
-			
-			return tester
+	if node.type == "branch"
+		case node.name
+		when "block"
+			return analyze_block(node)
+		when "print"
+			puts $symbol_table.display_scope_path + "Analyzing print"
+			return analyze(node.children[0])
+		when "assign"
+			return analyze_assign(node)
+		when "declaration"
+			return analyze_declaration(node)
+		when "while"
+			return analyze_while(node)
+		when "if"
+			return analyze_if(node)
+		when "+"
+			return analyze_op(node)
+		when "=="
+			return analyze_boolop(node)
+		when "!="
+			return analyze_boolop(node)
 		end
 		
-		tester = small_loop(node.children[1], tester)
-	end
-
-	tester = tester.scan(/\w+/)
-	
-	for sequence in tester
-		if /\b==\b/.match(sequence) or /\btrue\b/.match(sequence) or /\bfalse\b/.match(sequence) and sequence.length > 2
-			return "boolean"
-			
-		elsif /\b[a-z]\b/.match(sequence)
-			if $st.scan_table_used(sequence)
-				type = $st.retrieve_type(sequence)
-				return type
-					
-			else
-				return "string"
-			end
-		elsif /[a-z]/.match(sequence)
+	else
+		case node.token.type
+		when "T_STRING"
 			return "string"
-		elsif /[0-9]/.match(sequence) or (/[+]/.match(sequence) and sequence.length > 1)
+		when "T_DIGIT"
 			return "int"
-		else
-			raise UnknownTypeError.new(node.parent.children[0])
+		when "T_BOOLEAN"
+			return "boolean"
+		when "T_ID"
+			return analyze_id(node)
 		end
+		
 	end
+	
 end
+
+
+def analyze_block (node)
+
+	puts $symbol_table.display_scope_path + "Analyzing block"
+
+	$symbol_table.create_scope
 	
+	for child in node.children
+		analyze(child)
+	end
 	
+	$symbol_table.ascend
+
+end
+
+
+def analyze_assign (node)
+
+	puts $symbol_table.display_scope_path + "Analyzing assign"
 	
+	line = node.children[0].token.lineno
+	left_type = analyze(node.children[0])
+	right_type = analyze(node.children[1])
 	
+	if left_type != right_type
+		TypeMismatchError.new(left_type, right_type, line)
+	end
+	
+	# set symbol as initialized
+	symbol = $symbol_table.get_symbol(node.children[0].name, node.children[0].token.lineno)
+	symbol.is_initialized = true
+	
+	return left_type
+end
+
+
+def analyze_declaration (node)
+
+	puts $symbol_table.display_scope_path + "Analyzing declaration"
+
+	id = node.children[1].name
+	type = node.children[0].name
+	
+	$symbol_table.add_symbol(id, type, node.children[1].token.lineno)
+	symbol = $symbol_table.get_symbol(id, node.children[1].token.lineno)
+	
+	# store that symbol for later
+	node.children[1].symbol = symbol
+	
+end
+
+def analyze_while (node)
+
+	puts $symbol_table.display_scope_path + "Analyzing while"
+	
+	# ==
+	analyze(node.children[0])
+	# block
+	analyze(node.children[1])
+
+end
+
+
+def analyze_if (node)
+	
+	puts $symbol_table.display_scope_path + "Analyzing if"
+	
+	# ==
+	analyze(node.children[0])
+	# block
+	analyze(node.children[1])
+	
+end
+
+
+def analyze_op (node)
+
+	puts $symbol_table.display_scope_path + "Analyzing '+'"
+
+	line = node.children[0].token.lineno
+	type_left = analyze(node.children[0])
+	
+	if type_left != "int"
+		raise UnexpectedTypeError.new(type_left, "int", line)
+	end
+	
+	type_right = analyze(node.children[1])
+	
+	if type_right != "int"
+		raise UnexpectedTypeError.new(type_right, "int", line)
+	end
+
+	return type_right
+
+end
+
+
+def analyze_boolop (node)
+	
+	line = node.children[0].token.lineno
+	type_left = analyze(node.children[0])
+	type_right = analyze(node.children[1])
+	
+	# Only thing we have to test for is right/left side equality
+	# Our grammar can compare ints, strings, and bools
+	if type_left != type_right
+		raise TypeMismatchError.new(type_left, type_right, line)
+	end
+	
+	return "boolean"
+
+end
+
+
+def analyze_id (node)
+
+	symbol = $symbol_table.get_symbol(node.name, node.token.lineno)
+	
+	if node.parent.name == "assign" and node == node.parent.children[0]
+	else
+		if !symbol.is_initialized
+			raise SymbolTableUninitialzedIdUseError.new(node.name, node.token.lineno)
+		end
+		
+		symbol.is_used = true
+	end
+	
+	node.symbol = symbol
+	
+	return symbol.type
+
+end

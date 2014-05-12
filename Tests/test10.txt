@@ -1,0 +1,14 @@
+{
+	int a
+	a = 1
+	int b
+	b = 1 + a
+	string c
+	string d
+	string f
+	f = "hi"
+	string y
+	y = "hello"
+	string x
+	x = y
+}$

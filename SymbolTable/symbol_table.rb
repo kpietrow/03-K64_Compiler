@@ -3,33 +3,40 @@
 # Works with the symbol table
 
 class SymbolTableRepeatError < StandardError
-	def initialize (id, token)
-		puts "ERROR: ID '#{id}' was declared twice in the same scope. The source code location is Line: #{token.lineno + 1}"
+	def initialize (id, line)
+		puts "ERROR: ID '#{id}' was declared twice in the same scope. The source code location is Line: #{line + 1}"
 		exit
 	end
 end
 
 class SymbolTableUndeclaredError < StandardError
-	def initialize (id, token)
-		puts "ERROR: ID '#{id}' was used without being previously declared. The source code location is Line: #{token.lineno + 1}"
+	def initialize (id, line)
+		puts "ERROR: ID '#{id}' was used without being previously declared. The source code location is Line: #{line + 1}"
+		exit
+	end
+end
+
+class SymbolTableUninitialzedIdUseError < StandardError
+	def initialize (id, line)
+		puts "ERROR: ID '#{id}' was used on Line: #{line + 1} without prior initialization"
 		exit
 	end
 end
 
 class SymbolTableReassignmentTypeMismatchError < StandardError
-	def initialize (e_type, r_type, id, token)
-		puts "ERROR: ID '#{id}' was reassigned using the wrong type, a(n) '#{r_type}' instead of a(n) '#{e_type}'. The source code's location is Line: #{token.lineno + 1}"
+	def initialize (e_type, r_type, id, line)
+		puts "ERROR: ID '#{id}' was reassigned using the wrong type, a(n) '#{r_type}' instead of a(n) '#{e_type}'. The source code's location is Line: #{line + 1}"
 		exit
 	end
 end
 
-class UnusedIdentifierError < StandardError
+class UnusedIdentifierWarning < StandardError
 	def initialize (type, id, scope)
 		puts "WARNING: The ID '#{type}:#{id}' was initialized in scope #{scope}, but never used"
 	end
 end
 
-class UninitializedIdentifierError < StandardError
+class UninitializedIdentifierWarning < StandardError
 	def initialize (type, id, scope)
 		puts "WARNING: The ID '#{type}:#{id}' was created in scope #{scope}, but never initialized"
 	end
@@ -42,175 +49,168 @@ end
 # This mostly just manages the Scope instances
 #
 class SymbolTable
-		
+	
+	@global_scope_number = nil
 	@root = nil
 	@current_scope = nil
-	@@current_scope_number = nil
+
 	
-	def initialize 
-		@@current_scope_number = nil
+	def initialize
+		@global_scope_number = -1
+		@current_scope = nil
+		@root = nil
 	end
 	
-	# returns a new layer of scope
-	def enter 
+	def create_scope
+	
+		puts self.display_scope_path + "Creating new scope..."
 		
-		if @root == nil
-			@@current_scope_number = 0
-			new_scope = Scope.new(@@current_scope_number)
+		@global_scope_number += 1
+		new_scope = Scope.new(@global_scope_number)
+		new_scope.parent = @current_scope
+		
+		if @global_scope_number == 0
 			@root = new_scope
 			@current_scope = @root
+		else
+			@current_scope.children.push(new_scope)
+			@current_scope = new_scope
+		end
+		
+			
+	end
+	
+	def add_symbol (name, type, line)
+		
+		symbol = SymbolEntry.new(name, type, line, @current_scope.scope_number)
+		
+		if @current_scope.symbols[name]
+			raise SymbolTableRepeatError.new(name, line)
 			
 		else
-			@@current_scope_number += 1
-			@current_scope = @current_scope.enter(@@current_scope_number, @current_scope)
+			@current_scope.add(name, symbol)
 		end
+	
 	end
 	
-	def exit 
-		@current_scope = @current_scope.parent
-		@@current_scope_number -= 1
-	end
+	def get_symbol (name, line)
 	
-	def add_symbol (type, id, ast_node, token)
-		@current_scope.add_symbol(type, id, ast_node, token)
-	end
-	
-	def update_symbol (type, id, ast_node, token, cst_node)
-		@current_scope.update_symbol(type, id, ast_node, token)
-	end
-	
-	def scan_table_used (id)
-
-		def small_loop(current_scope, id)
-			if current_scope.symbols.has_key?(id)
-				current_scope.symbols[id].is_used = true
-				return true
-			elsif current_scope == @root
-				return false
+		scope = @current_scope
+		
+		while scope
+			symbol = scope.symbols[name]
+			
+			if symbol
+				return symbol
 			else
-				scan_table_used(current_scope.parent, id)
+				scope = scope.parent
 			end
 		end
-
-		small_loop(@current_scope, id)
+		
+		raise SymbolTableUndeclaredError.new(name, line)
+		
 	end
 	
-	def retrieve_type (id)
-
-		def small_loop(current_scope, id)
-			if current_scope.symbols.has_key?(id)
-				current_scope.symbols[id].is_used = true
-				return current_scope.symbols[id].type
-			elsif current_scope == @root
-				return false
-			else
-				retrieve_type(current_scope.parent, id)
-			end
-		end
-
-		small_loop(@current_scope, id)
+	
+	def current_scope
+		@current_scope
 	end
 	
+	def root
+		@root
+	end
 	
 		
-	def raw_print 
+	def ascend
+		output = self.display_scope_path
+		if output.length > 3
+			output = output[0..output.length - 4]
+		else
+			output = ""
+		end
+		puts output + "Leaving a scope..."
+		
+		
+		if @current_scope != @root
+			@current_scope = @current_scope.parent
+		end
+				
+	end
+	
+	
+	def analysis (node)
+	
+		symbols = node.symbols
+		
+		for symbol in symbols
+			symbol = symbol[1]
+			
+			if !symbol.is_initialized
+				begin
+					raise UninitializedIdentifierWarning.new(symbol.type, symbol.name, node.scope_number)
+				rescue UninitializedIdentifierWarning
+				end
+			elsif !symbol.is_used
+				begin
+					raise UnusedIdentifierWarning.new(symbol.type, symbol.name, node.scope_number)
+				rescue UnusedIdentifierWarning
+				end
+			end
+			
+			for child in node.children
+				analysis(child)
+			end
+			
+		end
+	end
+	
+	#######
+	# Displays the current scope path
+	#
+	def display_scope_path
+		
+		if @current_scope != nil
+			node = @current_scope
+			printout = String(node.scope_number) + "> "
+			
+			while node.parent != nil
+				node = node.parent
+				printout = String(node.scope_number) + "> " + printout
+			end
+			
+			return printout
+		else
+			return ""
+		end 
+		
+	end
+	
+	
+	def printout
 
 		puts "The symbol tables of the various scopes: "
 
 		def child_loop (scope)
-			print "{"
-			scope.symbols.each {|child| 
-				print "#{child[1].type}:#{child[1].id} "
-			}
-			print "}"
+			if scope.symbols.length > 0
+				print "{" + String(scope.scope_number) + "| "
+				scope.symbols.each {|child| 
+					print "#{child[1].type}:#{child[1].name} "
+				}
+				print "} "
+			end
+			
 			scope.children.each {|child| child_loop(child)}
 		end
 
 		child_loop(@root)
 
 	end
-		
-		
 	
-	def c_scope
-		if @@current_scope_number != nil
-			
-			printable = ""
-			for i in 0..@@current_scope_number
-				printable = printable + String(i) + "-> "
-			end
-			return printable
-		else
-			return ""
-		end
-	end
 	
-	def analysis 
-		
-		puts "Analyzing the symbol table: "
-		
-		def child_loop (scope, scope_num)
-			scope.symbols.each {|child| 
-				if !child[1].is_initialized
-					begin
-						raise UninitializedIdentifierError.new(child[1].type, child[1].id, scope_num)
-					rescue UninitializedIdentifierError
-					end
-				end
-				if !child[1].is_used and child[1].is_initialized
-					begin
-						raise UnusedIdentifierError.new(child[1].type, child[1].id, scope_num)
-					rescue UnusedIdentifierError
-					end
-				end
-			}
-			scope.children.each {|child| child_loop(child, scope_num + 1)}
-		end
-		
-		child_loop(@root, 0)
-		
-	end
+	
 	
 end
 
-
-##
-# Creates instances of Symbol
-# Created to reduce complexity of long arrays
-#
-class SymbolEntry
-	
-	attr_accessor :is_used, :is_initialized
-	attr_reader :type, :id, :token, :ast_node
-	
-	@type = nil
-	@id = nil
-	@ast_node = nil
-	@token = nil
-	@is_used = false
-	@is_initialized = false
-	
-	def initialize (type, id, ast_node, token)
-		
-		@type = type
-		@id = id
-		@ast_node = ast_node
-		@token = token
-		
-	end
-	
-	def update_symbol (ast_node, token)
-		
-		@ast_node = ast_node
-		@token = token
-
-	end
-	
-	def id
-		@id
-	end
-	
-end
 
 ##
 # Creates Scope instances
@@ -218,70 +218,65 @@ end
 #
 class Scope
 
-	attr_accessor :children, :symbols
-	attr_reader :parent, :test
+	attr_accessor :symbols, :parent, :children
+	attr_reader :scope_number
 
-	@parent = nil
-	@children = []
+	@scope_number = nil
 	@symbols = nil
-	@scope_number = 0
+	@children = []
+	@parent = nil
 	
-	def initialize (current_scope_number, parent = nil)
-		@scope_number = current_scope_number
+	def initialize (number)
+		@scope_number = number
 		@symbols = Hash.new
-		@parent = parent
 		@children = []
 	end
 	
-	# add symbol to symbols table
-	def add_symbol (type, id, ast_node, token)
+	def add (name, symbol)
+		@symbols[name] = symbol
+	end
+	
+	def get (name)
 		
-		if !@symbols.has_key?(token.value)
-			@symbols[id] = SymbolEntry.new(type, id, ast_node, token)
-		
-		# raise error on already defined id's	
+		if @symbols[name]
+			return @symbols[name]
 		else
-			raise SymbolTableRepeatError.new(id, token)
+			return nil
 		end
 		
-	end
-	
-	def update_symbol (expected_type, id, ast_node, token)
-		if @symbols.has_key?(id) and @symbols[id].type == expected_type
-			@symbols[id].update_symbol(ast_node, token)
-			@symbols[id].is_initialized = true
-		else
-			symbol = scan_table(id, token)
-			if symbol.type == expected_type
-				@symbols[id] = SymbolEntry.new(expected_type, id, ast_node, token)
-				@symbols[id].is_initialized = true
-			else
-				raise SymbolTableReassignmentTypeMismatchError.new(symbol.type, expected_type, id, token)
-			end
-		end
-	end
-	
-	def scan_table (id, token)
-		
-		def small_loop(scope, id, token)
-			if scope.symbols.has_key?(id)
-				return scope.symbols[id]
-			elsif scope.parent == nil
-				raise SymbolTableUndeclaredError.new(id, token)
-			else
-				small_loop(scope.parent, id, token)
-			end
-		end
-		
-		return small_loop(self, id, token)
-	end
-	
-	
-	def enter (current_scope_number, current)
-		new_scope = Scope.new(current_scope_number, current)
-		@children.push(new_scope)
-		return new_scope
 	end
 	
 end	
+
+
+
+##
+# Creates instances of Symbol
+# Created to reduce complexity of long arrays
+#
+class SymbolEntry
+
+	attr_reader :name, :type, :line, :scope_level
+	attr_accessor :is_used, :is_initialized
+
+	@name = nil
+	@type = nil
+	@line = nil
+	@scope_level = nil
+	@is_used = false
+	@is_initialized = false
+	
+	def initialize  (name, type, line, scope_level)
+		@name = name
+		@type = type
+		@line = line
+		@scope_level = scope_level
+		
+		@is_used = false
+		@is_initialized = false
+	end
+
+end
+
+
 	

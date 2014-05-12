@@ -1,0 +1,17 @@
+{
+	string a
+	a = "hi"
+	{
+		int b
+		b = 3
+		
+		{
+			boolean c
+			c = false
+		}
+		
+		string d
+		d = "awesome"
+	}
+}
+$

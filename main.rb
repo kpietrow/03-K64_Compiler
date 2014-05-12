@@ -26,6 +26,9 @@ require './SemanticAnalysis/semantic_analysis.rb'
 require './SyntaxTrees/cst.rb'
 require './SyntaxTrees/ast.rb'
 require './SyntaxTrees/node.rb'
+require './SyntaxTrees/cst_converter.rb'
+require './CodeGen/code_gen.rb'
+require './CodeGen/code_gen_helpers.rb'
 
 # Error for a blank file of input
 class BlankFileError < StandardError
@@ -100,17 +103,25 @@ def main
 	parser(token_stream)
 	puts "\n\nParsing successful. We've got ourselves a nice parse stream and symbol table now.\n\n"
 	
-	$cst.raw_print
+	$cst.printout
 	puts "\n\n\n"
 	
+	puts "Now we're doin' some calculations and conversions, trying to change that CST to a nice AST...\n\n"
+	
+	convert_cst
+	
+	puts "Printing out that AST now"
+	$ast.printout
+	puts "\n\n"
+	
 	puts "We're gonna begin the semantic analysis now.\n\n"
+	
 	semantic_analysis
 	puts "\n\n"
-	$ast.raw_print
+	$symbol_table.printout
 	puts "\n\n"
-	$st.raw_print
+	$symbol_table.analysis($symbol_table.root)
 	puts "\n\n"
-	$st.analysis
 	
 end
 
