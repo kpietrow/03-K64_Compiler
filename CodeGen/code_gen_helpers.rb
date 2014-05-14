@@ -58,14 +58,10 @@ class Code
 				end
 			end
 		else
-			puts ")))))))"
-		print codes
-		puts "(((((((\n"
 			codes = codes.gsub(/[^TJA-F0-9]/, "")
 			0.step(codes.length - 1, 2) do |i|
 				section = codes[i..i+1]
 				section = prepad(section, 2, "0")
-				puts "^" + section + "^"
 				@code.push(section)
 				@current_address += 1 
 			end
@@ -77,8 +73,10 @@ class Code
 	
 		@heap.unshift("00")
 		
-		string.length.downto(0) do |i|
-			@heap.unshift(hex_converter(string, 2)) 
+		string = string.reverse
+		
+		string.each_byte do |char|
+			@heap.unshift(hex_converter(char, 2)) 
 		end
 		
 		@heap_address -= string.length + 1
@@ -96,12 +94,13 @@ class Code
 			
 			if /T/.match(word)
 				temp_address = word + @code[i + 1]
+				puts "-----" + temp_address + "-----"
 				entry = $static_table.get(temp_address)
-				@code[i] = prepad(String(@current_address + entry.offset), 2)
+				@code[i] = hex_converter(@current_address + entry.offset, 2)
 				@code[i + 1] = "00"
 			elsif /J/.match(word)
 				entry = $jump_table.get(word)
-				this.code[i] = prepad(String(entry.distance), 2)
+				this.code[i] = hex_converter(entry.distance, 2)
 			end
 		end
 	end
@@ -111,7 +110,6 @@ class Code
 	
 		# copy @code
 		code = @code.map(&:dup)
-		puts code
 		
 		while code.length + @heap.length < 255
 			code.push("00")
@@ -125,11 +123,12 @@ class Code
 			raise CodeOverflowError.new
 		end
 		
-		for i in 0...code.length
+		print_string = ""
+		for i in 0...(code.length)
 			print_string += code[i] + " "
 		end
 		
-		return print_string + " "
+		return print_string + "00"
 	
 	end
 
@@ -161,15 +160,11 @@ def pad (string, length, character = " ")
 
 end
 
-def hex_converter (string, prepad_amount = 0)
-
-	hex = ""
-	string = prepad(string, prepad_amount, '0').upcase
+def hex_converter (number, prepad_amount = 0)
+	puts number
+	hex = number.to_s(16)
 	
-	
-	string.each_byte do |char|
-		hex += char.to_s(16)
-	end
+	hex = prepad(hex.upcase, prepad_amount, '0')
 	
 	return hex
 
@@ -263,8 +258,8 @@ class StaticTable
 			raise SymbolRepeatError.new(symbol)
 		end
 		
-		#address = "T" + hex_converter(String(@temp_address + 1), 3)
-		address = "T" + String(@temp_address + 1) + "00"
+		#address = "T" + hex_converter(@temp_address + 1, 3)
+		address = "T" + hex_converter(@temp_address) + "00"
 
 		@temp_address += 1
 		entry = StaticTableEntry.new(symbol, address, offset)
@@ -276,10 +271,8 @@ class StaticTable
 	
 	def get (key)
 		if key.is_a? SymbolEntry
-			puts "%%%%%%" + key.name + "%%%%%%%"
 			return @entries[key.name]
 		else
-			puts "&&&&&" + key + "&&&&&&&"
 			return @entries[key]
 		end
 		

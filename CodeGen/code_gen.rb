@@ -21,7 +21,6 @@ def code_gen
 	
 	generate($ast.root)
 	brk
-	print $static_table.entries
 	
 	$code.backpatch
 	$code.printout
@@ -102,7 +101,7 @@ def generate_while (node)
 	sta
 	ldx("01")
 	cpx
-	bne(hex_converter(String(256 - ($code.current_address - address + 2)), 2))
+	bne(hex_converter(256 - ($code.current_address - address + 2), 2))
 	
 	$jump_table.set_last($code.current_address)
 	
@@ -154,10 +153,11 @@ end
 # Generates a string
 #
 def generate_string (node)
+	puts "====== gen string ======="
 	# add string to heap
 	address = $code.add_string(node.name)
 	# load string's address
-	lda(hex_converter(String(address), 2))
+	lda(hex_converter(address, 2))
 end
 
 
@@ -166,21 +166,29 @@ end
 #
 def generate_print (node)
 	child = node.children[0]
+		puts "====== gen string ======="
+
 
 	# string symbol
-	if child.token.type == "T_STRING" and child.symbol != nil
+	if child.symbol != nil and child.symbol.type == "string"
+			puts "====== gen print symbol string ======="
+
 		ldx("02")
 		ldy($static_table.get(child.symbol).address)
 		sys
 	# normal string
-	elsif child.token.type == "T_STRING" and child.symbol != nil
+	elsif child.token.type == "T_STRING" and child.symbol == nil
+			puts "====== gen print non symbol string ======="
+
 		address = $code.add_string(child.name)
-		lda(hex_converter(String(address), 2))
+		lda(hex_converter(address, 2))
 		sta
 		ldx("02")
 		ldy
 		sys
 	else
+			puts "====== gen print non string ======="
+
 		generate(child)
 		ldx("01")
 		sta
@@ -212,6 +220,7 @@ end
 
 
 def generate_id (node)
+	puts "====== gen id ======="
 
 	lda($static_table.get(node.symbol).address)
 

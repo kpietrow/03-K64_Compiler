@@ -1,14 +1,7 @@
 { 
-	print(true)
-	{
-		print("a temporary test")
-		{
-			string a
-			a = "h"
-		}
-		int b
-		b = 1 + 3
-		boolean c
-		c = true
-	}
+	print("a")
+	
+	string b
+	b = "hi"
+	print(b)
 }$
