@@ -1,6 +1,0 @@
-{
-	string b
-	b = "this _ is faulty"
-	
-	print ( b )
-}
