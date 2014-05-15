@@ -209,7 +209,21 @@ end
 
 
 def generate_equals (node)
-	raise UnfinishedError.new("==")
+	if node.children[0].name == "==" or node.children[1].name == "=="
+		raise UnfinishedError.new("nesting =='s")
+	elsif node.children[0].name == "!=" or node.children[1].name == "!="
+		raise UnfinishedError.new("nesting !='s")
+	else
+		# left
+		generate(node.children[0])
+		sta
+		ldx
+		# right
+		generate(node.children[1])
+		sta
+		cpx
+	end
+
 end
 
 
@@ -265,7 +279,7 @@ def adc (input = "FF00")
 		$code.add("6D" + input)
 	else
 		sta
-		lda
+		lda(input)
 		adc
 	end
 

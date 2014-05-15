@@ -100,7 +100,7 @@ class Code
 				@code[i + 1] = "00"
 			elsif /J/.match(word)
 				entry = $jump_table.get(word)
-				this.code[i] = hex_converter(entry.distance, 2)
+				@code[i] = hex_converter(entry.distance, 2)
 			end
 		end
 	end
@@ -183,19 +183,23 @@ class JumpTable
 	@entries = {}
 	@num_entries = 0
 	
-	def initialization
+	def initialize
+		@temp_address = 0
+		@last_entries = []
+		@entries = {}
+		@num_entries = 0
 	end
 	
 	def add (current_address)
-	
-		if temp_address > 9
+		puts @temp_address
+		if @temp_address > 9
 			raise JumpTableError.new
 		end
 		
 		address = "J" + String(@temp_address)
 		jump = JumpTableEntry.new(current_address, address)
 		@temp_address += 1
-		@last.entries.push(jump)
+		@last_entries.push(jump)
 		@entries[address] = jump
 		return jump
 	

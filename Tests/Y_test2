@@ -4,4 +4,20 @@
 	string b
 	b = "hi"
 	print(b)
+	
+	int c
+	int d
+	c = 2
+	d = 4 + c
+	if (d == 6) {
+		print(c)
+	}
+	if true {
+		print("true yes")
+	}
+	if false {
+		print("false no")
+	}
+	print(3)
+	print(d)
 }$
