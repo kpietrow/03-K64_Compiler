@@ -24,6 +24,12 @@ def code_gen
 	
 	$code.backpatch
 	$code.printout
+	
+	puts "\n==================================================================="
+	puts "And here we have our nice payout! Thank you for flying with our 03-K64 Compiler, and I'd like you to know we consider you one of our crew. Have a shiny day!"
+	puts "===================================================================\n\n"
+
+	
 	puts $code.printout
 	
 end
@@ -78,6 +84,7 @@ end
 # Handles block nodes
 #
 def generate_block (node)
+	puts "Generating a nice block..."
 	for child in node.children
 		generate(child)
 	end
@@ -89,6 +96,9 @@ end
 #
 def generate_while (node)
 
+	puts "Generating a nice while loop..."
+
+	
 	# Comparison
 	address = $code.current_address
 	generate(node.children[0])
@@ -114,6 +124,9 @@ end
 #
 def generate_if (node)
 
+	puts "Generating a nice if statement..."
+
+
 	generate(node.children[0])
 	entry = $jump_table.add($code.current_address)
 	bne(entry.address)
@@ -128,6 +141,9 @@ end
 # Add symbol to static table
 #
 def generate_declaration (node)
+
+	puts "Generating a nice declaration..."
+
 		
 	entry = $static_table.add(node.children[1].symbol)
 	lda("00")
@@ -141,6 +157,9 @@ end
 #
 def generate_assignment (node)
 
+	puts "Generating a nice assignment..."
+
+
 	# right side
 	generate(node.children[1])
 
@@ -153,7 +172,9 @@ end
 # Generates a string
 #
 def generate_string (node)
-	puts "====== gen string ======="
+
+	puts "Generating a nice string..."
+	
 	# add string to heap
 	address = $code.add_string(node.name)
 	# load string's address
@@ -166,19 +187,17 @@ end
 #
 def generate_print (node)
 	child = node.children[0]
-		puts "====== gen string ======="
-
 
 	# string symbol
 	if child.symbol != nil and child.symbol.type == "string"
-			puts "====== gen print symbol string ======="
+			puts "Generating a nice print with a string symbol..."
 
 		ldx("02")
 		ldy($static_table.get(child.symbol).address)
 		sys
 	# normal string
-	elsif child.token.type == "T_STRING" and child.symbol == nil
-			puts "====== gen print non symbol string ======="
+	elsif child.token != nil and child.token.type == "T_STRING" and child.symbol == nil
+			puts "Generating a nice print with a string..."
 
 		address = $code.add_string(child.name)
 		lda(hex_converter(address, 2))
@@ -187,7 +206,7 @@ def generate_print (node)
 		ldy
 		sys
 	else
-			puts "====== gen print non string ======="
+		puts "Generating a nice print with a non-string..."
 
 		generate(child)
 		ldx("01")
@@ -209,6 +228,7 @@ end
 
 
 def generate_equals (node)
+
 	if node.children[0].name == "==" or node.children[1].name == "=="
 		raise UnfinishedError.new("nesting =='s")
 	elsif node.children[0].name == "!=" or node.children[1].name == "!="
@@ -234,7 +254,6 @@ end
 
 
 def generate_id (node)
-	puts "====== gen id ======="
 
 	lda($static_table.get(node.symbol).address)
 

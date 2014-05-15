@@ -126,24 +126,6 @@ end
 
 
 ###############################
-# The all-important parser
-# This will control the ascent and descent of the 
-# nodes in the CST, and will help to structure the program
-#
-# NOTE: This method is currently deprecated
-#
-def parse (name_of_next_step, next_step)
-	
-	puts "----------" + name_of_next_step + "------------"
-	
-	$cst.add_branch(name_of_next_step)
-	
-	next_step
-	
-end
-
-
-###############################
 # Program ::== Block $
 #
 def program 

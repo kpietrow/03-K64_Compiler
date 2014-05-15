@@ -90,11 +90,9 @@ class Code
 		
 		for i in 0...@code.length
 			word = @code[i]
-			puts "*****" + word + "********"
 			
 			if /T/.match(word)
 				temp_address = word + @code[i + 1]
-				puts "-----" + temp_address + "-----"
 				entry = $static_table.get(temp_address)
 				@code[i] = hex_converter(@current_address + entry.offset, 2)
 				@code[i + 1] = "00"
@@ -116,8 +114,6 @@ class Code
 		end
 		
 		code = code.concat(@heap)
-		puts "--------------------"
-		puts code
 		
 		if code.length > 255
 			raise CodeOverflowError.new
@@ -161,7 +157,6 @@ def pad (string, length, character = " ")
 end
 
 def hex_converter (number, prepad_amount = 0)
-	puts number
 	hex = number.to_s(16)
 	
 	hex = prepad(hex.upcase, prepad_amount, '0')
@@ -191,7 +186,6 @@ class JumpTable
 	end
 	
 	def add (current_address)
-		puts @temp_address
 		if @temp_address > 9
 			raise JumpTableError.new
 		end

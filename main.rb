@@ -121,7 +121,8 @@ def main
 	$symbol_table.printout
 	puts "\n\n"
 	$symbol_table.analysis($symbol_table.root)
-	puts "\n"
+	puts "\n\n"
+	puts "And now we're on to Code Generation. Here we might experience some turbulence, and possibly explode. So strap in!\n\n"
 	code_gen
 	
 end
