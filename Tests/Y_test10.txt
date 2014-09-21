@@ -6,7 +6,7 @@
 	int c
 	c = 0
 	
-	while (a == b) {
+	while false {
 		c = 1 + c
 		if (c == 5) {
 			a = c
