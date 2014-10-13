@@ -17,4 +17,4 @@ ex: $ ruby main.rb Test/test1.txt
 
 
 
-Pre-made test cases can be found in the ./Test/ folder. File names beginning with 'Y' will be successful, and file names that begin in 'N' will not (or so I hope).
+Pre-made test cases can be found in the ./Test/ folder. File names beginning with 'Y' will be successful, and file names that begin in 'N' will not (or so is the hope).
