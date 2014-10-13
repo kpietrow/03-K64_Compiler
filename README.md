@@ -6,7 +6,7 @@ This project is a compiler, written in Ruby, that converts a simple grammer to 6
 The grammer currently being used: https://drive.google.com/file/d/0B5JQ1YBMgVxnbUppX1EtNVJjQk0/edit?usp=sharing
 
 
-As of now, the Lexer, Parser, Semantic Analysis, Tree Generation, and Code Generation is complete. Excellent!
+As of now, the Lexer, Parser, Semantic Analysis, Tree Generation, and Code Generation are complete. Excellent!
 
 
 To run the compiler, run this command in the terminal:
